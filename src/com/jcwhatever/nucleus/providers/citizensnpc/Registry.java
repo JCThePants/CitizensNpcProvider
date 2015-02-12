@@ -88,7 +88,7 @@ public class Registry implements INpcRegistry {
         _dataStore = new DataNodeNPCStore(dataNode);
         _traits = new NpcTraitRegistry(CitizensProvider.getInstance().getTraitRegistry());
 
-        _registry = CitizensAPI.createAnonymousNPCRegistry(_dataStore);
+        _registry = CitizensAPI.createNamedNPCRegistry(plugin.getName() + ':' + name, _dataStore);
     }
 
     public DataNodeNPCStore getDataStore() {
