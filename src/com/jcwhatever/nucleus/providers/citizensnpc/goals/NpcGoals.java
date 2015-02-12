@@ -94,6 +94,25 @@ public class NpcGoals implements INpcGoals {
     }
 
     @Override
+    public boolean isRunning() {
+        return _controller.isExecutingGoal();
+    }
+
+    @Override
+    public INpcGoals pause() {
+        _controller.setPaused(true);
+
+        return this;
+    }
+
+    @Override
+    public INpcGoals resume() {
+        _controller.setPaused(false);
+
+        return this;
+    }
+
+    @Override
     public INpcGoals setGoal(INpcGoal goal) {
 
         GoalSelector selector = _selectorStack.peek();

@@ -60,4 +60,9 @@ public class InventoryTraitType extends NpcTraitType {
     public NpcTrait attachTrait(INpc npc, NpcTrait copyFrom) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    protected NpcTrait createTrait(INpc npc) {
+        throw new UnsupportedOperationException();
+    }
 }
