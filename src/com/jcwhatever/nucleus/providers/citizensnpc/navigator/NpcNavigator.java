@@ -51,8 +51,9 @@ public class NpcNavigator implements INpcNav {
     private final Registry _registry;
     private final Navigator _navigator;
     private final NpcNavigatorSettings _settings;
-    private boolean _isHostile;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
+    private boolean _isHostile;
+    private boolean _isVehicleProxy;
 
     public NpcNavigator(Npc npc, Registry registry, Navigator navigator) {
         PreCon.notNull(npc);
@@ -87,6 +88,18 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
+    public boolean isVehicleProxy() {
+        return _isVehicleProxy;
+    }
+
+    @Override
+    public NpcNavigator setVehicleProxy(boolean isProxy) {
+        _isVehicleProxy = isProxy;
+
+        return this;
+    }
+
+    @Override
     public boolean isTargetingLocation() {
         return _navigator.getTargetType() == TargetType.LOCATION;
     }
@@ -112,6 +125,12 @@ public class NpcNavigator implements INpcNav {
     public INpcNav start() {
         _navigator.setPaused(false);
 
+        if (_isVehicleProxy) {
+            INpc vehicle = _npc.getNPCVehicle();
+            if (vehicle != null)
+                vehicle.getNavigator().start();
+        }
+
         return this;
     }
 
@@ -121,12 +140,24 @@ public class NpcNavigator implements INpcNav {
 
         onPause();
 
+        if (_isVehicleProxy) {
+            INpc vehicle = _npc.getNPCVehicle();
+            if (vehicle != null)
+                vehicle.getNavigator().pause();
+        }
+
         return this;
     }
 
     @Override
     public INpcNav cancel() {
         _navigator.cancelNavigation();
+
+        if (_isVehicleProxy) {
+            INpc vehicle = _npc.getNPCVehicle();
+            if (vehicle != null)
+                vehicle.getNavigator().cancel();
+        }
 
         return this;
     }
@@ -136,6 +167,13 @@ public class NpcNavigator implements INpcNav {
         PreCon.notNull(location);
 
         _navigator.setTarget(location);
+
+        if (_isVehicleProxy) {
+            INpc vehicle = _npc.getNPCVehicle();
+            if (vehicle != null)
+                vehicle.getNavigator().setTarget(location);
+        }
+
         return this;
     }
 
@@ -144,6 +182,13 @@ public class NpcNavigator implements INpcNav {
         PreCon.notNull(entity);
 
         _navigator.setTarget(entity, _isHostile);
+
+        if (_isVehicleProxy) {
+            INpc vehicle = _npc.getNPCVehicle();
+            if (vehicle != null)
+                vehicle.getNavigator().setTarget(entity);
+        }
+
         return this;
     }
 
@@ -155,7 +200,7 @@ public class NpcNavigator implements INpcNav {
         if (target == null || target.getTarget() == null || target.isAggressive() == isHostile)
             return this;
 
-        _navigator.setTarget((Entity)target.getTarget(), isHostile);
+        setTarget(target.getTarget());
 
         return this;
     }
