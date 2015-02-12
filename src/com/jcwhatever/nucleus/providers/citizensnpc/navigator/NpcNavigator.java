@@ -118,7 +118,12 @@ public class NpcNavigator implements INpcNav {
     @Nullable
     @Override
     public Entity getTargetEntity() {
-        return _navigator.getEntityTarget().getTarget();
+
+        EntityTarget target = _navigator.getEntityTarget();
+        if (target == null)
+            return null;
+
+        return target.getTarget();
     }
 
     @Override
