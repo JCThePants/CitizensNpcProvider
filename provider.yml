@@ -1,0 +1,7 @@
+name: CitizensNpcProvider
+version: 0.1-beta
+logical-version: 0
+description: 'Provides NPC support via Citizens2 Bukkit plugin.'
+main: com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider
+bukkit-depends:
+- Citizens
