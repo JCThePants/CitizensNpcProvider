@@ -24,12 +24,15 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
+import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.INpc;
+import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.utils.PreCon;
 
+import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
 import net.citizensnpcs.api.npc.NPC;
@@ -46,9 +49,14 @@ public class NpcTraits implements INpcTraits {
     private final Npc _npc;
     private final NPC _handle;
     private final CitizensTraitAdapter _adapter;
+    private final EntityType _initialType;
 
-    public NpcTraits(Npc npc) {
+    public NpcTraits(Npc npc, EntityType initialType) {
+        PreCon.notNull(npc);
+        PreCon.notNull(initialType);
+
         _npc = npc;
+        _initialType = initialType;
         _handle = npc.getHandle();
 
         _adapter = new CitizensTraitAdapter(npc);
@@ -84,14 +92,25 @@ public class NpcTraits implements INpcTraits {
     @Override
     public EntityType getType() {
 
+        Location location = getNpc().getLocation();
+        if (location == null)
+            return _initialType; // correct type may not be initialized by citizens yet
+
         MobType type = _handle.getTrait(MobType.class);
         return type.getType();
     }
 
     @Override
     public INpcTraits setType(EntityType type) {
+        PreCon.notNull(type);
 
-        _handle.setBukkitEntityType(type);
+        NpcEntityTypeChangeEvent event = new NpcEntityTypeChangeEvent(getNpc(), getType(), type);
+        Nucleus.getEventManager().callBukkit(this, event);
+
+        if (event.isCancelled() || event.getNewType() == event.getOldType())
+            return this;
+
+        _handle.setBukkitEntityType(event.getNewType());
 
         return this;
     }

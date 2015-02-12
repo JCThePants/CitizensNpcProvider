@@ -24,11 +24,13 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
+import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeNPCStore;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
 import com.jcwhatever.nucleus.providers.npc.events.NpcClickEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcCreateEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByBlockEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageEvent;
@@ -122,11 +124,15 @@ public class Registry implements INpcRegistry {
 
         NPC handle = _registry.createNPC(type, npcName);
 
-        Npc npc = new Npc(this, name, handle, _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
+        Npc npc = new Npc(this, name, handle, type,
+                _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
 
         _npcMap.put(name.toLowerCase(), npc);
 
         CitizensProvider.getInstance().registerNPC(npc);
+
+        NpcCreateEvent event = new NpcCreateEvent(npc);
+        Nucleus.getEventManager().callBukkit(this, event);
 
         return npc;
     }

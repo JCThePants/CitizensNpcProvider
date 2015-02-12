@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
+import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.providers.citizensnpc.goals.NpcGoals;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.NpcNavigator;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeKey;
@@ -36,6 +37,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDeathEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcDisposeEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
@@ -52,6 +54,7 @@ import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
 import net.citizensnpcs.api.npc.NPC;
@@ -76,10 +79,12 @@ public class Npc implements INpc {
     private final DataNodeKey _dataKey;
     private boolean _isDisposed;
 
-    public Npc(Registry registry, String name, NPC npc, DataNodeKey dataKey) {
+
+    public Npc(Registry registry, String name, NPC npc, EntityType type, DataNodeKey dataKey) {
         PreCon.notNull(registry);
         PreCon.notNull(name);
         PreCon.notNull(npc);
+        PreCon.notNull(type);
         PreCon.notNull(dataKey);
 
         _name = name;
@@ -89,7 +94,7 @@ public class Npc implements INpc {
         _dataKey = dataKey;
         _navigator = new NpcNavigator(this, _registry, npc.getNavigator());
         _goals = new NpcGoals(this);
-        _traits = new NpcTraits(this);
+        _traits = new NpcTraits(this, type);
     }
 
     public DataNodeKey getDataKey() {
@@ -289,6 +294,9 @@ public class Npc implements INpc {
     public void dispose() {
         if (_isDisposed)
             return;
+
+        NpcDisposeEvent event = new NpcDisposeEvent(this);
+        Nucleus.getEventManager().callBukkit(this, event);
 
         _registry.remove(this);
         _agents.disposeAgents();
