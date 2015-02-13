@@ -35,6 +35,7 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
+import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.MobType;
 
@@ -111,6 +112,34 @@ public class NpcTraits implements INpcTraits {
             return this;
 
         _handle.setBukkitEntityType(event.getNewType());
+
+        return this;
+    }
+
+    @Override
+    public String getSkinName() {
+        String name = _npc.getHandle().data().get("player-skin-name");
+        return name == null
+                ? _npc.getNPCName()
+                : name;
+    }
+
+    @Override
+    public INpcTraits setSkinName(@Nullable String skinName) {
+        if (skinName == null) {
+            _npc.getHandle().data().remove("player-skin-name");
+        } else {
+            _npc.getHandle().data().set("player-skin-name", skinName);
+        }
+
+        if (_npc.isSpawned()) {
+
+            Location location = _npc.getLocation();
+            assert location != null;
+
+            _npc.getHandle().despawn(DespawnReason.PENDING_RESPAWN);
+            _npc.spawn(location);
+        }
 
         return this;
     }
