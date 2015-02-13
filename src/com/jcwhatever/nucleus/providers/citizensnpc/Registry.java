@@ -151,6 +151,40 @@ public class Registry implements INpcRegistry {
         }
     }
 
+    @Nullable
+    @Override
+    public INpc create(String npcName, EntityType type) {
+        PreCon.notNull(npcName);
+        PreCon.notNull(type);
+
+        NPC handle = _registry.createNPC(type, npcName);
+
+        String lookupName = "nolookup__" + handle.getId();
+
+        Npc npc = new Npc(this, lookupName, handle, type,
+                _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
+
+        CitizensProvider.getInstance().registerNPC(npc);
+
+        NpcCreateEvent event = new NpcCreateEvent(npc);
+        Nucleus.getEventManager().callBukkit(this, event);
+
+        return npc;
+    }
+
+    @Nullable
+    @Override
+    public INpc create(String npcName, String type) {
+        PreCon.notNullOrEmpty(type);
+
+        try {
+            EntityType entityType = EntityType.valueOf(type.toUpperCase());
+            return create(npcName, entityType);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @Override
     public Collection<INpc> all() {
         return _npcMap.values();
