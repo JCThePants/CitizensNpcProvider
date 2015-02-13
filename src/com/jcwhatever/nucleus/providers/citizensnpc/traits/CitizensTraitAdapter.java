@@ -31,14 +31,16 @@ import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTra
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTraitType;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTrait;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTraitType;
-import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import net.citizensnpcs.api.trait.Trait;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -54,6 +56,15 @@ public class CitizensTraitAdapter extends Trait {
     private final Npc _npc;
     private final Map<String, NpcTrait> _traits = new HashMap<>(10);
 
+    // used to store a copy of the _traits values for iteration. Iterate this to
+    // prevent concurrent modification exceptions.
+    private List<NpcTrait> _iterableTraits;
+
+    /**
+     * Constructor.
+     *
+     * @param npc  The owning NPC.
+     */
     public CitizensTraitAdapter(Npc npc) {
         super("CitizensProviderTraitAdapter");
 
@@ -78,7 +89,10 @@ public class CitizensTraitAdapter extends Trait {
 
     @Override
     public void onAttach() {
-        for (NpcTrait trait : _traits.values()) {
+
+        List<NpcTrait> traits = getIterableTraits();
+
+        for (NpcTrait trait : traits) {
             trait.onAdd();
         }
     }
@@ -90,28 +104,40 @@ public class CitizensTraitAdapter extends Trait {
 
     @Override
     public void onDespawn() {
-        for (NpcTrait trait : _traits.values()) {
+
+        List<NpcTrait> traits = getIterableTraits();
+
+        for (NpcTrait trait : traits) {
             trait.onDespawn();
         }
     }
 
     @Override
     public void onRemove() {
-        for (NpcTrait trait : _traits.values()) {
+
+        List<NpcTrait> traits = getIterableTraits();
+
+        for (NpcTrait trait : traits) {
             trait.onRemove();
         }
     }
 
     @Override
     public void onSpawn() {
-        for (NpcTrait trait : _traits.values()) {
+
+        List<NpcTrait> traits = getIterableTraits();
+
+        for (NpcTrait trait : traits) {
             trait.onSpawn();
         }
     }
 
     @Override
     public void run() {
-        for (NpcTrait trait : _traits.values()) {
+
+        List<NpcTrait> traits = getIterableTraits();
+
+        for (NpcTrait trait : traits) {
             if (trait instanceof Runnable && trait.canRun()) {
                 ((Runnable) trait).run();
             }
@@ -126,8 +152,6 @@ public class CitizensTraitAdapter extends Trait {
     public NpcTrait add(String name) {
         PreCon.notNull(name);
 
-        name = name.toLowerCase();
-
         if (_traits.containsKey(name))
             return _traits.get(name);
 
@@ -141,35 +165,49 @@ public class CitizensTraitAdapter extends Trait {
     public void add(NpcTrait trait) {
         PreCon.notNull(trait);
 
-        if (_traits.containsKey(trait.getSearchName()))
+        if (_traits.containsKey(trait.getLookupName()))
             return;
 
-        _traits.put(trait.getSearchName(), trait);
+        _traits.put(trait.getLookupName(), trait);
+        updateIterableTraits();
     }
 
     @Nullable
     public NpcTrait get(String name) {
         PreCon.notNull(name);
 
-        return _traits.get(name.toLowerCase());
+        return _traits.get(name);
     }
 
     public boolean has(String name) {
-        return _traits.containsKey(name.toLowerCase());
+        return _traits.containsKey(name);
     }
 
     public boolean remove(String name) {
         PreCon.notNull(name);
 
-        name = name.toLowerCase();
+        if (!(isInternalTrait(name)) &&
+                _traits.remove(name) != null) {
 
-        return !(isInternalTrait(name)) &&
-                _traits.remove(name) != null;
-
+            updateIterableTraits();
+            return true;
+        }
+        return false;
     }
 
     private boolean isInternalTrait(String name) {
         return name.equals("equipment") || name.equals("inventory") || name.equals("owner");
+    }
+
+    private List<NpcTrait> getIterableTraits() {
+        if (_iterableTraits == null)
+            _iterableTraits = new ArrayList<>(_traits.values());
+
+        return _iterableTraits;
+    }
+
+    private void updateIterableTraits() {
+        _iterableTraits = null;
     }
 
 }
