@@ -43,11 +43,6 @@ public class OwnerTraitType extends NpcTraitType {
 
     @Override
     public String getName() {
-        return "Owner";
-    }
-
-    @Override
-    public String getSearchName() {
         return "owner";
     }
 

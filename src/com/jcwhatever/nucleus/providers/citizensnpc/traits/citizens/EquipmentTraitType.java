@@ -43,11 +43,6 @@ public class EquipmentTraitType extends NpcTraitType {
 
     @Override
     public String getName() {
-        return "Equipment";
-    }
-
-    @Override
-    public String getSearchName() {
         return "equipment";
     }
 

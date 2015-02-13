@@ -114,20 +114,20 @@ public class Registry implements INpcRegistry {
 
     @Nullable
     @Override
-    public INpc create(String name, String npcName, EntityType type) {
-        PreCon.notNullOrEmpty(name);
+    public INpc create(String lookupName, String npcName, EntityType type) {
+        PreCon.notNullOrEmpty(lookupName);
         PreCon.notNull(npcName);
         PreCon.notNull(type);
 
-        if (_npcMap.containsKey(name.toLowerCase()))
+        if (_npcMap.containsKey(lookupName.toLowerCase()))
             return null;
 
         NPC handle = _registry.createNPC(type, npcName);
 
-        Npc npc = new Npc(this, name, handle, type,
+        Npc npc = new Npc(this, lookupName, handle, type,
                 _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
 
-        _npcMap.put(name.toLowerCase(), npc);
+        _npcMap.put(lookupName.toLowerCase(), npc);
 
         CitizensProvider.getInstance().registerNPC(npc);
 
@@ -139,12 +139,12 @@ public class Registry implements INpcRegistry {
 
     @Nullable
     @Override
-    public INpc create(String name, String npcName, String type) {
+    public INpc create(String lookupName, String npcName, String type) {
         PreCon.notNullOrEmpty(type);
 
         try {
             EntityType entityType = EntityType.valueOf(type.toUpperCase());
-            return create(name, npcName, entityType);
+            return create(lookupName, npcName, entityType);
         }
         catch (Exception e) {
             return null;

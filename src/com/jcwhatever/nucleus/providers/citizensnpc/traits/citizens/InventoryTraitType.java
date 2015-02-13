@@ -43,11 +43,6 @@ public class InventoryTraitType extends NpcTraitType {
 
     @Override
     public String getName() {
-        return "Inventory";
-    }
-
-    @Override
-    public String getSearchName() {
         return "inventory";
     }
 

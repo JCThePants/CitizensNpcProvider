@@ -24,12 +24,9 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
-import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
-
-import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +49,7 @@ public class NpcTraitRegistry implements INpcTraitTypeRegistry {
     public INpcTraitTypeRegistry registerTrait(NpcTraitType traitType) {
         PreCon.notNull(traitType);
 
-        _typeMap.put(getTraitName(traitType), traitType);
+        _typeMap.put(traitType.getLookupName(), traitType);
 
         return this;
     }
@@ -78,14 +75,5 @@ public class NpcTraitRegistry implements INpcTraitTypeRegistry {
         }
 
         return result;
-    }
-
-    private String getTraitName(NpcTraitType traitType) {
-
-        Plugin plugin = traitType.getPlugin();
-
-        String pluginName = plugin.equals(Nucleus.getPlugin()) ? "" : plugin.getName().toLowerCase() + ':';
-
-        return pluginName + traitType.getSearchName();
     }
 }
