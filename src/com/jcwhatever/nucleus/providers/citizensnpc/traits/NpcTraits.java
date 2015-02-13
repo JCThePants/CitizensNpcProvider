@@ -32,6 +32,7 @@ import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
+import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import org.bukkit.Location;
@@ -41,6 +42,24 @@ import org.bukkit.inventory.ItemStack;
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.MobType;
+import net.citizensnpcs.trait.Age;
+import net.citizensnpcs.trait.Anchors;
+import net.citizensnpcs.trait.Controllable;
+import net.citizensnpcs.trait.Gravity;
+import net.citizensnpcs.trait.HorseModifiers;
+import net.citizensnpcs.trait.LookClose;
+import net.citizensnpcs.trait.NPCSkeletonType;
+import net.citizensnpcs.trait.OcelotModifiers;
+import net.citizensnpcs.trait.Poses;
+import net.citizensnpcs.trait.Powered;
+import net.citizensnpcs.trait.RabbitType;
+import net.citizensnpcs.trait.Saddle;
+import net.citizensnpcs.trait.SheepTrait;
+import net.citizensnpcs.trait.SlimeSize;
+import net.citizensnpcs.trait.VillagerProfession;
+import net.citizensnpcs.trait.WolfModifiers;
+import net.citizensnpcs.trait.WoolColor;
+import net.citizensnpcs.trait.ZombieModifier;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
@@ -66,11 +85,18 @@ public class NpcTraits implements INpcTraits {
 
         _adapter = new CitizensTraitAdapter(npc);
         npc.getHandle().addTrait(_adapter);
+
+        clearCitizensTraits();
     }
 
     @Override
     public INpc getNpc() {
         return _npc;
+    }
+
+    @Override
+    public IDataNode getTraitNode(NpcTrait trait) {
+        return _npc.getDataNode().getNode("traits").getNode(trait.getLookupName());
     }
 
     @Override
@@ -251,5 +277,66 @@ public class NpcTraits implements INpcTraits {
         PreCon.notNull(name);
 
         return _adapter.remove(name);
+    }
+
+    // remove citizens traits that may interfere
+    // with external traits
+    private void clearCitizensTraits() {
+
+        NPC npc = _npc.getHandle();
+
+        if (npc.hasTrait(Age.class))
+            npc.removeTrait(Age.class);
+
+        if (npc.hasTrait(Anchors.class))
+            npc.removeTrait(Age.class);
+
+        if (npc.hasTrait(Controllable.class))
+            npc.removeTrait(Controllable.class);
+
+        if (npc.hasTrait(Gravity.class))
+            npc.removeTrait(Gravity.class);
+
+        if (npc.hasTrait(HorseModifiers.class))
+            npc.removeTrait(HorseModifiers.class);
+
+        if (npc.hasTrait(LookClose.class))
+            npc.removeTrait(LookClose.class);
+
+        if (npc.hasTrait(NPCSkeletonType.class))
+            npc.removeTrait(NPCSkeletonType.class);
+
+        if (npc.hasTrait(OcelotModifiers.class))
+            npc.removeTrait(OcelotModifiers.class);
+
+        if (npc.hasTrait(Poses.class))
+            npc.removeTrait(Poses.class);
+
+        if (npc.hasTrait(Powered.class))
+            npc.removeTrait(Powered.class);
+
+        if (npc.hasTrait(RabbitType.class))
+            npc.removeTrait(RabbitType.class);
+
+        if (npc.hasTrait(Saddle.class))
+            npc.removeTrait(Saddle.class);
+
+        if (npc.hasTrait(SheepTrait.class))
+            npc.removeTrait(SheepTrait.class);
+
+        if (npc.hasTrait(SlimeSize.class))
+            npc.removeTrait(SlimeSize.class);
+
+        if (npc.hasTrait(VillagerProfession.class))
+            npc.removeTrait(VillagerProfession.class);
+
+        if (npc.hasTrait(WolfModifiers.class))
+            npc.removeTrait(WolfModifiers.class);
+
+        if (npc.hasTrait(WoolColor.class))
+            npc.removeTrait(WoolColor.class);
+
+        if (npc.hasTrait(ZombieModifier.class))
+            npc.removeTrait(ZombieModifier.class);
     }
 }

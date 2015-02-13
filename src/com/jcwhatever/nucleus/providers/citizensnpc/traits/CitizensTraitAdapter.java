@@ -186,13 +186,16 @@ public class CitizensTraitAdapter extends Trait {
     public boolean remove(String name) {
         PreCon.notNull(name);
 
-        if (!(isInternalTrait(name)) &&
-                _traits.remove(name) != null) {
+        if (isInternalTrait(name))
+            return false;
 
-            updateIterableTraits();
-            return true;
-        }
-        return false;
+        NpcTrait trait = _traits.remove(name);
+        if (trait == null)
+            return false;
+
+        trait.dispose();
+
+        return true;
     }
 
     private boolean isInternalTrait(String name) {

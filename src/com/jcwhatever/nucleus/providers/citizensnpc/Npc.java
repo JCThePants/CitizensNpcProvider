@@ -45,6 +45,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.providers.npc.goals.INpcGoals;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
+import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.MetaKey;
 import com.jcwhatever.nucleus.utils.MetaStore;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -114,6 +115,11 @@ public class Npc implements INpc {
     @Override
     public INpcRegistry getRegistry() {
         return _registry;
+    }
+
+    @Override
+    public IDataNode getDataNode() {
+        return _dataKey.getDataNode();
     }
 
     @Override

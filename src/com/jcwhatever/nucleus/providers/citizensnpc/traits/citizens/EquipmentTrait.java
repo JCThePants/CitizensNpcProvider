@@ -91,7 +91,6 @@ public class EquipmentTrait extends NpcTrait {
      */
     public EquipmentTrait set(Object slot, @Nullable ItemStack item) {
         PreCon.notNull(slot);
-        PreCon.notNull(item);
 
         _trait.set(getSlot(slot), item);
 
@@ -115,6 +114,8 @@ public class EquipmentTrait extends NpcTrait {
 
     @Override
     public void save(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
         _trait.save(new DataNodeKey(dataNode.getNodePath(), dataNode, null));
     }
 
