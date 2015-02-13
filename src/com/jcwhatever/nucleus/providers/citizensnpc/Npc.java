@@ -141,6 +141,7 @@ public class Npc implements INpc {
 
         if (_npc.spawn(location)) {
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
+            _traits.applyEquipment();
         }
 
         return this;

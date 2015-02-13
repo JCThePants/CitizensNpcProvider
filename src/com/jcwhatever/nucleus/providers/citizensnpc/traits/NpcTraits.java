@@ -25,7 +25,9 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
 import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.kits.IKit;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
+import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
@@ -34,6 +36,7 @@ import com.jcwhatever.nucleus.utils.PreCon;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
@@ -51,6 +54,7 @@ public class NpcTraits implements INpcTraits {
     private final NPC _handle;
     private final CitizensTraitAdapter _adapter;
     private final EntityType _initialType;
+    private IKit _kit;
 
     public NpcTraits(Npc npc, EntityType initialType) {
         PreCon.notNull(npc);
@@ -142,6 +146,64 @@ public class NpcTraits implements INpcTraits {
         }
 
         return this;
+    }
+
+    @Nullable
+    @Override
+    public IKit getKit() {
+        return _kit;
+    }
+
+    @Override
+    public INpcTraits setKit(@Nullable IKit kit) {
+
+        _kit = kit;
+
+        applyEquipment();
+
+        return this;
+    }
+
+    @Override
+    public INpcTraits setKitName(@Nullable String kitName) {
+
+        if (kitName == null)
+            return setKit(null);
+
+        IKit kit = Nucleus.getKitManager().get(kitName);
+        if (kit == null) {
+            throw new IllegalArgumentException("A kit named " + kitName + " was not found.");
+        }
+
+        return setKit(kit);
+    }
+
+    public void applyEquipment() {
+
+        EquipmentTrait trait = (EquipmentTrait)get("equipment");
+        assert trait != null;
+
+        if (_kit == null) {
+            trait.set(0, null);
+            trait.set(1, null);
+            trait.set(2, null);
+            trait.set(3, null);
+            trait.set(4, null);
+            return;
+        }
+
+        ItemStack[] items = _kit.getItems();
+        if (items.length > 0) {
+            trait.set(0, items[0]);
+        }
+        else {
+            trait.set(0, null);
+        }
+
+        trait.set(1, _kit.getHelmet());
+        trait.set(2, _kit.getChestplate());
+        trait.set(3, _kit.getLeggings());
+        trait.set(4, _kit.getBoots());
     }
 
     @Override
