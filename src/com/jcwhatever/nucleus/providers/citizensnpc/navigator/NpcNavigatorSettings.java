@@ -64,7 +64,7 @@ public class NpcNavigatorSettings implements INpcNavSettings {
     @Override
     public INpcNavSettings setSpeed(double speed) {
 
-        _settings.modifiedSpeed((float)speed);
+        _settings.speedModifier((float)speed);
 
         return this;
     }
