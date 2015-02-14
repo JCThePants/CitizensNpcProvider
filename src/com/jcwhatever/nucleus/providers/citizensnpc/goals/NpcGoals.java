@@ -25,9 +25,8 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.goals;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
-import com.jcwhatever.nucleus.providers.npc.INpc;
-import com.jcwhatever.nucleus.providers.npc.goals.INpcGoal;
-import com.jcwhatever.nucleus.providers.npc.goals.INpcGoals;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import net.citizensnpcs.api.ai.Goal;
@@ -40,8 +39,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-/*
- * 
+/**
+ * An {@link Npc} goal manager.
  */
 public class NpcGoals implements INpcGoals {
 
@@ -50,13 +49,18 @@ public class NpcGoals implements INpcGoals {
     private Set<INpcGoal> _goals = new HashSet<>(5);
     private LinkedList<GoalSelector> _selectorStack = new LinkedList<>();
 
+    /**
+     * Constructor.
+     *
+     * @param npc  The {@code Npc} the goal manager is for.
+     */
     public NpcGoals(Npc npc) {
         _npc = npc;
         _controller = npc.getHandle().getDefaultGoalController();
     }
 
     @Override
-    public INpc getNPC() {
+    public Npc getNpc() {
         return _npc;
     }
 
@@ -66,7 +70,7 @@ public class NpcGoals implements INpcGoals {
     }
 
     @Override
-    public INpcGoals add(int priority, INpcGoal goal) {
+    public NpcGoals add(int priority, INpcGoal goal) {
 
         CitizensGoalAdapter adapter = new CitizensGoalAdapter(this, goal);
 
@@ -87,7 +91,7 @@ public class NpcGoals implements INpcGoals {
     }
 
     @Override
-    public INpcGoals clear() {
+    public NpcGoals clear() {
         _controller.clear();
 
         return this;
@@ -99,21 +103,21 @@ public class NpcGoals implements INpcGoals {
     }
 
     @Override
-    public INpcGoals pause() {
+    public NpcGoals pause() {
         _controller.setPaused(true);
 
         return this;
     }
 
     @Override
-    public INpcGoals resume() {
+    public NpcGoals resume() {
         _controller.setPaused(false);
 
         return this;
     }
 
     @Override
-    public INpcGoals setGoal(INpcGoal goal) {
+    public NpcGoals setGoal(INpcGoal goal) {
 
         GoalSelector selector = _selectorStack.peek();
         if (selector == null) {
@@ -127,7 +131,7 @@ public class NpcGoals implements INpcGoals {
     }
 
     @Override
-    public INpcGoals runGoals(INpcGoal... goals) {
+    public NpcGoals runGoals(INpcGoal... goals) {
 
         GoalSelector selector = _selectorStack.peek();
         if (selector == null) {

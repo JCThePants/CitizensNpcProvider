@@ -24,20 +24,28 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.goals;
 
-import com.jcwhatever.nucleus.providers.npc.goals.INpcGoal;
-import com.jcwhatever.nucleus.providers.npc.goals.NpcGoalResult;
+import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionSelector;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
 
 import net.citizensnpcs.api.ai.Goal;
 import net.citizensnpcs.api.ai.GoalSelector;
 
-/*
- * 
+/**
+ * Adapts a Nucleus based goal to a Citizens based goal.
  */
 public class CitizensGoalAdapter implements Goal, INpcGoal {
 
     private final NpcGoals _goals;
     private final INpcGoal _goal;
+    private NpcActionSelector _selector;
+    private boolean _isGoalFinished;
 
+    /**
+     * Constructor.
+     *
+     * @param goals  The {@code NpcGoals}.
+     * @param goal   The {@code INpcGoal} to run.
+     */
     public CitizensGoalAdapter(NpcGoals goals, INpcGoal goal) {
         _goals = goals;
         _goal = goal;
@@ -46,42 +54,46 @@ public class CitizensGoalAdapter implements Goal, INpcGoal {
     @Override
     public void reset() {
         _goal.reset();
+        _selector = null;
     }
 
     @Override
-    public NpcGoalResult run() {
-        return _goal.run();
+    public void run(INpcActionSelector selector) {
+        _goal.run(selector);
     }
 
     @Override
-    public boolean shouldRun() {
-        return _goal.shouldRun();
+    public boolean canRun() {
+        return _goal.canRun();
     }
 
     @Override
     public void run(GoalSelector goalSelector) {
         _goals.pushSelector(goalSelector);
-        NpcGoalResult result = run();
 
-        switch (result) {
-            case CONTINUE:
-                break;
+        if (_selector == null)
+            _selector = new NpcActionSelector(_goals.getNpc(), _goal, null, null);
 
-            case FINISH:
-                goalSelector.finish();
-                break;
+        // run goal as action if not complete
+        if (!_isGoalFinished) {
 
-            case FINISH_REMOVE:
-                goalSelector.finishAndRemove();
-                break;
+            run(_selector);
+
+            _isGoalFinished = _selector.isFinished();
         }
+
+        if (_selector.runUnfinished() && _isGoalFinished)
+            goalSelector.finish();
+
         _goals.popSelector();
     }
 
     @Override
     public boolean shouldExecute(GoalSelector goalSelector) {
         _goals.pushSelector(goalSelector);
-        boolean result = shouldRun();
+
+        boolean result = canRun();
+
         _goals.popSelector();
 
         return result;

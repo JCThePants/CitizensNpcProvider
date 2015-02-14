@@ -42,7 +42,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
-import com.jcwhatever.nucleus.providers.npc.goals.INpcGoals;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.storage.IDataNode;
@@ -63,8 +63,8 @@ import net.citizensnpcs.util.NMS;
 
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * {@link INpc} implementation.
  */
 public class Npc implements INpc {
 
@@ -80,16 +80,24 @@ public class Npc implements INpc {
     private final DataNodeKey _dataKey;
     private boolean _isDisposed;
 
-
-    public Npc(Registry registry, String name, NPC npc, EntityType type, DataNodeKey dataKey) {
+    /**
+     * Constructor.
+     *
+     * @param registry    The owning registry.
+     * @param lookupName  The unique lookup name of the npc
+     * @param npc         The Citizens NPC.
+     * @param type        The initial {@code EntityType}.
+     * @param dataKey     The NPC's data storage.
+     */
+    public Npc(Registry registry, String lookupName, NPC npc, EntityType type, DataNodeKey dataKey) {
         PreCon.notNull(registry);
-        PreCon.notNull(name);
+        PreCon.notNull(lookupName);
         PreCon.notNull(npc);
         PreCon.notNull(type);
         PreCon.notNull(dataKey);
 
-        _name = name;
-        _searchName = name.toLowerCase();
+        _name = lookupName;
+        _searchName = lookupName.toLowerCase();
         _registry = registry;
         _npc = npc;
         _dataKey = dataKey;
@@ -98,6 +106,9 @@ public class Npc implements INpc {
         _traits = new NpcTraits(this, type);
     }
 
+    /**
+     * Get the NPC data storage.
+     */
     public DataNodeKey getDataKey() {
         return _dataKey;
     }
