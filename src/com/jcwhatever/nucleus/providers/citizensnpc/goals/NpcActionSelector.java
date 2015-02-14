@@ -65,7 +65,7 @@ public class NpcActionSelector implements INpcActionSelector {
         _node = new TreeNode<>(this);
 
         if (parent != null)
-            parent.addChild(_node);
+            parent.add(_node);
 
         _unfinished = unfinished != null ? unfinished : new LinkedList<NpcActionSelector>();
     }
