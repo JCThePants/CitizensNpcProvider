@@ -43,8 +43,6 @@ import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.trait.MobType;
 import net.citizensnpcs.trait.Age;
-import net.citizensnpcs.trait.Anchors;
-import net.citizensnpcs.trait.Controllable;
 import net.citizensnpcs.trait.Gravity;
 import net.citizensnpcs.trait.HorseModifiers;
 import net.citizensnpcs.trait.LookClose;
@@ -281,18 +279,12 @@ public class NpcTraits implements INpcTraits {
 
     // remove citizens traits that may interfere
     // with external traits
-    private void clearCitizensTraits() {
+    public void clearCitizensTraits() {
 
         NPC npc = _npc.getHandle();
 
         if (npc.hasTrait(Age.class))
             npc.removeTrait(Age.class);
-
-        if (npc.hasTrait(Anchors.class))
-            npc.removeTrait(Age.class);
-
-        if (npc.hasTrait(Controllable.class))
-            npc.removeTrait(Controllable.class);
 
         if (npc.hasTrait(Gravity.class))
             npc.removeTrait(Gravity.class);
