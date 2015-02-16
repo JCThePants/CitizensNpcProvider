@@ -43,8 +43,8 @@ public class CitizensGoalAdapter implements Goal, INpcGoal {
     /**
      * Constructor.
      *
-     * @param goals  The {@code NpcGoals}.
-     * @param goal   The {@code INpcGoal} to run.
+     * @param goals  The {@link NpcGoals}.
+     * @param goal   The {@link INpcGoal} to run.
      */
     public CitizensGoalAdapter(NpcGoals goals, INpcGoal goal) {
         _goals = goals;

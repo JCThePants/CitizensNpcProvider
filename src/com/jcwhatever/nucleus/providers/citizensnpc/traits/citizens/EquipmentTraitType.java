@@ -31,8 +31,8 @@ import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 
 import org.bukkit.plugin.Plugin;
 
-/*
- * 
+/**
+ * Trait type factory for {@link EquipmentTrait}.
  */
 public class EquipmentTraitType extends NpcTraitType {
 

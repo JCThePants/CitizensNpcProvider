@@ -35,8 +35,8 @@ import net.citizensnpcs.api.ai.NavigatorParameters;
 
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Implementation of {@link INpcNavSettings}.
  */
 public class NpcNavigatorSettings implements INpcNavSettings {
 
@@ -44,6 +44,13 @@ public class NpcNavigatorSettings implements INpcNavSettings {
     private final CitizensStuckAdapter _stuckAdapter;
     private final CitizensFlockAdapter _flockAdapter;
 
+    /**
+     * Constructor.
+     *
+     * @param npc        The NPC the navigator settings are for.
+     * @param navigator  The Citizens {@link net.citizensnpcs.api.ai.Navigator}.
+     * @param settings   The owning {@link net.citizensnpcs.api.ai.NavigatorParameters}.
+     */
     public NpcNavigatorSettings(Npc npc, Navigator navigator, NavigatorParameters settings) {
         PreCon.notNull(npc);
         PreCon.notNull(navigator);

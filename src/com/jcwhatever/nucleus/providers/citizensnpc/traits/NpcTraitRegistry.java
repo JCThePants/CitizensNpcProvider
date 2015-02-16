@@ -32,15 +32,19 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Implementation of {@link com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry}.
  */
 public class NpcTraitRegistry implements INpcTraitTypeRegistry {
 
     private final NpcTraitRegistry _parent;
     private final Map<String, NpcTraitType> _typeMap = new HashMap<>(10);
 
-
+    /**
+     * Constructor.
+     *
+     * @param parent  The parent registry. Null for root.
+     */
     public NpcTraitRegistry(@Nullable NpcTraitRegistry parent) {
         _parent = parent;
     }

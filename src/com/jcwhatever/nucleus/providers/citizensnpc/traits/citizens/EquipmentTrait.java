@@ -40,8 +40,8 @@ import net.citizensnpcs.api.trait.trait.Equipment.EquipmentSlot;
 
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Adapter for Citizens equipment trait.
  */
 public class EquipmentTrait extends NpcTrait {
 
@@ -66,12 +66,12 @@ public class EquipmentTrait extends NpcTrait {
     }
 
     /**
-     * Get the {@code ItemStack} in the specified slot.
+     * Get the {@link ItemStack} in the specified slot.
      *
      * @param slot  The slot. Can be a number (0-4) or the name of the slot:
      *              'HAND', 'HELMET', 'CHESTPLATE', 'LEGGINGS' or 'BOOTS'
      *
-     * @return  The {@code ItemStack} in the slot or null if there is none.
+     * @return  The {@link ItemStack} in the slot or null if there is none.
      */
     @Nullable
     public ItemStack get(Object slot) {
@@ -81,11 +81,11 @@ public class EquipmentTrait extends NpcTrait {
     }
 
     /**
-     * Set the {@code ItemStack} in the specified equipment slot.
+     * Set the {@link ItemStack} in the specified equipment slot.
      *
      * @param slot  The slot. Can be a number (0-4) or the name of the slot:
      *              'HAND', 'HELMET', 'CHESTPLATE', 'LEGGINGS' or 'BOOTS'
-     * @param item  The {@code ItemStack} to set into the slot. Null to empty the slot.
+     * @param item  The {@link ItemStack} to set into the slot. Null to empty the slot.
      *
      * @return  Self for chaining.
      */

@@ -37,8 +37,8 @@ import net.citizensnpcs.api.trait.trait.Owner;
 
 import java.util.UUID;
 
-/*
- * 
+/**
+ * Adapter for Citizens owner trait.
  */
 public class OwnerTrait extends NpcTrait {
 
@@ -109,6 +109,6 @@ public class OwnerTrait extends NpcTrait {
 
     @Override
     public void dispose() {
-
+        // do nothing
     }
 }

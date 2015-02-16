@@ -34,7 +34,7 @@ import java.util.Map;
 
 /**
  * Provides {@link com.jcwhatever.nucleus.storage.IDataNode} based storage.
- * Use with an {@code net.citizensnpcs.api.npc.NPCDataStore}.
+ * Use with an {@link net.citizensnpcs.api.npc.NPCDataStore}.
  */
 public class DataNodeStorage implements Storage {
 

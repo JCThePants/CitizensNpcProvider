@@ -42,8 +42,8 @@ import net.citizensnpcs.api.ai.TargetType;
 
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Implementation of {@link com.jcwhatever.nucleus.providers.npc.navigator.INpcNav}.
  */
 public class NpcNavigator implements INpcNav {
 
@@ -55,6 +55,13 @@ public class NpcNavigator implements INpcNav {
     private boolean _isHostile;
     private boolean _isVehicleProxy;
 
+    /**
+     * Constructor.
+     *
+     * @param npc        The NPC the navigator is for.
+     * @param registry   The owning registry.
+     * @param navigator  The citizens {@link net.citizensnpcs.api.ai.Navigator}.
+     */
     public NpcNavigator(Npc npc, Registry registry, Navigator navigator) {
         PreCon.notNull(npc);
         PreCon.notNull(registry);

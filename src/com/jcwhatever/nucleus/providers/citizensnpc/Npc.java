@@ -86,7 +86,7 @@ public class Npc implements INpc {
      * @param registry    The owning registry.
      * @param lookupName  The unique lookup name of the npc
      * @param npc         The Citizens NPC.
-     * @param type        The initial {@code EntityType}.
+     * @param type        The initial {@link EntityType}.
      * @param dataKey     The NPC's data storage.
      */
     public Npc(Registry registry, String lookupName, NPC npc, EntityType type, DataNodeKey dataKey) {

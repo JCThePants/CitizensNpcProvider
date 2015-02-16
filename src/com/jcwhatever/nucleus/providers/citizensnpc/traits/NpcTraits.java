@@ -62,8 +62,8 @@ import net.citizensnpcs.trait.ZombieModifier;
 import java.util.Collection;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Implementation of {@link com.jcwhatever.nucleus.providers.npc.traits.INpcTraits}.
  */
 public class NpcTraits implements INpcTraits {
 
@@ -73,6 +73,12 @@ public class NpcTraits implements INpcTraits {
     private final EntityType _initialType;
     private IKit _kit;
 
+    /**
+     * Constructor.
+     *
+     * @param npc          The Npc the traits are for.
+     * @param initialType  The initial entity type.
+     */
     public NpcTraits(Npc npc, EntityType initialType) {
         PreCon.notNull(npc);
         PreCon.notNull(initialType);

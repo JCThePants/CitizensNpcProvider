@@ -52,7 +52,7 @@ public class NpcGoals implements INpcGoals {
     /**
      * Constructor.
      *
-     * @param npc  The {@code Npc} the goal manager is for.
+     * @param npc  The {@link Npc} the goal manager is for.
      */
     public NpcGoals(Npc npc) {
         _npc = npc;

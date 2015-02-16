@@ -34,23 +34,37 @@ import net.citizensnpcs.api.npc.NPC;
 
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Adapts Nucleus path timeout handlers to Citizens {@link net.citizensnpcs.api.ai.StuckAction}.
  */
 public class CitizensStuckAdapter implements StuckAction {
 
     private StuckAction _defaultAction;
     private INpcNavTimeout _action;
 
+    /**
+     * Constructor.
+     *
+     * @param defaultAction  The default stuck action. Null for none.
+     */
     public CitizensStuckAdapter(@Nullable StuckAction defaultAction) {
         _defaultAction = defaultAction;
     }
 
+    /**
+     * Get the {@link INpcNavTimeout}.
+     */
+    @Nullable
     public INpcNavTimeout getTimeoutHandler() {
         return _action;
     }
 
-    public void setTimeoutHandler(INpcNavTimeout timeout) {
+    /**
+     * Set the {@link INpcNavTimeout}.
+     *
+     * @param timeout  The timeout handler.
+     */
+    public void setTimeoutHandler(@Nullable INpcNavTimeout timeout) {
         _action = timeout;
     }
 

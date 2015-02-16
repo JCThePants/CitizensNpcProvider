@@ -31,8 +31,8 @@ import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 
 import org.bukkit.plugin.Plugin;
 
-/*
- * 
+/**
+ * Trait type factory for {@link OwnerTrait}.
  */
 public class OwnerTraitType extends NpcTraitType {
 

@@ -63,8 +63,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Implementation of {@link com.jcwhatever.nucleus.providers.npc.INpcProvider}.
  */
 public class Registry implements INpcRegistry {
 
@@ -79,6 +79,13 @@ public class Registry implements INpcRegistry {
 
     private boolean _isDisposed;
 
+    /**
+     * Constructor.
+     *
+     * @param plugin    The registry's owning plugin.
+     * @param name      The name of the registry.
+     * @param dataNode  The registry's data node.
+     */
     public Registry(Plugin plugin, String name, IDataNode dataNode) {
         PreCon.notNull(plugin);
         PreCon.notNullOrEmpty(name);
@@ -93,6 +100,9 @@ public class Registry implements INpcRegistry {
         _registry = CitizensAPI.createNamedNPCRegistry(plugin.getName() + ':' + name, _dataStore);
     }
 
+    /**
+     * Get the registry data store.
+     */
     public DataNodeNPCStore getDataStore() {
         return _dataStore;
     }

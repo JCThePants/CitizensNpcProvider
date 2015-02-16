@@ -36,8 +36,8 @@ import org.bukkit.inventory.ItemStack;
 import net.citizensnpcs.api.exception.NPCLoadException;
 import net.citizensnpcs.api.trait.trait.Inventory;
 
-/*
- * 
+/**
+ * Adapter for Citizens inventory trait.
  */
 public class InventoryTrait extends NpcTrait {
 

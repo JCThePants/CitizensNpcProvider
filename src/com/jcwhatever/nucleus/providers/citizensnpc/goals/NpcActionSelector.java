@@ -50,7 +50,7 @@ public class NpcActionSelector implements INpcActionSelector {
     /**
      * Constructor.
      *
-     * @param npc         The owning {@code Npc}.
+     * @param npc         The owning {@link Npc}.
      * @param parent      The parent selector.
      * @param unfinished  A list to put unfinished actions into. Null if root selector.
      */
@@ -79,7 +79,7 @@ public class NpcActionSelector implements INpcActionSelector {
     }
 
     /**
-     * Get the {@code INpcAction} the selector is for.
+     * Get the {@link INpcAction} the selector is for.
      */
     public INpcAction getAction() {
         return _action;

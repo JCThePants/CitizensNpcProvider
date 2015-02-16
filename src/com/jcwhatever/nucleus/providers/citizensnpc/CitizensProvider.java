@@ -46,13 +46,16 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Provides Citizens based NPC support to NucleusFramework NPC api.
  */
 public class CitizensProvider implements INpcProvider {
 
     private static CitizensProvider _instance;
 
+    /**
+     * Get the current instance of the provider.
+     */
     public static CitizensProvider getInstance() {
         return _instance;
     }

@@ -44,8 +44,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Adapts Nucleus based traits to Citizens traits.
  */
 public class CitizensTraitAdapter extends Trait {
 

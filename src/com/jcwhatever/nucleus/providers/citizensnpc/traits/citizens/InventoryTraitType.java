@@ -31,8 +31,8 @@ import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 
 import org.bukkit.plugin.Plugin;
 
-/*
- * 
+/**
+ * Trait factory for {@link InventoryTrait}.
  */
 public class InventoryTraitType extends NpcTraitType {
 
