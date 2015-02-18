@@ -29,25 +29,42 @@ import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 
-/*
- * 
+/**
+ * Container for an {@link INpcAction}.
+ *
+ * <p>Holds extra objects related to the action.</p>
  */
 public class ActionContainer extends BehaviourContainer<INpcAction> implements INpcAction {
 
     private final ActionAgent _agent;
 
+    /**
+     * Constructor.
+     *
+     * <p>Used for matching objects only.</p>
+     *
+     * @param action  The action to wrap.
+     */
+    ActionContainer(INpcAction action) {
+        super(action);
+        _agent = null;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param npc     The owning {@link Npc}.
+     * @param action  The action to wrap.
+     */
     ActionContainer(Npc npc, INpcAction action) {
         super(action);
 
         _agent = new ActionAgent(npc, this);
     }
 
-    // used for object matching
-    ActionContainer(INpcAction action) {
-        super(action);
-        _agent = null;
-    }
-
+    /**
+     * Get the wrapped action.
+     */
     public INpcAction getAction() {
         return getBehaviour();
     }
@@ -65,6 +82,9 @@ public class ActionContainer extends BehaviourContainer<INpcAction> implements I
             getAction().run(_agent);
     }
 
+    /**
+     * Not supported. Use {@link #run()}.
+     */
     @Override
     public void run(INpcActionAgent agent) {
         throw new UnsupportedOperationException("Incorrect use of ActionContainer.");

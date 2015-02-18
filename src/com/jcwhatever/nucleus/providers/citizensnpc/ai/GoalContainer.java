@@ -28,34 +28,62 @@ import com.jcwhatever.nucleus.providers.citizensnpc.ai.NpcGoals.GoalAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalAgent;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalPriority;
 
-/*
- * 
+/**
+ * Container for an {@link INpcGoal}.
+ *
+ * <p>Holds extra objects related to the goal</p>
  */
 public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcGoal {
 
-    private final int _priority;
+    private final INpcGoalPriority _priority;
     private final NpcGoals _goals;
 
     private GoalAgent _agent;
 
-    GoalContainer(int priority, INpcGoal goal, NpcGoals goals) {
+    /**
+     * Constructor.
+     *
+     * <p>Use for object matching only.</p>
+     *
+     * @param goal  The goal to wrap.
+     */
+    GoalContainer(INpcGoal goal) {
+        this(null, goal, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * <p>Uses {@link StaticGoalPriority} with a default priority value.</p>
+     *
+     * @param goal   The goal to wrap.
+     * @param goals  The parent {@link NpcGoals}.
+     */
+    GoalContainer(INpcGoal goal, NpcGoals goals) {
+        this(new StaticGoalPriority(), goal, goals);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param priority  The goal priority.
+     * @param goal      The goal to wrap.
+     * @param goals     The parent {@link NpcGoals}.
+     */
+    GoalContainer(INpcGoalPriority priority, INpcGoal goal, NpcGoals goals) {
         super(goal);
 
         _priority = priority;
         _goals = goals;
     }
 
-    // used for object matching
-    GoalContainer(INpcGoal goal) {
-        super(goal);
-        _priority = 0;
-        _agent = null;
-        _goals = null;
-    }
-
+    /**
+     * Get the goal priority.
+     */
     public int getPriority() {
-        return _priority;
+        return _priority.getPriority(_goals.getNpc());
     }
 
     @Override
@@ -66,11 +94,6 @@ public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcG
         return _agent;
     }
 
-    /**
-     * Invoked to run goal or child behaviors.
-     *
-     * <p>If a child behaviour is run, the agents goal is not run.</p>
-     */
     @Override
     public void run() {
 
@@ -79,6 +102,9 @@ public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcG
             getBehaviour().run(getAgent());
     }
 
+    /**
+     * Unsupported. Use {@link #run()}.
+     */
     @Override
     public void run(INpcGoalAgent agent) {
         throw new UnsupportedOperationException("Incorrect use of GoalContainer.");

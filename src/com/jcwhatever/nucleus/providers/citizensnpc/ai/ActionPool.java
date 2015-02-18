@@ -36,7 +36,8 @@ import java.util.List;
  */
 public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionPool {
 
-    private List<ActionContainer> _pool = new ArrayList<>(5);
+    private final List<ActionContainer> _pool = new ArrayList<>(5);
+    private List<ActionContainer> _filter;
 
     ActionPool(Npc npc) {
         super(npc);
@@ -49,7 +50,21 @@ public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionP
 
     @Override
     protected List<? extends BehaviourContainer<INpcAction>> getFilteredPool() {
-        return _pool;
+
+        if (_filter == null)
+            _filter = new ArrayList<>(_pool.size());
+
+        _filter.clear();
+
+        for (ActionContainer action : _pool) {
+
+            if (!action.canRun(getNpc()))
+                continue;
+
+            _filter.add(action);
+        }
+
+        return _filter;
     }
 
     @Override

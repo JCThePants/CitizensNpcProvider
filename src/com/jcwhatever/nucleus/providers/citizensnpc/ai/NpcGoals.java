@@ -28,11 +28,11 @@ import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalAgent;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalPriority;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -42,8 +42,9 @@ import java.util.ListIterator;
 public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
     private final Npc _npc;
+    private final List<GoalContainer> _candidates = new ArrayList<>(5);
 
-    private List<GoalContainer> _candidates = new ArrayList<>(3);
+    private List<GoalContainer> _filter;
 
     /**
      * Constructor.
@@ -58,6 +59,14 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
     @Override
     public INpcGoals add(int priority, INpcGoal goal) {
         PreCon.greaterThanZero(priority, "priority");
+        PreCon.notNull(goal, "goal");
+
+        return add(new StaticGoalPriority(priority), goal);
+    }
+
+    @Override
+    public INpcGoals add(INpcGoalPriority priority, INpcGoal goal) {
+        PreCon.notNull(priority, "priority");
         PreCon.notNull(goal, "goal");
 
         GoalContainer container = new GoalContainer(priority, goal, this);
@@ -94,7 +103,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
     @Override
     protected GoalContainer createContainer(INpcGoal behaviour, boolean forMatch) {
-        return forMatch ? new GoalContainer(behaviour) : new GoalContainer(1, behaviour, this);
+        return forMatch ? new GoalContainer(behaviour) : new GoalContainer(behaviour, this);
     }
 
     @Override
@@ -146,34 +155,38 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
     @Override
     protected List<? extends BehaviourContainer<INpcGoal>> getFilteredPool() {
+
+        if (_filter == null)
+            _filter = new ArrayList<>(5);
+
         int priority = 0;
-        LinkedList<GoalContainer> finalCandidates = new LinkedList<>();
 
         // get highest priority candidates.
         for (GoalContainer goal : _candidates) {
+
+            if (!goal.canRun(getNpc()))
+                continue;
 
             int candidatePriority = goal.getPriority();
             int currentPriority = getCurrent() != null
                     ? getCurrent().getPriority()
                     : 0;
 
-            // skip goals that cannot run
-            if (candidatePriority < currentPriority || !goal.canRun(_npc))
+            // skip goals with less priority than current goal
+            if (candidatePriority < currentPriority)
                 continue;
 
             // compare priority with current final candidates priority
-            if (candidatePriority > priority || candidatePriority == priority) {
+            if (candidatePriority >= priority) {
 
                 // clear candidates and add higher priority candidate.
-                finalCandidates.add(goal);
+                _filter.clear();
+                _filter.add(goal);
                 priority = candidatePriority;
-            }
-            else {
-                break;
             }
         }
 
-        return finalCandidates;
+        return _filter;
     }
 
     public class GoalAgent extends BehaviourAgent<INpcGoal, INpcAction> implements INpcGoalAgent {

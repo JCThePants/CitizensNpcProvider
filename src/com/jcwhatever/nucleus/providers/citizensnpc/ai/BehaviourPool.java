@@ -148,8 +148,6 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
             if (candidates.size() == 1) {
                 newGoal = candidates.get(0);
-                if (!newGoal.canRun(_npc))
-                    newGoal = null;
             }
             else if (candidates.size() != 0) {
                 newGoal = getLowestCost(candidates);
@@ -208,10 +206,6 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
         BehaviourContainer<T> result = null;
 
         for (BehaviourContainer<T> behaviour : candidates) {
-
-            // make sure the behaviour can run
-            if (!behaviour.canRun(_npc))
-                continue;
 
             float candidateCost = behaviour.getCost(_npc);
 

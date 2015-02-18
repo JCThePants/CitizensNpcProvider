@@ -75,6 +75,11 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
     }
 
     @Override
+    public boolean isFirstRun() {
+        return _runCount == 1;
+    }
+
+    @Override
     public void finish() {
         _isFinished = true;
     }
