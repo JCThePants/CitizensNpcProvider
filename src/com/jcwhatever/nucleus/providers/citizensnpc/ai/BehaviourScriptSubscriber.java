@@ -24,50 +24,45 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
-import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
-import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
-import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
-
-import java.util.Collection;
+import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
+import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 
 /**
- * A composite of {@link INpcAction}'s that run in parallel.
- *
- * <p>Extends {@link ParallelActions}. Difference is that the blended action
- * ends when any action in the composite ends.</p>
+ * An extended implementation of {@link ScriptUpdateSubscriber} that prevents the subscriber
+ * from being notified if the parent {@link BehaviourAgent}'s
+ * {@link com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour} is finished or is not the current
+ * behaviour in its parent {@link BehaviourPool}.
  */
-public class BlendedActions extends ParallelActions {
+public class BehaviourScriptSubscriber<A> extends ScriptUpdateSubscriber<A> {
+
+    private final BehaviourAgent<?, ?> _behaviourAgent;
 
     /**
      * Constructor.
      *
-     * @param actions  A collection of actions that will be blended.
+     * @param subscriber The subscriber passed in from a script.
      */
-    public BlendedActions(Npc npc, Collection<INpcAction> actions) {
-        super(npc, actions);
+    public BehaviourScriptSubscriber(BehaviourAgent<?, ?> behaviourAgent,
+                                     IScriptUpdateSubscriber<A> subscriber) {
+        super(subscriber);
+
+        PreCon.notNull(behaviourAgent);
+
+        _behaviourAgent = behaviourAgent;
     }
 
     /**
-     * Actions in the composite are run in order they are given, and only if the action
-     * returns true when {@link #canRun} method is invoked.
+     * Does not forward argument to subscriber if the behaviour agent
+     * is finished or is not the current behaviour in its pool.
      *
      * <p>{@inheritDoc}</p>
      */
     @Override
-    public void run(INpcActionAgent agent) {
+    public void on(A argument) {
 
-        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
-
-            if (container.getAgent().isFinished()) {
-                container.getAgent().setCurrent(false);
-                agent.finish();
-                return;
-            }
-
-            if (container.canRun(getNpc())) {
-                container.getAgent().setCurrent(true);
-                container.run();
-            }
+        if (_behaviourAgent.isCurrent()) {
+            super.on(argument);
         }
     }
 }

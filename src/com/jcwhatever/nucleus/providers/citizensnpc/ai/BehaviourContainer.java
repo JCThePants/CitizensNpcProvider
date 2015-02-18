@@ -27,8 +27,10 @@ package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 
-/*
- * 
+/**
+ * Container for an {@link com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour}.
+ *
+ * <p>Holds extra objects related to the behaviour.</p>
  */
 public abstract class BehaviourContainer<T extends INpcBehaviour> implements INpcBehaviour {
 

@@ -28,13 +28,23 @@ import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 
-/*
- * 
+/**
+ * Implementation of a {@link BehaviourAgent} for use with {@link INpcAction}'s.
+ *
+ * <p>The behaviour pool is used to select 1 of possibly many behaviours
+ * based on the cost of each behaviour or other factors determined by
+ * the implementation.</p>
  */
 public class ActionAgent extends BehaviourAgent<INpcAction, INpcAction> implements INpcActionAgent {
 
     private ActionPool childPool;
 
+    /**
+     * Constructor.
+     *
+     * @param npc        The owning NPC.
+     * @param container  The {@link ActionContainer} the behaviour is for.
+     */
     ActionAgent (Npc npc, ActionContainer container) {
         super(npc, container);
 

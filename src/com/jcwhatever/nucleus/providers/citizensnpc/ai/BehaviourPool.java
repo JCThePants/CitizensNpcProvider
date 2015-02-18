@@ -32,8 +32,12 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import java.util.List;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Abstract implementation of a behaviour pool/collection.
+ *
+ * <p>The behaviour pool is used to select 1 of possibly many behaviours
+ * based on the cost of each behaviour or other factors determined by
+ * the implementation.</p>
  */
 public abstract class BehaviourPool<T extends INpcBehaviour>
         implements INpcBehaviourPool<T> {
@@ -155,7 +159,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
             if (newGoal != null) {
 
-                assert newGoal != current;
+                assert !newGoal.equals(current);
 
                 // make new goal the current goal
                 setCurrent(newGoal, true);
@@ -190,13 +194,17 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
             if (putBack)
                 insertBehaviour(current);
+
+            current.getAgent().setCurrent(false);
         }
 
         _current = behaviour;
         _currentCost = behaviour != null ? behaviour.getCost(_npc) : 0;
 
-        if (behaviour != null)
+        if (behaviour != null) {
             getPoolList().remove(behaviour);
+            behaviour.getAgent().setCurrent(true);
+        }
     }
 
     // Get the lowest cost behaviour

@@ -31,8 +31,10 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 
 import java.util.Collection;
 
-/*
- * 
+/**
+ * A composite of {@link INpcAction} that run in parallel.
+ *
+ * <p>The composite is not finished until all child actions are finished.</p>
  */
 public class ParallelActions extends CompositeBehaviours<INpcAction>
         implements INpcAction {
@@ -60,11 +62,13 @@ public class ParallelActions extends CompositeBehaviours<INpcAction>
         for (BehaviourContainer<INpcAction> container : getBehaviours()) {
 
             if (container.getAgent().isFinished()) {
+                container.getAgent().setCurrent(false);
                 finishCount++;
                 continue;
             }
 
             if (container.canRun(getNpc())) {
+                container.getAgent().setCurrent(true);
                 container.run();
             }
             else {
@@ -72,8 +76,9 @@ public class ParallelActions extends CompositeBehaviours<INpcAction>
             }
         }
 
-        if (finishCount == getBehaviours().size())
+        if (finishCount == getBehaviours().size()) {
             agent.finish();
+        }
     }
 
     @Override

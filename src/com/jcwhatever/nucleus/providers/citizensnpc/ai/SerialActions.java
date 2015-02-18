@@ -32,8 +32,13 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 import java.util.Collection;
 import java.util.LinkedList;
 
-/*
- * 
+/**
+ * A composite of {@link INpcAction} that run in serial order.
+ *
+ * <p>Each action is run until it finishes. When an action is finished, the next action
+ * is run. The composite is not finished until all actions have completed.</p>
+ *
+ * <p>Actions that cannot run are skipped.</p>
  */
 public class SerialActions extends CompositeBehaviours<INpcAction>
         implements INpcAction {
@@ -75,7 +80,12 @@ public class SerialActions extends CompositeBehaviours<INpcAction>
                 agent.finish();
                 return;
             } else {
+
+                if (_current != null)
+                    _current.getAgent().setCurrent(false);
+
                 _current = _queue.removeFirst();
+                _current.getAgent().setCurrent(true);
             }
         }
 

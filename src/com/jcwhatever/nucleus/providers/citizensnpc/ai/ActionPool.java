@@ -31,8 +31,8 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionPool;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * 
+/**
+ * Implementation of a {@link BehaviourPool} for use with {@link INpcAction}'s.
  */
 public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionPool {
 
@@ -53,8 +53,8 @@ public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionP
 
         if (_filter == null)
             _filter = new ArrayList<>(_pool.size());
-
-        _filter.clear();
+        else
+            _filter.clear();
 
         for (ActionContainer action : _pool) {
 

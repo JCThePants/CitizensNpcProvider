@@ -35,8 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/*
- * 
+/**
+ * Abstract implementation of a behaviour composed of multiple behaviours.
  */
 public abstract class CompositeBehaviours<T extends INpcBehaviour>
         implements INpcBehaviour {
@@ -63,8 +63,16 @@ public abstract class CompositeBehaviours<T extends INpcBehaviour>
         }
     }
 
+    /**
+     * Invoked to create a container for a behaviour.
+     *
+     * @param behaviour  The behaviour to wrap.
+     */
     protected abstract BehaviourContainer<T> createContainer(T behaviour);
 
+    /**
+     * Get the owning NPC.
+     */
     public Npc getNpc() {
         return _npc;
     }
@@ -116,6 +124,9 @@ public abstract class CompositeBehaviours<T extends INpcBehaviour>
         return Math.max(1.0f, cost);
     }
 
+    /**
+     * Get the behaviours in the composite.
+     */
     protected List<BehaviourContainer<T>> getBehaviours() {
         return _behaviours;
     }

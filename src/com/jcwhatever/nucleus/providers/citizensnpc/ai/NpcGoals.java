@@ -36,8 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-/*
- * 
+/**
+ * Implementation of {@link INpcGoals}.
+ *
+ * <p>Main goal pool for an NPC.</p>
  */
 public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
@@ -158,8 +160,13 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
         if (_filter == null)
             _filter = new ArrayList<>(5);
+        else
+            _filter.clear();
 
         int priority = 0;
+        int currentPriority = getCurrent() != null
+                ? getCurrent().getPriority()
+                : 0;
 
         // get highest priority candidates.
         for (GoalContainer goal : _candidates) {
@@ -168,22 +175,19 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
                 continue;
 
             int candidatePriority = goal.getPriority();
-            int currentPriority = getCurrent() != null
-                    ? getCurrent().getPriority()
-                    : 0;
 
             // skip goals with less priority than current goal
             if (candidatePriority < currentPriority)
                 continue;
 
-            // compare priority with current final candidates priority
-            if (candidatePriority >= priority) {
-
-                // clear candidates and add higher priority candidate.
+            // clear lower priority results.
+            if (candidatePriority > priority)
                 _filter.clear();
-                _filter.add(goal);
-                priority = candidatePriority;
-            }
+
+            // add candidate with priority equal to or greater than
+            // largest priority found so far.
+            _filter.add(goal);
+            priority = candidatePriority;
         }
 
         return _filter;
@@ -209,8 +213,8 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
             GoalContainer container = (GoalContainer)getContainer();
 
             _candidates.remove(container);
-            if (getCurrent() == container)
-                setCurrent(null, false);
+            if (NpcGoals.this.getCurrent() == container)
+                NpcGoals.this.setCurrent(null, false);
 
             finish();
         }

@@ -29,8 +29,8 @@ import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 
 import java.util.Collection;
 
-/*
- * 
+/**
+ * Runs all AI goals in all spawned NPC's.
  */
 public class AiRunner implements Runnable {
 

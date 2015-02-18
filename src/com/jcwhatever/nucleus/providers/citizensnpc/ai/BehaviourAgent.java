@@ -42,13 +42,15 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
-import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 
 import java.util.Arrays;
 
-/*
- * 
+/**
+ * Behaviour agent.
+ *
+ * <p>Used to run actions in the agent action pool, attach npc events,  and declare
+ * when the current behaviour is finished.</p>
  */
 public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBehaviour>
         implements INpcBehaviourAgent {
@@ -59,7 +61,14 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
 
     private long _runCount = 0;
     private boolean _isFinished;
+    private boolean _isCurrent;
 
+    /**
+     * Constructor.
+     *
+     * @param npc        The owning NPC.
+     * @param container  The {@link BehaviourContainer} the agent is for.
+     */
     BehaviourAgent (Npc npc, BehaviourContainer<T> container) {
         _npc = npc;
         _container = container;
@@ -117,7 +126,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcSpawn")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -128,7 +137,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDespawn")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -139,7 +148,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcClick")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -150,7 +159,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcRightClick")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -161,7 +170,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcLeftClick")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -172,7 +181,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcEntityTarget")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -183,7 +192,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDamage")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -194,7 +203,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDamageByBlock")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -205,7 +214,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDamageByEntity")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -216,7 +225,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDeath")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -225,7 +234,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavStart")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -234,7 +243,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavPause")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -243,7 +252,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavCancel")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -252,7 +261,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavComplete")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -261,29 +270,58 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavTimeout")
-                .register(new ScriptUpdateSubscriber<>(subscriber));
+                .register(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
+    /**
+     * Get the NPC the agent is for.
+     */
     Npc getNpc() {
         return _npc;
     }
 
+    /**
+     * Get the owning {@link BehaviourContainer}.
+     */
     BehaviourContainer<T> getContainer() {
         return _container;
     }
 
+    /**
+     * Determine if the behaviour is finished.
+     */
     boolean isFinished() {
         return _isFinished;
     }
 
+    /**
+     * Determine if the behaviour is the current running
+     * behaviour in its owning behaviour pool.
+     */
+    boolean isCurrent() {
+        return _isCurrent && !isFinished();
+    }
+
+    /**
+     * Set the behaviours current running flag.
+     */
+    void setCurrent(boolean isCurrent) {
+        _isCurrent = isCurrent;
+    }
+
+    /**
+     * Run the agents child behaviour pool.
+     */
     boolean runPool() {
         _runCount++;
         return getPool().run();
     }
 
+    /**
+     * Reset the agent.
+     */
     void reset() {
         _isFinished = false;
-        //_subscriberAgents.disposeAgents();
     }
 }
