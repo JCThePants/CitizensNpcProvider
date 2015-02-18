@@ -25,12 +25,14 @@
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
 import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.providers.citizensnpc.goals.NpcGoals;
+import com.jcwhatever.nucleus.providers.citizensnpc.ai.BehaviourAgent;
+import com.jcwhatever.nucleus.providers.citizensnpc.ai.NpcGoals;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.NpcNavigator;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeKey;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraits;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
+import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.providers.npc.events.NpcClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByBlockEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
@@ -42,12 +44,9 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
-import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.storage.IDataNode;
-import com.jcwhatever.nucleus.utils.MetaKey;
-import com.jcwhatever.nucleus.utils.MetaStore;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
@@ -61,6 +60,9 @@ import org.bukkit.entity.LivingEntity;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.util.NMS;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
 /**
@@ -75,10 +77,15 @@ public class Npc implements INpc {
     private final NpcNavigator _navigator;
     private final NpcGoals _goals;
     private final NpcTraits _traits;
-    private final MetaStore _meta = new MetaStore();
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
+    private final Map<BehaviourAgent<?, ?>, NamedUpdateAgents> _behaviourAgents = new WeakHashMap<>(10);
     private final DataNodeKey _dataKey;
+    private Map<String, Object> _meta;
     private boolean _isDisposed;
+
+    // Holds entity reference, otherwise no one else may be holding it (weak references).
+    // Prevents losing entity reference in WeakHashMap in CitizensProvider.
+    private Entity _currentEntity;
 
     /**
      * Constructor.
@@ -157,9 +164,11 @@ public class Npc implements INpc {
         PreCon.notNull(location);
 
         if (_npc.spawn(location)) {
+            _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
             _traits.clearCitizensTraits();
             _traits.applyEquipment();
+            _currentEntity = _npc.getEntity();
         }
 
         return this;
@@ -175,6 +184,7 @@ public class Npc implements INpc {
 
         if (_npc.despawn()) {
             CitizensProvider.getInstance().unregisterEntity(entity);
+            _currentEntity = null;
             return true;
         }
         return false;
@@ -215,6 +225,32 @@ public class Npc implements INpc {
     @Override
     public INpcTraits getTraits() {
         return _traits;
+    }
+
+    @Override
+    @Nullable
+    public Object getMeta(String key) {
+        PreCon.notNull(key);
+
+        if (_meta == null)
+            return null;
+
+        return _meta.get(key);
+    }
+
+    @Override
+    public void setMeta(String key, @Nullable Object value) {
+        PreCon.notNullOrEmpty(key);
+
+        if (_meta == null)
+            _meta = new HashMap<>(7);
+
+        if (value == null) {
+            _meta.remove(key);
+        }
+        else {
+            _meta.put(key, value);
+        }
     }
 
     @Nullable
@@ -314,29 +350,21 @@ public class Npc implements INpc {
         if (_isDisposed)
             return;
 
+        if (isSpawned())
+            despawn();
+
         NpcDisposeEvent event = new NpcDisposeEvent(this);
         Nucleus.getEventManager().callBukkit(this, event);
 
         _registry.remove(this);
         _agents.disposeAgents();
+
+        for (NamedUpdateAgents agent : _behaviourAgents.values()) {
+            agent.disposeAgents();
+        }
+        _behaviourAgents.clear();
+
         _isDisposed = true;
-    }
-
-    @Nullable
-    @Override
-    public <T> T getMeta(MetaKey<T> key) {
-        return _meta.getMeta(key);
-    }
-
-    @Nullable
-    @Override
-    public Object getMetaObject(Object key) {
-        return _meta.getMetaObject(key);
-    }
-
-    @Override
-    public <T> void setMeta(MetaKey<T> key, @Nullable T value) {
-        _meta.setMeta(key, value);
     }
 
     public NPC getHandle() {
@@ -437,70 +465,94 @@ public class Npc implements INpc {
     public void onNpcSpawn(NpcSpawnEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcSpawn", event);
+        updateAgents("onNpcSpawn", event);
         _registry.onNpcSpawn(event);
     }
 
     public void onNpcDespawn(NpcDespawnEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcDespawn", event);
+        updateAgents("onNpcDespawn", event);
         _registry.onNpcDespawn(event);
     }
 
     public void onNpcClick(NpcClickEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcClick", event);
+        updateAgents("onNpcClick", event);
         _registry.onNpcClick(event);
     }
 
     public void onNpcRightClick(NpcRightClickEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcRightClick", event);
+        updateAgents("onNpcRightClick", event);
         _registry.onNpcRightClick(event);
     }
 
     public void onNpcLeftClick(NpcLeftClickEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcLeftClick", event);
+        updateAgents("onNpcLeftClick", event);
         _registry.onNpcLeftClick(event);
     }
 
     public void onNpcEntityTarget(NpcTargetedEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcEntityTarget", event);
+        updateAgents("onNpcEntityTarget", event);
         _registry.onNpcEntityTarget(event);
     }
 
     public void onNpcDamage(NpcDamageEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcDamage", event);
+        updateAgents("onNpcDamage", event);
         _registry.onNpcDamage(event);
     }
 
     public void onNpcDamageByBlock(NpcDamageByBlockEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcDamageByBlock", event);
+        updateAgents("onNpcDamageByBlock", event);
         _registry.onNpcDamageByBlock(event);
     }
 
     public void onNpcDamageByEntity(NpcDamageByEntityEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcDamageByEntity", event);
+        updateAgents("onNpcDamageByEntity", event);
         _registry.onNpcDamageByEntity(event);
     }
 
     public void onNpcDeath(NpcDeathEvent event) {
         PreCon.notNull(event);
 
-        _agents.update("onNpcDeath", event);
+        updateAgents("onNpcDeath", event);
         _registry.onNpcDeath(event);
+    }
+
+    public NamedUpdateAgents registerUpdateAgent(BehaviourAgent<?, ?> agent) {
+
+        if (_behaviourAgents.containsKey(agent)) {
+            return _behaviourAgents.get(agent);
+        }
+
+        NamedUpdateAgents updateAgents = new NamedUpdateAgents();
+
+        _behaviourAgents.put(agent, updateAgents);
+
+        return updateAgents;
+    }
+
+    public void unregisterUpdateAgent(BehaviourAgent<?, ?> agent) {
+        _behaviourAgents.remove(agent);
+    }
+
+    public void updateAgents(String agentName, Object event) {
+        for (NamedUpdateAgents agents : _behaviourAgents.values()) {
+            agents.update(agentName, event);
+        }
+        _agents.update(agentName, event);
     }
 }

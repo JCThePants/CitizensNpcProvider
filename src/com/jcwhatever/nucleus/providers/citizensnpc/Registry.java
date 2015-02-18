@@ -256,7 +256,7 @@ public class Registry implements INpcRegistry {
 
         _npcMap.remove(npc.getSearchName());
         _registry.deregister(npc.getHandle());
-        CitizensProvider.getInstance().unrregisterNPC(npc);
+        CitizensProvider.getInstance().unregisterNPC(npc);
     }
 
     @Override

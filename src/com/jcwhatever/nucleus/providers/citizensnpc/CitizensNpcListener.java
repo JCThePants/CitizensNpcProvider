@@ -36,6 +36,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
@@ -58,6 +59,8 @@ public class CitizensNpcListener implements Listener {
         if (npc == null)
             return;
 
+        CitizensProvider.getInstance().registerEntity(npc, event.getNPC().getEntity());
+
         NpcSpawnEvent e = new NpcSpawnEvent(npc);
         npc.onNpcSpawn(e);
         Nucleus.getEventManager().callBukkit(this, e);
@@ -70,6 +73,11 @@ public class CitizensNpcListener implements Listener {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
             return;
+
+        Entity entity = event.getNPC().getEntity();
+        if (entity != null) {
+            CitizensProvider.getInstance().unregisterEntity(entity);
+        }
 
         NpcDespawnEvent e = new NpcDespawnEvent(npc);
         npc.onNpcDespawn(e);

@@ -25,16 +25,18 @@
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
 import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.providers.citizensnpc.ai.AiRunner;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.CitizensNavigatorListener;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcProvider;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
-import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.storage.MemoryDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.Scheduler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -42,6 +44,7 @@ import org.bukkit.plugin.Plugin;
 
 import net.citizensnpcs.api.npc.NPC;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
@@ -60,7 +63,14 @@ public class CitizensProvider implements INpcProvider {
         return _instance;
     }
 
-    private final Map<Entity, INpc> _spawned = new WeakHashMap<>(15);
+    /**
+     * Get the current spawned {@link Npc}'s.
+     */
+    public static Collection<Npc> getSpawned() {
+        return _instance._spawned.values();
+    }
+
+    private final Map<Entity, Npc> _spawned = new WeakHashMap<>(15);
     private final Map<NPC, Npc> _npcs = new WeakHashMap<>(15);
     private final NpcTraitRegistry _traits = new NpcTraitRegistry(null);
 
@@ -88,6 +98,8 @@ public class CitizensProvider implements INpcProvider {
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(new CitizensNavigatorListener(), Nucleus.getPlugin());
         Bukkit.getPluginManager().registerEvents(new CitizensNpcListener(), Nucleus.getPlugin());
+
+        Scheduler.runTaskRepeat(Nucleus.getPlugin(), 1, 1, new AiRunner());
     }
 
     @Override
@@ -155,7 +167,7 @@ public class CitizensProvider implements INpcProvider {
         _npcs.put(npc.getHandle(), npc);
     }
 
-    public void unrregisterNPC(Npc npc) {
+    public void unregisterNPC(Npc npc) {
         _npcs.remove(npc.getHandle());
     }
 

@@ -30,7 +30,8 @@ import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavSettings;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.observer.update.IUpdateSubscriber;
+import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
+import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 
 import org.bukkit.Location;
@@ -178,6 +179,7 @@ public class NpcNavigator implements INpcNav {
     public INpcNav setTarget(Location location) {
         PreCon.notNull(location);
 
+        _navigator.cancelNavigation();
         _navigator.setTarget(location);
 
         if (_isVehicleProxy) {
@@ -193,6 +195,7 @@ public class NpcNavigator implements INpcNav {
     public INpcNav setTarget(Entity entity) {
         PreCon.notNull(entity);
 
+        _navigator.cancelNavigation();
         _navigator.setTarget(entity, _isHostile);
 
         if (_isVehicleProxy) {
@@ -218,71 +221,76 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav onNavStart(IUpdateSubscriber<INpc> subscriber) {
+    public INpcNav onNavStart(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavStart").register(subscriber);
+        _agents.getAgent("onNavStart").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
 
     @Override
-    public INpcNav onNavPause(IUpdateSubscriber<INpc> subscriber) {
+    public INpcNav onNavPause(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavPause").register(subscriber);
+        _agents.getAgent("onNavPause").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
 
     @Override
-    public INpcNav onNavCancel(IUpdateSubscriber<INpc> subscriber) {
+    public INpcNav onNavCancel(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavCancel").register(subscriber);
+        _agents.getAgent("onNavCancel").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
 
     @Override
-    public INpcNav onNavComplete(IUpdateSubscriber<INpc> subscriber) {
+    public INpcNav onNavComplete(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavComplete").register(subscriber);
+        _agents.getAgent("onNavComplete").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
 
     @Override
-    public INpcNav onNavTimeout(IUpdateSubscriber<INpc> subscriber) {
+    public INpcNav onNavTimeout(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavTimeout").register(subscriber);
+        _agents.getAgent("onNavTimeout").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
 
     public void onStart() {
+        _npc.updateAgents("onNavStart", _npc);
         _agents.update("onNavStart", _npc);
         _registry.onNavStart(_npc);
     }
 
     public void onPause() {
+        _npc.updateAgents("onNavPause", _npc);
         _agents.update("onNavPause", _npc);
         _registry.onNavPause(_npc);
     }
 
     public void onCancel() {
+        _npc.updateAgents("onNavCancel", _npc);
         _agents.update("onNavCancel", _npc);
         _registry.onNavCancel(_npc);
     }
 
     public void onComplete() {
+        _npc.updateAgents("onNavComplete", _npc);
         _agents.update("onNavComplete", _npc);
         _registry.onNavComplete(_npc);
     }
 
     public void onTimeout() {
+        _npc.updateAgents("onNavTimeout", _npc);
         _agents.update("onNavTimeout", _npc);
         _registry.onNavTimeout(_npc);
     }
