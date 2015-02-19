@@ -24,6 +24,8 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
+import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 
@@ -58,6 +60,11 @@ public abstract class BehaviourContainer<T extends INpcBehaviour> implements INp
 
     @Override
     public void reset(INpcState state) {
+
+        Msg.debug("[AI] [BEHAVIOUR_CONTAINER] [NPC:{0}] [{1}] reset",
+                ((Npc)state).getName(), getName());
+
+
         _behaviour.reset(state);
         getAgent().reset();
     }

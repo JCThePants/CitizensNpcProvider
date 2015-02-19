@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.ai.NpcGoals.GoalAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
@@ -125,16 +126,30 @@ public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcG
 
     @Override
     public boolean canRun(INpcState state) {
-        return getBehaviour().canRun(state);
+        boolean result = getBehaviour().canRun(state);
+
+        Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] canRun = {2}",
+                _goals.getNpc().getName(), getName(), result);
+
+        return result;
     }
 
     @Override
     public float getCost(INpcState state) {
-        return getBehaviour().getCost(state);
+        float result = getBehaviour().getCost(state);
+
+        Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] getCost = {2}",
+                _goals.getNpc().getName(), getName(), result);
+
+        return result;
     }
 
     @Override
     public void pause(INpcState state) {
+
+        Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] pause",
+                _goals.getNpc().getName(),  getName());
+
         getBehaviour().pause(state);
     }
 }

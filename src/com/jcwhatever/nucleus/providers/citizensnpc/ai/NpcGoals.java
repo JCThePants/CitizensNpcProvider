@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
@@ -72,6 +73,8 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
         PreCon.notNull(priority, "priority");
         PreCon.notNull(goal, "goal");
 
+        Msg.debug("[AI] [GOALS] [NPC:{0}] add : {1}", getNpc().getName(), goal.getName());
+
         GoalContainer container = new GoalContainer(priority, goal, this);
         insertBehaviour(container);
 
@@ -87,12 +90,18 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
     @Override
     public INpcGoals pause() {
+
+        Msg.debug("[AI] [GOALS] [NPC:{0}] pause", getNpc().getName());
+
         setRunning(false);
         return this;
     }
 
     @Override
     public INpcGoals resume() {
+
+        Msg.debug("[AI] [GOALS] [NPC:{0}] resume", getNpc().getName());
+
         setRunning(true);
         return this;
     }

@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
@@ -96,25 +97,39 @@ public class ActionContainer extends BehaviourContainer<INpcAction> implements I
         // only run action if no child actions were run.
         if (!_agent.runPool()) {
 
-            if (_agent.isFirstRun())
+            if (_agent.isFirstRun()) {
                 getAction().firstRun(_agent);
-
+            }
             getAction().run(_agent);
         }
     }
 
     @Override
     public boolean canRun(INpcState state) {
-        return getAction().canRun(state);
+        boolean result = getAction().canRun(state);
+
+        Msg.debug("[AI] [ACTION_CONTAINER] [NPC:{0}] [{1}] canRun = {2}",
+                _agent.getNpc().getName(), getName(), result);
+
+        return result;
     }
 
     @Override
     public float getCost(INpcState state) {
-        return getAction().getCost(state);
+        float result = getAction().getCost(state);
+
+        Msg.debug("[AI] [ACTION_CONTAINER] [NPC:{0}] [{1}] getCost = {2}",
+                _agent.getNpc().getName(), getName(), result);
+
+        return result;
     }
 
     @Override
     public void pause(INpcState state) {
+
+        Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] pause",
+                _agent.getNpc().getName(), getName());
+
         getAction().pause(state);
     }
 }

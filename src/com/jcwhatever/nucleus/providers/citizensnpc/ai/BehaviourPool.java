@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviourPool;
@@ -74,6 +75,9 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
     @Override
     public BehaviourPool<T> reset() {
+
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] reset", _npc.getName());
+
         setCurrent(null, true);
 
         for (BehaviourContainer<T> container : getPoolList()) {
@@ -93,6 +97,8 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     public INpcBehaviourPool add(T behaviour) {
         PreCon.notNull(behaviour);
 
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] add : ", _npc.getName(), behaviour.getName());
+
         insertBehaviour(createContainer(behaviour, false));
 
         return this;
@@ -102,6 +108,8 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     @Override
     public boolean remove(T behaviour) {
         PreCon.notNull(behaviour);
+
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] remove : {1}", _npc.getName(), behaviour.getName());
 
         BehaviourContainer<T> current = getCurrent();
 
@@ -117,6 +125,8 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     @Override
     public BehaviourPool<T> clear() {
 
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] clear", _npc.getName());
+
         getPoolList().clear();
         _current = null;
 
@@ -125,6 +135,8 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
     @Override
     public BehaviourPool<T> run(T behaviour) {
+
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] run : {1}", _npc.getName(), behaviour.getName());
 
         _currentOverride = createContainer(behaviour, false);
         _currentOverride.reset(_npc);
@@ -136,11 +148,15 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     public BehaviourPool<T> select(String behaviourName) {
         PreCon.notNull(behaviourName);
 
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] attempt select : {1}", _npc.getName(), behaviourName);
+
         BehaviourContainer<T> behaviour = getBehaviour(behaviourName);
         if (behaviour == null)
             return this;
 
         _currentOverride = behaviour;
+
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] select success : {1}", _npc.getName(), behaviourName);
 
         return this;
     }
@@ -221,6 +237,9 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     }
 
     protected void setCurrent(@Nullable BehaviourContainer<T> behaviour, boolean putBack) {
+
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] setCurrent : {1}",
+                _npc.getName(), behaviour == null ? "<<none>>" : behaviour.getName());
 
         BehaviourContainer<T> current = getCurrent();
 
