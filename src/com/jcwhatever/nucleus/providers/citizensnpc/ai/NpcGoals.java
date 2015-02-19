@@ -35,6 +35,7 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link INpcGoals}.
@@ -106,6 +107,16 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
     @Override
     protected GoalContainer createContainer(INpcGoal behaviour, boolean forMatch) {
         return forMatch ? new GoalContainer(behaviour) : new GoalContainer(behaviour, this);
+    }
+
+    @Override
+    @Nullable
+    protected BehaviourContainer<INpcGoal> getBehaviour(String name) {
+        for (GoalContainer goal : _candidates) {
+            if (goal.getName().equals(name))
+                return goal;
+        }
+        return null;
     }
 
     @Override

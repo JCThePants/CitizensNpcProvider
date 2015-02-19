@@ -43,13 +43,18 @@ public abstract class BehaviourContainer<T extends INpcBehaviour> implements INp
     public abstract BehaviourAgent getAgent();
 
     /**
-     * Invoked to run behaviour child behaviors.
+     * Invoked to run behaviour or its child behaviors.
      *
      * <p>If a child behaviour is run, the agents behaviour is not run.</p>
      *
      * @return  True if the behaviour or a child behaviour was run.
      */
     public abstract void run();
+
+    @Override
+    public String getName() {
+        return _behaviour.getName();
+    }
 
     @Override
     public void reset(INpcState state) {

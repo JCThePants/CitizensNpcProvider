@@ -25,26 +25,46 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
+import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 /**
- * A composite of {@link INpcAction}'s that run in parallel.
+ * A composite of {@link INpcAction} that run in serial order.
  *
- * <p>Extends {@link ParallelActions}. Difference is that the blended action
- * ends when any action in the composite ends.</p>
+ * <p>Each action is run until it finishes. When an action is finished, the next action
+ * is run. The composite is not finished until all actions have completed.</p>
+ *
+ * <p>Actions that cannot run are skipped.</p>
  */
-public class BlendedActions extends ParallelActions {
+public class SerialAction extends CompositeBehaviour<INpcAction>
+        implements INpcAction {
+
+    private LinkedList<BehaviourContainer<INpcAction>> _queue = new LinkedList<>();
+    private BehaviourContainer<INpcAction> _current;
 
     /**
      * Constructor.
      *
-     * @param actions  A collection of actions that will be blended.
+     * @param npc      The owning NPC.
+     * @param name     The name of the action.
+     * @param actions  A collection of actions that will be composite.
      */
-    public BlendedActions(Npc npc, Collection<INpcAction> actions) {
-        super(npc, actions);
+    public SerialAction(Npc npc, String name, Collection<INpcAction> actions) {
+        super(npc, name, actions);
+
+        _queue.addAll(getBehaviours());
+    }
+
+    @Override
+    public void reset(INpcState state) {
+        _queue.clear();
+        _queue.addAll(getBehaviours());
+        _current = null;
+        super.reset(state);
     }
 
     /**
@@ -56,23 +76,38 @@ public class BlendedActions extends ParallelActions {
     @Override
     public void run(INpcActionAgent agent) {
 
-        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
+        if (_current == null || _current.getAgent().isFinished()) {
 
-            if (container.getAgent().isFinished()) {
-                container.getAgent().setCurrent(false);
+            if (_queue.isEmpty()) {
                 agent.finish();
                 return;
-            }
+            } else {
 
-            if (container.canRun(getNpc())) {
-                container.getAgent().setCurrent(true);
-                container.run();
+                if (_current != null)
+                    _current.getAgent().setCurrent(false);
+
+                _current = _queue.removeFirst();
+                _current.getAgent().setCurrent(true);
             }
         }
+
+        _current.run();
+    }
+
+    @Override
+    public void pause(INpcState state) {
+
+        if (_current != null)
+            _current.getBehaviour().pause(state);
     }
 
     @Override
     public void firstRun(INpcActionAgent agent) {
         // do nothing
+    }
+
+    @Override
+    protected BehaviourContainer<INpcAction> createContainer(INpcAction behaviour) {
+        return new ActionContainer(getNpc(), behaviour);
     }
 }

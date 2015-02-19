@@ -25,27 +25,28 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
-import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 
 import java.util.Collection;
 
 /**
- * A composite of {@link INpcAction} that run in parallel.
+ * A composite of {@link INpcAction}'s that run in parallel.
  *
- * <p>The composite is not finished until all child actions are finished.</p>
+ * <p>Extends {@link ParallelAction}. Difference is that the blended action
+ * ends when any action in the composite ends.</p>
  */
-public class ParallelActions extends CompositeBehaviours<INpcAction>
-        implements INpcAction {
+public class BlendedAction extends ParallelAction {
 
     /**
      * Constructor.
      *
-     * @param actions  A collection of actions that will be run in parallel.
+     * @param npc      The owning NPC.
+     * @param name     The name of the action.
+     * @param actions  A collection of actions that will be blended.
      */
-    public ParallelActions(Npc npc, Collection<INpcAction> actions) {
-        super(npc, actions);
+    public BlendedAction(Npc npc, String name, Collection<INpcAction> actions) {
+        super(npc, name, actions);
     }
 
     /**
@@ -57,37 +58,17 @@ public class ParallelActions extends CompositeBehaviours<INpcAction>
     @Override
     public void run(INpcActionAgent agent) {
 
-        int finishCount = 0;
-
         for (BehaviourContainer<INpcAction> container : getBehaviours()) {
 
             if (container.getAgent().isFinished()) {
                 container.getAgent().setCurrent(false);
-                finishCount++;
-                continue;
+                agent.finish();
+                return;
             }
 
             if (container.canRun(getNpc())) {
                 container.getAgent().setCurrent(true);
                 container.run();
-            }
-            else {
-                finishCount++;
-            }
-        }
-
-        if (finishCount == getBehaviours().size()) {
-            agent.finish();
-        }
-    }
-
-    @Override
-    public void pause(INpcState state) {
-
-        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
-
-            if (!container.getAgent().isFinished()) {
-                container.getBehaviour().pause(state);
             }
         }
     }
@@ -96,10 +77,4 @@ public class ParallelActions extends CompositeBehaviours<INpcAction>
     public void firstRun(INpcActionAgent agent) {
         // do nothing
     }
-
-    @Override
-    protected BehaviourContainer<INpcAction> createContainer(INpcAction behaviour) {
-        return new ActionContainer(getNpc(), behaviour);
-    }
 }
-

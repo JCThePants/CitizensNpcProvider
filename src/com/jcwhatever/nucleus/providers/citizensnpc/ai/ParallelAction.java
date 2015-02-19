@@ -30,39 +30,24 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
 /**
- * A composite of {@link INpcAction} that run in serial order.
+ * A composite of {@link INpcAction} that run in parallel.
  *
- * <p>Each action is run until it finishes. When an action is finished, the next action
- * is run. The composite is not finished until all actions have completed.</p>
- *
- * <p>Actions that cannot run are skipped.</p>
+ * <p>The composite is not finished until all child actions are finished.</p>
  */
-public class SerialActions extends CompositeBehaviours<INpcAction>
+public class ParallelAction extends CompositeBehaviour<INpcAction>
         implements INpcAction {
-
-    private LinkedList<BehaviourContainer<INpcAction>> _queue = new LinkedList<>();
-    private BehaviourContainer<INpcAction> _current;
 
     /**
      * Constructor.
      *
-     * @param actions  A collection of actions that will be composite.
+     * @param npc      The owning NPC.
+     * @param name     The name of the action.
+     * @param actions  A collection of actions that will be run in parallel.
      */
-    public SerialActions(Npc npc, Collection<INpcAction> actions) {
-        super(npc, actions);
-
-        _queue.addAll(getBehaviours());
-    }
-
-    @Override
-    public void reset(INpcState state) {
-        _queue.clear();
-        _queue.addAll(getBehaviours());
-        _current = null;
-        super.reset(state);
+    public ParallelAction(Npc npc, String name, Collection<INpcAction> actions) {
+        super(npc, name, actions);
     }
 
     /**
@@ -74,29 +59,39 @@ public class SerialActions extends CompositeBehaviours<INpcAction>
     @Override
     public void run(INpcActionAgent agent) {
 
-        if (_current == null || _current.getAgent().isFinished()) {
+        int finishCount = 0;
 
-            if (_queue.isEmpty()) {
-                agent.finish();
-                return;
-            } else {
+        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
 
-                if (_current != null)
-                    _current.getAgent().setCurrent(false);
+            if (container.getAgent().isFinished()) {
+                container.getAgent().setCurrent(false);
+                finishCount++;
+                continue;
+            }
 
-                _current = _queue.removeFirst();
-                _current.getAgent().setCurrent(true);
+            if (container.canRun(getNpc())) {
+                container.getAgent().setCurrent(true);
+                container.run();
+            }
+            else {
+                finishCount++;
             }
         }
 
-        _current.run();
+        if (finishCount == getBehaviours().size()) {
+            agent.finish();
+        }
     }
 
     @Override
     public void pause(INpcState state) {
 
-        if (_current != null)
-            _current.getBehaviour().pause(state);
+        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
+
+            if (!container.getAgent().isFinished()) {
+                container.getBehaviour().pause(state);
+            }
+        }
     }
 
     @Override
@@ -109,3 +104,4 @@ public class SerialActions extends CompositeBehaviours<INpcAction>
         return new ActionContainer(getNpc(), behaviour);
     }
 }
+

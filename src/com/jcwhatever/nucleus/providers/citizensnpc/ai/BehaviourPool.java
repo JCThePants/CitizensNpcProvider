@@ -44,9 +44,11 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
     private final Npc _npc;
 
+    private BehaviourContainer<T> _currentOverride;
     private BehaviourContainer<T> _current;
     private float _currentCost;
     private boolean _isRunning = true;
+
 
     /**
      * Constructor.
@@ -64,6 +66,9 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     protected abstract void insertBehaviour(BehaviourContainer<T> container);
 
     protected abstract BehaviourContainer<T> createContainer(T behaviour, boolean forMatch);
+
+    @Nullable
+    protected abstract BehaviourContainer<T> getBehaviour(String name);
 
     protected abstract void onFinish();
 
@@ -118,6 +123,28 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
         return this;
     }
 
+    @Override
+    public BehaviourPool<T> run(T behaviour) {
+
+        _currentOverride = createContainer(behaviour, false);
+        _currentOverride.reset(_npc);
+
+        return this;
+    }
+
+    @Override
+    public BehaviourPool<T> select(String behaviourName) {
+        PreCon.notNull(behaviourName);
+
+        BehaviourContainer<T> behaviour = getBehaviour(behaviourName);
+        if (behaviour == null)
+            return this;
+
+        _currentOverride = behaviour;
+
+        return this;
+    }
+
     public boolean isRunning() {
         return _isRunning;
     }
@@ -135,6 +162,18 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
         if (!_isRunning)
             return false;
+
+        // run overriding behaviour, if any
+        if (_currentOverride != null) {
+            if (_currentOverride.isFinished()) {
+                _currentOverride = null;
+                return getCurrent() != null;
+            }
+
+            _currentOverride.run();
+
+            return true;
+        }
 
         BehaviourContainer<T> current = getCurrent();
 

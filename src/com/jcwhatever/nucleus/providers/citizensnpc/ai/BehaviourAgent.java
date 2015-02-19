@@ -99,24 +99,24 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
     }
 
     @Override
-    public INpcAction createParallelActions(INpcAction... actions) {
+    public INpcAction createParallelAction(String name, INpcAction... actions) {
         PreCon.notNull(actions);
 
-        return new ParallelActions(getNpc(), Arrays.asList(actions));
+        return new ParallelAction(getNpc(), name, Arrays.asList(actions));
     }
 
     @Override
-    public INpcAction createBlendedActions(INpcAction... actions) {
+    public INpcAction createBlendedAction(String name, INpcAction... actions) {
         PreCon.notNull(actions);
 
-        return new BlendedActions(getNpc(), Arrays.asList(actions));
+        return new BlendedAction(getNpc(), name, Arrays.asList(actions));
     }
 
     @Override
-    public INpcAction createSerialActions(INpcAction... actions) {
+    public INpcAction createSerialAction(String name, INpcAction... actions) {
         PreCon.notNull(actions);
 
-        return new SerialActions(getNpc(), Arrays.asList(actions));
+        return new SerialAction(getNpc(), name, Arrays.asList(actions));
     }
 
     @Override

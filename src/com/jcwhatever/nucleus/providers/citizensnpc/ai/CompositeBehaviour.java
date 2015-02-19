@@ -38,10 +38,11 @@ import java.util.Set;
 /**
  * Abstract implementation of a behaviour composed of multiple behaviours.
  */
-public abstract class CompositeBehaviours<T extends INpcBehaviour>
+public abstract class CompositeBehaviour<T extends INpcBehaviour>
         implements INpcBehaviour {
 
     private final Npc _npc;
+    private final String _name;
 
     private List<BehaviourContainer<T>> _behaviours;
     private Set<BehaviourContainer<T>> _canRun;
@@ -51,11 +52,13 @@ public abstract class CompositeBehaviours<T extends INpcBehaviour>
      *
      * @param behaviours  A collection of actions that will be composite.
      */
-    public CompositeBehaviours(Npc npc, Collection<T> behaviours) {
+    public CompositeBehaviour(Npc npc, String name, Collection<T> behaviours) {
         PreCon.notNull(npc);
+        PreCon.notNull(name);
         PreCon.notNull(behaviours);
 
         _npc = npc;
+        _name = name;
         _behaviours = new ArrayList<>(behaviours.size());
 
         for (T behaviour : behaviours) {
@@ -75,6 +78,11 @@ public abstract class CompositeBehaviours<T extends INpcBehaviour>
      */
     public Npc getNpc() {
         return _npc;
+    }
+
+    @Override
+    public String getName() {
+        return _name;
     }
 
     @Override

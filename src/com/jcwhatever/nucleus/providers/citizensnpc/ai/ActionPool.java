@@ -30,6 +30,7 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionPool;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of a {@link BehaviourPool} for use with {@link INpcAction}'s.
@@ -77,6 +78,16 @@ public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionP
         return forMatch
                 ? new ActionContainer(behaviour)
                 : new ActionContainer(getNpc(), behaviour);
+    }
+
+    @Nullable
+    @Override
+    protected BehaviourContainer<INpcAction> getBehaviour(String name) {
+        for (ActionContainer action : _pool) {
+            if (action.getName().equals(name))
+                return action;
+        }
+        return null;
     }
 
     @Override
