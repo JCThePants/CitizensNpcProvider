@@ -31,6 +31,7 @@ import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTra
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTraitType;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTrait;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTraitType;
+import com.jcwhatever.nucleus.providers.citizensnpc.traits.internal.ClearCitizensTraits.ClearCitizensTrait;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -39,7 +40,7 @@ import net.citizensnpcs.api.trait.Trait;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -54,7 +55,7 @@ public class CitizensTraitAdapter extends Trait {
     public static final OwnerTraitType _ownerType = new OwnerTraitType();
 
     private final Npc _npc;
-    private final Map<String, NpcTrait> _traits = new HashMap<>(10);
+    private final Map<String, NpcTrait> _traits = new LinkedHashMap<>(10);
 
     // used to store a copy of the _traits values for iteration. Iterate this to
     // prevent concurrent modification exceptions.
@@ -80,6 +81,8 @@ public class CitizensTraitAdapter extends Trait {
 
         _traits.put("owner", new OwnerTrait(npc, _ownerType,
                 npc.getDataKey().getRelative("traits.owner").getDataNode()));
+
+        _traits.put("clearCitizens", new ClearCitizensTrait(npc));
     }
 
     @Override

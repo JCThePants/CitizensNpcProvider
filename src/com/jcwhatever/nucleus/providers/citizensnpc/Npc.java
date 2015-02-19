@@ -32,7 +32,6 @@ import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeKey;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraits;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
-import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.providers.npc.events.NpcClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByBlockEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
@@ -44,8 +43,6 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
-import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
-import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
@@ -166,9 +163,9 @@ public class Npc implements INpc {
         if (_npc.spawn(location)) {
             _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
+            _currentEntity = _npc.getEntity();
             _traits.clearCitizensTraits();
             _traits.applyEquipment();
-            _currentEntity = _npc.getEntity();
         }
 
         return this;
@@ -213,17 +210,17 @@ public class Npc implements INpc {
     }
 
     @Override
-    public INpcNav getNavigator() {
+    public NpcNavigator getNavigator() {
         return _navigator;
     }
 
     @Override
-    public INpcGoals getGoals() {
+    public NpcGoals getGoals() {
         return _goals;
     }
 
     @Override
-    public INpcTraits getTraits() {
+    public NpcTraits getTraits() {
         return _traits;
     }
 
