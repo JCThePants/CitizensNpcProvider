@@ -53,6 +53,8 @@ public class NpcNavigator implements INpcNav {
     private final Navigator _navigator;
     private final NpcNavigatorSettings _settings;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
+
+    private NpcNavigatorSettings _currentSettings;
     private boolean _isHostile;
     private boolean _isVehicleProxy;
 
@@ -71,7 +73,8 @@ public class NpcNavigator implements INpcNav {
         _npc = npc;
         _registry = registry;
         _navigator = navigator;
-        _settings = new NpcNavigatorSettings(npc, navigator, navigator.getLocalParameters());
+        _settings = new NpcNavigatorSettings(npc, navigator, navigator.getDefaultParameters());
+        _currentSettings = new NpcNavigatorSettings(npc, navigator, navigator.getLocalParameters());
     }
 
     @Override
@@ -82,6 +85,11 @@ public class NpcNavigator implements INpcNav {
     @Override
     public INpcNavSettings getSettings() {
         return _settings;
+    }
+
+    @Override
+    public INpcNavSettings getCurrentSettings() {
+        return _currentSettings;
     }
 
     @Override
@@ -179,8 +187,10 @@ public class NpcNavigator implements INpcNav {
     public INpcNav setTarget(Location location) {
         PreCon.notNull(location);
 
-        _navigator.cancelNavigation();
         _navigator.setTarget(location);
+        _currentSettings = new NpcNavigatorSettings(_npc, _navigator, _navigator.getLocalParameters());
+
+        _navigator.getLocalParameters().distanceMargin(2F);
 
         if (_isVehicleProxy) {
             INpc vehicle = _npc.getNPCVehicle();
@@ -195,8 +205,8 @@ public class NpcNavigator implements INpcNav {
     public INpcNav setTarget(Entity entity) {
         PreCon.notNull(entity);
 
-        _navigator.cancelNavigation();
         _navigator.setTarget(entity, _isHostile);
+        _currentSettings = new NpcNavigatorSettings(_npc, _navigator, _navigator.getLocalParameters());
 
         if (_isVehicleProxy) {
             INpc vehicle = _npc.getNPCVehicle();

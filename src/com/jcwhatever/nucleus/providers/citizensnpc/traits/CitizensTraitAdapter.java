@@ -31,12 +31,28 @@ import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTra
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTraitType;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTrait;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTraitType;
-import com.jcwhatever.nucleus.providers.citizensnpc.traits.internal.ClearCitizensTraits.ClearCitizensTrait;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
 
+import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
+import net.citizensnpcs.trait.Age;
+import net.citizensnpcs.trait.Gravity;
+import net.citizensnpcs.trait.HorseModifiers;
+import net.citizensnpcs.trait.LookClose;
+import net.citizensnpcs.trait.NPCSkeletonType;
+import net.citizensnpcs.trait.OcelotModifiers;
+import net.citizensnpcs.trait.Poses;
+import net.citizensnpcs.trait.Powered;
+import net.citizensnpcs.trait.RabbitType;
+import net.citizensnpcs.trait.Saddle;
+import net.citizensnpcs.trait.SheepTrait;
+import net.citizensnpcs.trait.SlimeSize;
+import net.citizensnpcs.trait.VillagerProfession;
+import net.citizensnpcs.trait.WolfModifiers;
+import net.citizensnpcs.trait.WoolColor;
+import net.citizensnpcs.trait.ZombieModifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,8 +97,6 @@ public class CitizensTraitAdapter extends Trait {
 
         _traits.put("owner", new OwnerTrait(npc, _ownerType,
                 npc.getDataKey().getRelative("traits.owner").getDataNode()));
-
-        _traits.put("clearCitizens", new ClearCitizensTrait(npc));
     }
 
     @Override
@@ -127,6 +141,8 @@ public class CitizensTraitAdapter extends Trait {
 
     @Override
     public void onSpawn() {
+
+        clearCitizensTraits();
 
         List<NpcTrait> traits = getIterableTraits();
 
@@ -173,6 +189,9 @@ public class CitizensTraitAdapter extends Trait {
 
         _traits.put(trait.getLookupName(), trait);
         updateIterableTraits();
+
+        if (_npc.isSpawned())
+            trait.onSpawn();
     }
 
     @Nullable
@@ -216,4 +235,24 @@ public class CitizensTraitAdapter extends Trait {
         _iterableTraits = null;
     }
 
+    private void clearCitizensTraits() {
+        NPC npc = _npc.getHandle();
+
+        npc.removeTrait(Age.class);
+        npc.removeTrait(Gravity.class);
+        npc.removeTrait(HorseModifiers.class);
+        npc.removeTrait(LookClose.class);
+        npc.removeTrait(NPCSkeletonType.class);
+        npc.removeTrait(OcelotModifiers.class);
+        npc.removeTrait(Poses.class);
+        npc.removeTrait(Powered.class);
+        npc.removeTrait(RabbitType.class);
+        npc.removeTrait(Saddle.class);
+        npc.removeTrait(SheepTrait.class);
+        npc.removeTrait(SlimeSize.class);
+        npc.removeTrait(VillagerProfession.class);
+        npc.removeTrait(WolfModifiers.class);
+        npc.removeTrait(WoolColor.class);
+        npc.removeTrait(ZombieModifier.class);
+    }
 }

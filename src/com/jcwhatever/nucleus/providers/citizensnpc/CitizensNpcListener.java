@@ -62,6 +62,7 @@ public class CitizensNpcListener implements Listener {
         CitizensProvider.getInstance().registerEntity(npc, event.getNPC().getEntity());
 
         NpcSpawnEvent e = new NpcSpawnEvent(npc);
+        e.setCancelled(event.isCancelled());
         npc.onNpcSpawn(e);
         Nucleus.getEventManager().callBukkit(this, e);
 
@@ -80,6 +81,7 @@ public class CitizensNpcListener implements Listener {
         }
 
         NpcDespawnEvent e = new NpcDespawnEvent(npc);
+        e.setCancelled(event.isCancelled());
         npc.onNpcDespawn(e);
         Nucleus.getEventManager().callBukkit(this, e);
 
@@ -93,8 +95,9 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcClickEvent e = new NpcClickEvent(npc, event.getClicker());
+        e.setCancelled(event.isCancelled());
         npc.onNpcClick(e);
-        Nucleus.getEventManager().call(this, e);
+        Nucleus.getEventManager().callBukkit(this, e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -106,6 +109,7 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcLeftClickEvent e = new NpcLeftClickEvent(npc, event.getClicker());
+        e.setCancelled(event.isCancelled());
         npc.onNpcLeftClick(e);
         Nucleus.getEventManager().callBukkit(this, e);
 
@@ -119,6 +123,7 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcRightClickEvent e = new NpcRightClickEvent(npc, event.getClicker());
+        e.setCancelled(event.isCancelled());
         npc.onNpcRightClick(e);
         Nucleus.getEventManager().callBukkit(this, e);
 
@@ -132,6 +137,7 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcTargetedEvent e = new NpcTargetedEvent(npc, event.getEntity());
+        e.setCancelled(event.isCancelled());
         npc.onNpcEntityTarget(e);
         Nucleus.getEventManager().callBukkit(this, e);
 
@@ -146,7 +152,7 @@ public class CitizensNpcListener implements Listener {
 
         NpcDamageEvent e = new NpcDamageEvent(npc, event);
         npc.onNpcDamage(e);
-        Nucleus.getEventManager().call(this, e);
+        Nucleus.getEventManager().callBukkit(this, e);
 
         event.setCancelled(e.isCancelled());
     }

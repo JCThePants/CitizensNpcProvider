@@ -164,7 +164,6 @@ public class Npc implements INpc {
             _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
             _currentEntity = _npc.getEntity();
-            _traits.clearCitizensTraits();
             _traits.applyEquipment();
         }
 
