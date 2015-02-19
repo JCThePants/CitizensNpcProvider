@@ -100,6 +100,11 @@ public class SerialActions extends CompositeBehaviours<INpcAction>
     }
 
     @Override
+    public void firstRun(INpcActionAgent agent) {
+        // do nothing
+    }
+
+    @Override
     protected BehaviourContainer<INpcAction> createContainer(INpcAction behaviour) {
         return new ActionContainer(getNpc(), behaviour);
     }

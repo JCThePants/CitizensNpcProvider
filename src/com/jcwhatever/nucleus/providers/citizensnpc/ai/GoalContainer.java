@@ -94,12 +94,12 @@ public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcG
         return _agent;
     }
 
+    /**
+     * Unsupported. Use {@link #run}.
+     */
     @Override
-    public void run() {
-
-        // only run action if no child actions were run.
-        if (!getAgent().runPool())
-            getBehaviour().run(getAgent());
+    public void firstRun(INpcGoalAgent agent) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -108,6 +108,19 @@ public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcG
     @Override
     public void run(INpcGoalAgent agent) {
         throw new UnsupportedOperationException("Incorrect use of GoalContainer.");
+    }
+
+    @Override
+    public void run() {
+
+        // only run action if no child actions were run.
+        if (!getAgent().runPool()) {
+
+            if (getAgent().isFirstRun())
+                getBehaviour().firstRun(getAgent());
+
+            getBehaviour().run(getAgent());
+        }
     }
 
     @Override

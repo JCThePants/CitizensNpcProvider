@@ -74,12 +74,12 @@ public class ActionContainer extends BehaviourContainer<INpcAction> implements I
         return _agent;
     }
 
+    /**
+     * Unsupported. Use {@link #run}.
+     */
     @Override
-    public void run() {
-
-        // only run action if no child actions were run.
-        if (!_agent.runPool())
-            getAction().run(_agent);
+    public void firstRun(INpcActionAgent agent) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -88,6 +88,19 @@ public class ActionContainer extends BehaviourContainer<INpcAction> implements I
     @Override
     public void run(INpcActionAgent agent) {
         throw new UnsupportedOperationException("Incorrect use of ActionContainer.");
+    }
+
+    @Override
+    public void run() {
+
+        // only run action if no child actions were run.
+        if (!_agent.runPool()) {
+
+            if (_agent.isFirstRun())
+                getAction().firstRun(_agent);
+
+            getAction().run(_agent);
+        }
     }
 
     @Override

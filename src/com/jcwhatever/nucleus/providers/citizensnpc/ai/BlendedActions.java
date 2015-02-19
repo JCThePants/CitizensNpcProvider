@@ -70,4 +70,9 @@ public class BlendedActions extends ParallelActions {
             }
         }
     }
+
+    @Override
+    public void firstRun(INpcActionAgent agent) {
+        // do nothing
+    }
 }
