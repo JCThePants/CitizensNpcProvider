@@ -52,7 +52,6 @@ import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.util.NMS;
@@ -66,6 +65,8 @@ import javax.annotation.Nullable;
  * {@link INpc} implementation.
  */
 public class Npc implements INpc {
+
+    private static final Location LOOK_LOCATION = new Location(null, 0, 0, 0);
 
     private final String _name;
     private final String _searchName;
@@ -315,13 +316,9 @@ public class Npc implements INpc {
         if (!_npc.isSpawned())
             return this;
 
-        Location location = entity instanceof LivingEntity
-                ? ((LivingEntity) entity).getEyeLocation()
-                : entity.getLocation();
+        Location location = entity.getLocation(LOOK_LOCATION);
 
-        _npc.faceLocation(location);
-
-        return this;
+        return lookTowards(location);
     }
 
     @Override
@@ -329,6 +326,9 @@ public class Npc implements INpc {
         PreCon.notNull(location);
 
         if (!_npc.isSpawned())
+            return this;
+
+        if (location.distanceSquared(_npc.getStoredLocation()) <= 0.25)
             return this;
 
         _npc.faceLocation(location);
