@@ -27,6 +27,7 @@ package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
+import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoal;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalPriority;
@@ -43,7 +44,7 @@ import javax.annotation.Nullable;
  *
  * <p>Main goal pool for an NPC.</p>
  */
-public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
+public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements INpcGoals {
 
     private final Npc _npc;
     private final List<GoalContainer> _candidates = new ArrayList<>(5);
@@ -120,7 +121,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
 
     @Override
     @Nullable
-    protected BehaviourContainer<INpcGoal> getBehaviour(String name) {
+    protected BehaviourContainer<INpcGoal, INpcGoalAgent> getBehaviour(String name) {
         for (GoalContainer goal : _candidates) {
             if (goal.getName().equals(name))
                 return goal;
@@ -143,7 +144,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
     }
 
     @Override
-    protected void insertBehaviour(BehaviourContainer<INpcGoal> behaviour) {
+    protected void insertBehaviour(BehaviourContainer<INpcGoal, INpcGoalAgent> behaviour) {
 
         GoalContainer goal = (GoalContainer)behaviour;
 
@@ -171,12 +172,12 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
     }
 
     @Override
-    protected List<? extends BehaviourContainer<INpcGoal>> getPoolList() {
+    protected List<? extends BehaviourContainer<INpcGoal, INpcGoalAgent>> getPoolList() {
         return _candidates;
     }
 
     @Override
-    protected List<? extends BehaviourContainer<INpcGoal>> getFilteredPool() {
+    protected List<? extends BehaviourContainer<INpcGoal, INpcGoalAgent>> getFilteredPool() {
 
         if (_filter == null)
             _filter = new ArrayList<>(5);
@@ -213,7 +214,9 @@ public class NpcGoals extends BehaviourPool<INpcGoal> implements INpcGoals {
         return _filter;
     }
 
-    public class GoalAgent extends BehaviourAgent<INpcGoal, INpcAction> implements INpcGoalAgent {
+    public class GoalAgent
+            extends BehaviourAgent<INpcGoal, INpcAction, INpcGoalAgent, INpcActionAgent>
+            implements INpcGoalAgent {
 
         private ActionPool actions;
 

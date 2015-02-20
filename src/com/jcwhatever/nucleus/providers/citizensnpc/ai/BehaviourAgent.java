@@ -51,12 +51,19 @@ import java.util.Arrays;
  *
  * <p>Used to run actions in the agent action pool, attach npc events,  and declare
  * when the current behaviour is finished.</p>
+ *
+ * @param <T>   Agent behaviour type.
+ * @param <P>   Pool behaviour type.
+ * @param <BA>  Behaviour agent type.
+ * @param <PA>  Pool agent type.
  */
-public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBehaviour>
+public abstract class BehaviourAgent
+        <T extends INpcBehaviour, P extends INpcBehaviour,
+                BA extends INpcBehaviourAgent, PA extends INpcBehaviourAgent>
         implements INpcBehaviourAgent {
 
     private final Npc _npc;
-    private final BehaviourContainer<T> _container;
+    private final BehaviourContainer<T, BA> _container;
     private final NamedUpdateAgents _subscriberAgents;
 
     private long _runCount = 0;
@@ -69,14 +76,14 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
      * @param npc        The owning NPC.
      * @param container  The {@link BehaviourContainer} the agent is for.
      */
-    BehaviourAgent (Npc npc, BehaviourContainer<T> container) {
+    BehaviourAgent (Npc npc, BehaviourContainer<T, BA> container) {
         _npc = npc;
         _container = container;
         _subscriberAgents = npc.registerUpdateAgent(this);
     }
 
     @Override
-    public abstract BehaviourPool<P> getPool();
+    public abstract BehaviourPool<P, PA> getPool();
 
     @Override
     public long getRunCount() {
@@ -284,7 +291,7 @@ public abstract class BehaviourAgent<T extends INpcBehaviour, P extends INpcBeha
     /**
      * Get the owning {@link BehaviourContainer}.
      */
-    BehaviourContainer<T> getContainer() {
+    BehaviourContainer<T, BA> getContainer() {
         return _container;
     }
 

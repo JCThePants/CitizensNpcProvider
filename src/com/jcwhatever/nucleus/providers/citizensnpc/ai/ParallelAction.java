@@ -37,7 +37,8 @@ import java.util.Collection;
  *
  * <p>The composite is not finished until all child actions are finished.</p>
  */
-public class ParallelAction extends CompositeBehaviour<INpcAction>
+public class ParallelAction
+        extends CompositeBehaviour<INpcAction, INpcActionAgent>
         implements INpcAction {
 
     /**
@@ -62,7 +63,7 @@ public class ParallelAction extends CompositeBehaviour<INpcAction>
 
         int finishCount = 0;
 
-        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
+        for (BehaviourContainer<INpcAction, INpcActionAgent> container : getBehaviours()) {
 
             if (container.getAgent().isFinished()) {
                 container.getAgent().setCurrent(false);
@@ -90,7 +91,7 @@ public class ParallelAction extends CompositeBehaviour<INpcAction>
         Msg.debug("[AI] [PARALLEL_ACTION] [NPC:{0}] [{1}] pause",
                 getNpc().getName(), getName());
 
-        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
+        for (BehaviourContainer<INpcAction, INpcActionAgent> container : getBehaviours()) {
 
             if (!container.getAgent().isFinished()) {
                 container.getBehaviour().pause(state);
@@ -104,7 +105,7 @@ public class ParallelAction extends CompositeBehaviour<INpcAction>
     }
 
     @Override
-    protected BehaviourContainer<INpcAction> createContainer(INpcAction behaviour) {
+    protected BehaviourContainer<INpcAction, INpcActionAgent> createContainer(INpcAction behaviour) {
         return new ActionContainer(getNpc(), behaviour);
     }
 }

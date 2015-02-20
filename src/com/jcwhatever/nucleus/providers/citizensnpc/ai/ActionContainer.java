@@ -35,7 +35,9 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
  *
  * <p>Holds extra objects related to the action.</p>
  */
-public class ActionContainer extends BehaviourContainer<INpcAction> implements INpcAction {
+public class ActionContainer
+        extends BehaviourContainer<INpcAction, INpcActionAgent>
+        implements INpcAction {
 
     private final ActionAgent _agent;
 

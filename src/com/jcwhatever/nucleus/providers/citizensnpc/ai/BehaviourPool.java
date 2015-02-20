@@ -27,6 +27,7 @@ package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
+import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviourAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviourPool;
 import com.jcwhatever.nucleus.utils.PreCon;
 
@@ -40,13 +41,13 @@ import javax.annotation.Nullable;
  * based on the cost of each behaviour or other factors determined by
  * the implementation.</p>
  */
-public abstract class BehaviourPool<T extends INpcBehaviour>
+public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehaviourAgent>
         implements INpcBehaviourPool<T> {
 
     private final Npc _npc;
 
-    private BehaviourContainer<T> _currentOverride;
-    private BehaviourContainer<T> _current;
+    private BehaviourContainer<T, A> _currentOverride;
+    private BehaviourContainer<T, A> _current;
     private float _currentCost;
     private boolean _isRunning = true;
 
@@ -60,27 +61,27 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
         _npc = npc;
     }
 
-    protected abstract List<? extends BehaviourContainer<T>> getPoolList();
+    protected abstract List<? extends BehaviourContainer<T, A>> getPoolList();
 
-    protected abstract List<? extends BehaviourContainer<T>> getFilteredPool();
+    protected abstract List<? extends BehaviourContainer<T, A>> getFilteredPool();
 
-    protected abstract void insertBehaviour(BehaviourContainer<T> container);
+    protected abstract void insertBehaviour(BehaviourContainer<T, A> container);
 
-    protected abstract BehaviourContainer<T> createContainer(T behaviour, boolean forMatch);
+    protected abstract BehaviourContainer<T, A> createContainer(T behaviour, boolean forMatch);
 
     @Nullable
-    protected abstract BehaviourContainer<T> getBehaviour(String name);
+    protected abstract BehaviourContainer<T, A> getBehaviour(String name);
 
     protected abstract void onFinish();
 
     @Override
-    public BehaviourPool<T> reset() {
+    public BehaviourPool<T, A> reset() {
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] reset", _npc.getName());
 
         setCurrent(null, true);
 
-        for (BehaviourContainer<T> container : getPoolList()) {
+        for (BehaviourContainer<T, A> container : getPoolList()) {
             container.pause(_npc);
             container.reset(_npc);
         }
@@ -111,7 +112,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] remove : {1}", _npc.getName(), behaviour.getName());
 
-        BehaviourContainer<T> current = getCurrent();
+        BehaviourContainer<T, A> current = getCurrent();
 
         if (current != null && current.getBehaviour() == behaviour) {
             setCurrent(null, false);
@@ -123,7 +124,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     }
 
     @Override
-    public BehaviourPool<T> clear() {
+    public BehaviourPool<T, A> clear() {
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] clear", _npc.getName());
 
@@ -134,7 +135,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     }
 
     @Override
-    public BehaviourPool<T> run(T behaviour) {
+    public BehaviourPool<T, A> run(T behaviour) {
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] run : {1}", _npc.getName(), behaviour.getName());
 
@@ -145,12 +146,12 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     }
 
     @Override
-    public BehaviourPool<T> select(String behaviourName) {
+    public BehaviourPool<T, A> select(String behaviourName) {
         PreCon.notNull(behaviourName);
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] attempt select : {1}", _npc.getName(), behaviourName);
 
-        BehaviourContainer<T> behaviour = getBehaviour(behaviourName);
+        BehaviourContainer<T, A> behaviour = getBehaviour(behaviourName);
         if (behaviour == null)
             return this;
 
@@ -191,7 +192,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
             return true;
         }
 
-        BehaviourContainer<T> current = getCurrent();
+        BehaviourContainer<T, A> current = getCurrent();
 
         // remove current if finished
         if (current != null && current.isFinished()) {
@@ -199,11 +200,11 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
             return false;
         }
 
-        List<? extends BehaviourContainer<T>> candidates = getFilteredPool();
+        List<? extends BehaviourContainer<T, A>> candidates = getFilteredPool();
 
         if (!candidates.isEmpty()) {
 
-            BehaviourContainer<T> newGoal = null;
+            BehaviourContainer<T, A> newGoal = null;
 
             if (candidates.size() == 1) {
                 newGoal = candidates.get(0);
@@ -232,16 +233,16 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
         return false;
     }
 
-    protected BehaviourContainer<T> getCurrent() {
+    protected BehaviourContainer<T, A> getCurrent() {
         return _current;
     }
 
-    protected void setCurrent(@Nullable BehaviourContainer<T> behaviour, boolean putBack) {
+    protected void setCurrent(@Nullable BehaviourContainer<T, A> behaviour, boolean putBack) {
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] setCurrent : {1}",
                 _npc.getName(), behaviour == null ? "<<none>>" : behaviour.getName());
 
-        BehaviourContainer<T> current = getCurrent();
+        BehaviourContainer<T, A> current = getCurrent();
 
         assert current != behaviour;
 
@@ -266,12 +267,12 @@ public abstract class BehaviourPool<T extends INpcBehaviour>
     }
 
     // Get the lowest cost behaviour
-    protected BehaviourContainer<T> getLowestCost(List<? extends BehaviourContainer<T>> candidates) {
+    protected BehaviourContainer<T, A> getLowestCost(List<? extends BehaviourContainer<T, A>> candidates) {
 
         float cost = _current != null ? _currentCost : Float.MAX_VALUE;
-        BehaviourContainer<T> result = null;
+        BehaviourContainer<T, A> result = null;
 
-        for (BehaviourContainer<T> behaviour : candidates) {
+        for (BehaviourContainer<T, A> behaviour : candidates) {
 
             float candidateCost = behaviour.getCost(_npc);
 

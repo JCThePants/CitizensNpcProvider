@@ -76,7 +76,7 @@ public class Npc implements INpc {
     private final NpcGoals _goals;
     private final NpcTraits _traits;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
-    private final Map<BehaviourAgent<?, ?>, NamedUpdateAgents> _behaviourAgents = new WeakHashMap<>(10);
+    private final Map<BehaviourAgent<?, ?, ?, ?>, NamedUpdateAgents> _behaviourAgents = new WeakHashMap<>(10);
     private final DataNodeKey _dataKey;
     private Map<String, Object> _meta;
     private boolean _isDisposed;
@@ -528,7 +528,7 @@ public class Npc implements INpc {
         _registry.onNpcDeath(event);
     }
 
-    public NamedUpdateAgents registerUpdateAgent(BehaviourAgent<?, ?> agent) {
+    public NamedUpdateAgents registerUpdateAgent(BehaviourAgent<?, ?, ?, ?> agent) {
 
         if (_behaviourAgents.containsKey(agent)) {
             return _behaviourAgents.get(agent);
@@ -541,7 +541,7 @@ public class Npc implements INpc {
         return updateAgents;
     }
 
-    public void unregisterUpdateAgent(BehaviourAgent<?, ?> agent) {
+    public void unregisterUpdateAgent(BehaviourAgent<?, ?, ?, ?> agent) {
         _behaviourAgents.remove(agent);
     }
 

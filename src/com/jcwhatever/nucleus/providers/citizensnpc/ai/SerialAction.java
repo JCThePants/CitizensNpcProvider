@@ -41,11 +41,11 @@ import java.util.LinkedList;
  *
  * <p>Actions that cannot run are skipped.</p>
  */
-public class SerialAction extends CompositeBehaviour<INpcAction>
+public class SerialAction extends CompositeBehaviour<INpcAction, INpcActionAgent>
         implements INpcAction {
 
-    private LinkedList<BehaviourContainer<INpcAction>> _queue = new LinkedList<>();
-    private BehaviourContainer<INpcAction> _current;
+    private LinkedList<BehaviourContainer<INpcAction, INpcActionAgent>> _queue = new LinkedList<>();
+    private BehaviourContainer<INpcAction, INpcActionAgent> _current;
 
     /**
      * Constructor.
@@ -114,7 +114,7 @@ public class SerialAction extends CompositeBehaviour<INpcAction>
     }
 
     @Override
-    protected BehaviourContainer<INpcAction> createContainer(INpcAction behaviour) {
+    protected BehaviourContainer<INpcAction, INpcActionAgent> createContainer(INpcAction behaviour) {
         return new ActionContainer(getNpc(), behaviour);
     }
 }

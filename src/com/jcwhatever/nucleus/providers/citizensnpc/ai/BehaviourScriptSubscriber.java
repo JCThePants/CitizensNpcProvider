@@ -36,14 +36,14 @@ import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
  */
 public class BehaviourScriptSubscriber<A> extends ScriptUpdateSubscriber<A> {
 
-    private final BehaviourAgent<?, ?> _behaviourAgent;
+    private final BehaviourAgent<?, ?, ?, ?> _behaviourAgent;
 
     /**
      * Constructor.
      *
      * @param subscriber The subscriber passed in from a script.
      */
-    public BehaviourScriptSubscriber(BehaviourAgent<?, ?> behaviourAgent,
+    public BehaviourScriptSubscriber(BehaviourAgent<?, ?, ?, ?> behaviourAgent,
                                      IScriptUpdateSubscriber<A> subscriber) {
         super(subscriber);
 

@@ -27,6 +27,7 @@ package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
+import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviourAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.utils.PreCon;
 
@@ -39,14 +40,14 @@ import java.util.Set;
 /**
  * Abstract implementation of a behaviour composed of multiple behaviours.
  */
-public abstract class CompositeBehaviour<T extends INpcBehaviour>
-        implements INpcBehaviour {
+public abstract class CompositeBehaviour<T extends INpcBehaviour, A extends INpcBehaviourAgent>
+        implements INpcBehaviour<A> {
 
     private final Npc _npc;
     private final String _name;
 
-    private List<BehaviourContainer<T>> _behaviours;
-    private Set<BehaviourContainer<T>> _canRun;
+    private List<BehaviourContainer<T, A>> _behaviours;
+    private Set<BehaviourContainer<T, A>> _canRun;
 
     /**
      * Constructor.
@@ -72,7 +73,7 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour>
      *
      * @param behaviour  The behaviour to wrap.
      */
-    protected abstract BehaviourContainer<T> createContainer(T behaviour);
+    protected abstract BehaviourContainer<T, A> createContainer(T behaviour);
 
     /**
      * Get the owning NPC.
@@ -91,7 +92,7 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour>
 
         Msg.debug("[AI] [COMPOSITE_BEHAVIOUR] [NPC:{0}] [{1}] reset", _npc.getName(), getName());
 
-        for (BehaviourContainer<T> container : _behaviours) {
+        for (BehaviourContainer<T, A> container : _behaviours) {
             container.reset(state);
         }
     }
@@ -107,7 +108,7 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour>
             _canRun.clear();
         }
 
-        for (BehaviourContainer<T> container : _behaviours) {
+        for (BehaviourContainer<T, A> container : _behaviours) {
 
             if (container.getBehaviour().canRun(state)) {
                 _canRun.add(container);
@@ -127,7 +128,7 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour>
         if (_canRun == null)
             return 1.0f;
 
-        for (BehaviourContainer<T> container : _behaviours) {
+        for (BehaviourContainer<T, A> container : _behaviours) {
 
             if (_canRun.contains(container)) {
                 cost += container.getBehaviour().getCost(state);
@@ -144,7 +145,7 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour>
     /**
      * Get the behaviours in the composite.
      */
-    protected List<BehaviourContainer<T>> getBehaviours() {
+    protected List<BehaviourContainer<T, A>> getBehaviours() {
         return _behaviours;
     }
 }

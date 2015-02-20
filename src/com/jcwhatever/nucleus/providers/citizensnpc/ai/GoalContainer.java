@@ -36,7 +36,9 @@ import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalPriority;
  *
  * <p>Holds extra objects related to the goal</p>
  */
-public class GoalContainer extends BehaviourContainer<INpcGoal> implements INpcGoal {
+public class GoalContainer
+        extends BehaviourContainer<INpcGoal, INpcGoalAgent>
+        implements INpcGoal {
 
     private final INpcGoalPriority _priority;
     private final NpcGoals _goals;

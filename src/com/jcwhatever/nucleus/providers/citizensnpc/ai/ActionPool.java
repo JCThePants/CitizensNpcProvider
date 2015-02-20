@@ -26,6 +26,7 @@ package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
+import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionPool;
 
 import java.util.ArrayList;
@@ -35,7 +36,9 @@ import javax.annotation.Nullable;
 /**
  * Implementation of a {@link BehaviourPool} for use with {@link INpcAction}'s.
  */
-public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionPool {
+public class ActionPool
+        extends BehaviourPool<INpcAction, INpcActionAgent>
+        implements INpcActionPool {
 
     private final List<ActionContainer> _pool = new ArrayList<>(5);
     private List<ActionContainer> _filter;
@@ -45,12 +48,12 @@ public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionP
     }
 
     @Override
-    protected List<? extends BehaviourContainer<INpcAction>> getPoolList() {
+    protected List<? extends BehaviourContainer<INpcAction, INpcActionAgent>> getPoolList() {
         return _pool;
     }
 
     @Override
-    protected List<? extends BehaviourContainer<INpcAction>> getFilteredPool() {
+    protected List<? extends BehaviourContainer<INpcAction, INpcActionAgent>> getFilteredPool() {
 
         if (_filter == null)
             _filter = new ArrayList<>(_pool.size());
@@ -69,12 +72,14 @@ public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionP
     }
 
     @Override
-    protected void insertBehaviour(BehaviourContainer<INpcAction> behaviour) {
+    protected void insertBehaviour(BehaviourContainer<INpcAction, INpcActionAgent> behaviour) {
         _pool.add((ActionContainer)behaviour);
     }
 
     @Override
-    protected BehaviourContainer<INpcAction> createContainer(INpcAction behaviour, boolean forMatch) {
+    protected BehaviourContainer<INpcAction, INpcActionAgent> createContainer(
+            INpcAction behaviour, boolean forMatch) {
+
         return forMatch
                 ? new ActionContainer(behaviour)
                 : new ActionContainer(getNpc(), behaviour);
@@ -82,7 +87,7 @@ public class ActionPool extends BehaviourPool<INpcAction> implements INpcActionP
 
     @Nullable
     @Override
-    protected BehaviourContainer<INpcAction> getBehaviour(String name) {
+    protected BehaviourContainer<INpcAction, INpcActionAgent> getBehaviour(String name) {
         for (ActionContainer action : _pool) {
             if (action.getName().equals(name))
                 return action;

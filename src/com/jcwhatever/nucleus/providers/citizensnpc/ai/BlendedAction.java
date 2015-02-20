@@ -58,7 +58,7 @@ public class BlendedAction extends ParallelAction {
     @Override
     public void run(INpcActionAgent agent) {
 
-        for (BehaviourContainer<INpcAction> container : getBehaviours()) {
+        for (BehaviourContainer<INpcAction, INpcActionAgent> container : getBehaviours()) {
 
             if (container.getAgent().isFinished()) {
                 container.getAgent().setCurrent(false);

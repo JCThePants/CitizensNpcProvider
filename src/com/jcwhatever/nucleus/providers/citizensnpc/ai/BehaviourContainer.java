@@ -27,6 +27,7 @@ package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
+import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviourAgent;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 
 /**
@@ -34,7 +35,8 @@ import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
  *
  * <p>Holds extra objects related to the behaviour.</p>
  */
-public abstract class BehaviourContainer<T extends INpcBehaviour> implements INpcBehaviour {
+public abstract class BehaviourContainer<T extends INpcBehaviour, A extends INpcBehaviourAgent>
+        implements INpcBehaviour<A> {
 
     private final T _behaviour;
 

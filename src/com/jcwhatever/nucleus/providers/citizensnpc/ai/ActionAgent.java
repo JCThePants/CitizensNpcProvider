@@ -35,7 +35,9 @@ import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
  * based on the cost of each behaviour or other factors determined by
  * the implementation.</p>
  */
-public class ActionAgent extends BehaviourAgent<INpcAction, INpcAction> implements INpcActionAgent {
+public class ActionAgent
+        extends BehaviourAgent<INpcAction, INpcAction, INpcActionAgent, INpcActionAgent>
+        implements INpcActionAgent {
 
     private ActionPool childPool;
 
@@ -52,7 +54,7 @@ public class ActionAgent extends BehaviourAgent<INpcAction, INpcAction> implemen
     }
 
     @Override
-    public BehaviourPool<INpcAction> getPool() {
+    public BehaviourPool<INpcAction, INpcActionAgent> getPool() {
         return childPool;
     }
 }
