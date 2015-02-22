@@ -137,7 +137,7 @@ public class CitizensTraitAdapter extends Trait {
         List<NpcTrait> traits = getIterableTraits();
 
         for (NpcTrait trait : traits) {
-            if (trait instanceof Runnable && trait.canRun()) {
+            if (trait.isEnabled() && trait.canRun() && trait instanceof Runnable) {
                 ((Runnable) trait).run();
             }
         }

@@ -259,6 +259,14 @@ public class NpcTraits implements INpcTraits {
     }
 
     @Override
+    public boolean isEnabled(String name) {
+        PreCon.notNull(name);
+
+        NpcTrait trait = _adapter.get(name);
+        return trait != null && trait.isEnabled();
+    }
+
+    @Override
     public boolean remove(String name) {
         PreCon.notNull(name);
 
