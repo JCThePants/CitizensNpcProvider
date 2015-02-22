@@ -27,13 +27,10 @@ package com.jcwhatever.nucleus.providers.citizensnpc.navigator;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavSettings;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavTimeout;
-import com.jcwhatever.nucleus.providers.npc.navigator.flock.INpcFlocker;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import net.citizensnpcs.api.ai.Navigator;
 import net.citizensnpcs.api.ai.NavigatorParameters;
-
-import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link INpcNavSettings}.
@@ -42,7 +39,6 @@ public class NpcNavigatorSettings implements INpcNavSettings {
 
     private final NavigatorParameters _settings;
     private final CitizensStuckAdapter _stuckAdapter;
-    private final CitizensFlockAdapter _flockAdapter;
 
     /**
      * Constructor.
@@ -58,9 +54,6 @@ public class NpcNavigatorSettings implements INpcNavSettings {
 
         _settings = settings;
         _stuckAdapter = new CitizensStuckAdapter(settings.stuckAction());
-        _flockAdapter = new CitizensFlockAdapter(npc, settings);
-
-        settings.addRunCallback(_flockAdapter);
     }
 
     @Override
@@ -93,19 +86,6 @@ public class NpcNavigatorSettings implements INpcNavSettings {
     public INpcNavSettings ignoreWater() {
 
         _settings.avoidWater(false);
-
-        return this;
-    }
-
-    @Nullable
-    @Override
-    public INpcFlocker getFlocker() {
-        return _flockAdapter.getFlocker();
-    }
-
-    @Override
-    public INpcNavSettings setFlocker(@Nullable INpcFlocker flocker) {
-        _flockAdapter.setFlocker(flocker);
 
         return this;
     }

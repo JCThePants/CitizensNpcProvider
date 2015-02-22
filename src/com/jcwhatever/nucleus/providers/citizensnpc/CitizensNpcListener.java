@@ -206,7 +206,7 @@ public class CitizensNpcListener implements Listener {
 
         NpcPushEvent e = new NpcPushEvent(npc, event.getCollisionVector());
         e.setCancelled(event.isCancelled());
-        Nucleus.getEventManager().callBukkit(this, event);
+        Nucleus.getEventManager().callBukkit(this, e);
 
         event.setCancelled(e.isCancelled());
     }
