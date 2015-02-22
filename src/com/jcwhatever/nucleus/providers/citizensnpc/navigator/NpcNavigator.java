@@ -28,7 +28,7 @@ import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.Registry;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
-import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavSettings;
+import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavRunner;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
@@ -78,17 +78,17 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpc getNpc() {
+    public Npc getNpc() {
         return _npc;
     }
 
     @Override
-    public INpcNavSettings getSettings() {
+    public NpcNavigatorSettings getSettings() {
         return _settings;
     }
 
     @Override
-    public INpcNavSettings getCurrentSettings() {
+    public NpcNavigatorSettings getCurrentSettings() {
         return _currentSettings;
     }
 
@@ -143,7 +143,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav start() {
+    public NpcNavigator start() {
         _navigator.setPaused(false);
 
         if (_isVehicleProxy) {
@@ -156,7 +156,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav pause() {
+    public NpcNavigator pause() {
         _navigator.setPaused(true);
 
         onPause();
@@ -171,7 +171,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav cancel() {
+    public NpcNavigator cancel() {
         _navigator.cancelNavigation();
 
         if (_isVehicleProxy) {
@@ -184,7 +184,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav setTarget(Location location) {
+    public NpcNavigator setTarget(Location location) {
         PreCon.notNull(location);
 
         _navigator.setTarget(location);
@@ -202,7 +202,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav setTarget(Entity entity) {
+    public NpcNavigator setTarget(Entity entity) {
         PreCon.notNull(entity);
 
         _navigator.setTarget(entity, _isHostile);
@@ -218,7 +218,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav setHostile(boolean isHostile) {
+    public NpcNavigator setHostile(boolean isHostile) {
         _isHostile = isHostile;
 
         EntityTarget target = _navigator.getEntityTarget();
@@ -231,7 +231,28 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav onNavStart(IScriptUpdateSubscriber<INpc> subscriber) {
+    public NpcNavigator addRunner(INpcNavRunner runner) {
+        PreCon.notNull(runner);
+
+        NavRunnerContainer container = new NavRunnerContainer(this, runner);
+
+        _navigator.getDefaultParameters().addRunCallback(container);
+        _navigator.getLocalParameters().addRunCallback(container);
+
+        return this;
+    }
+
+    @Override
+    public NpcNavigator removeRunner(INpcNavRunner runner) {
+        PreCon.notNull(runner);
+
+        removeRunner(new NavRunnerContainer(runner));
+
+        return this;
+    }
+
+    @Override
+    public NpcNavigator onNavStart(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
         _agents.getAgent("onNavStart").register(new ScriptUpdateSubscriber<>(subscriber));
@@ -240,7 +261,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav onNavPause(IScriptUpdateSubscriber<INpc> subscriber) {
+    public NpcNavigator onNavPause(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
         _agents.getAgent("onNavPause").register(new ScriptUpdateSubscriber<>(subscriber));
@@ -249,7 +270,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav onNavCancel(IScriptUpdateSubscriber<INpc> subscriber) {
+    public NpcNavigator onNavCancel(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
         _agents.getAgent("onNavCancel").register(new ScriptUpdateSubscriber<>(subscriber));
@@ -258,7 +279,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav onNavComplete(IScriptUpdateSubscriber<INpc> subscriber) {
+    public NpcNavigator onNavComplete(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
         _agents.getAgent("onNavComplete").register(new ScriptUpdateSubscriber<>(subscriber));
@@ -267,7 +288,7 @@ public class NpcNavigator implements INpcNav {
     }
 
     @Override
-    public INpcNav onNavTimeout(IScriptUpdateSubscriber<INpc> subscriber) {
+    public NpcNavigator onNavTimeout(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
         _agents.getAgent("onNavTimeout").register(new ScriptUpdateSubscriber<>(subscriber));
@@ -303,5 +324,10 @@ public class NpcNavigator implements INpcNav {
         _npc.updateAgents("onNavTimeout", _npc);
         _agents.update("onNavTimeout", _npc);
         _registry.onNavTimeout(_npc);
+    }
+
+    void removeRunner(NavRunnerContainer container) {
+        _navigator.getDefaultParameters().removeRunCallback(container);
+        _navigator.getLocalParameters().removeRunCallback(container);
     }
 }
