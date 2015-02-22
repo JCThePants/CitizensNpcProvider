@@ -28,6 +28,7 @@ import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.providers.citizensnpc.ai.AiRunner;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.CitizensNavigatorListener;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
+import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced.TraitReplacer;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcProvider;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
@@ -100,6 +101,12 @@ public class CitizensProvider implements INpcProvider {
         Bukkit.getPluginManager().registerEvents(new CitizensNpcListener(), Nucleus.getPlugin());
 
         Scheduler.runTaskRepeat(Nucleus.getPlugin(), 1, 1, new AiRunner());
+
+        try {
+            TraitReplacer.replaceTraits();
+        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
