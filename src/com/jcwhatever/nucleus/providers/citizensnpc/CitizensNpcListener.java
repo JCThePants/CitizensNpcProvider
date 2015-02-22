@@ -32,12 +32,14 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcDamageEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDeathEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcPushEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -48,12 +50,13 @@ import net.citizensnpcs.api.event.EntityTargetNPCEvent;
 import net.citizensnpcs.api.event.NPCClickEvent;
 import net.citizensnpcs.api.event.NPCDespawnEvent;
 import net.citizensnpcs.api.event.NPCLeftClickEvent;
+import net.citizensnpcs.api.event.NPCPushEvent;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.event.NPCSpawnEvent;
 
 public class CitizensNpcListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onSpawn(NPCSpawnEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
@@ -69,7 +72,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onDespawn(NPCDespawnEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
@@ -88,7 +91,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onClick(NPCClickEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
@@ -102,7 +105,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onLeftClick(NPCLeftClickEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
@@ -116,7 +119,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onRightClick(NPCRightClickEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
@@ -130,7 +133,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onEntityTarget(EntityTargetNPCEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
@@ -144,7 +147,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onDamage(EntityDamageEvent event) {
         Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
@@ -157,7 +160,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onDamageByBlock(EntityDamageByBlockEvent event) {
         Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
@@ -170,7 +173,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onDamageByEntity(EntityDamageByEntityEvent event) {
         Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
@@ -183,7 +186,7 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     private void onDeath(EntityDeathEvent event) {
         Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
@@ -192,5 +195,19 @@ public class CitizensNpcListener implements Listener {
         NpcDeathEvent e = new NpcDeathEvent(npc, event);
         npc.onNpcDeath(e);
         Nucleus.getEventManager().callBukkit(this, e);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    private void onPush(NPCPushEvent event) {
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
+        if (npc == null)
+            return;
+
+        NpcPushEvent e = new NpcPushEvent(npc, event.getCollisionVector());
+        e.setCancelled(event.isCancelled());
+        Nucleus.getEventManager().callBukkit(this, event);
+
+        event.setCancelled(e.isCancelled());
     }
 }
