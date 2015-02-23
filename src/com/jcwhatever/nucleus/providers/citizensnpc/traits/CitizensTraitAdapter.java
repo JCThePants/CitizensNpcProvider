@@ -197,6 +197,8 @@ public class CitizensTraitAdapter extends Trait {
 
         trait.dispose();
 
+        updateIterableTraits();
+
         return true;
     }
 
