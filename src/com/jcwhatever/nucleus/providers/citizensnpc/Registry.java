@@ -171,15 +171,7 @@ public class Registry implements INpcRegistry {
 
         String lookupName = "nolookup__" + handle.getId();
 
-        Npc npc = new Npc(this, lookupName, handle, type,
-                _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
-
-        CitizensProvider.getInstance().registerNPC(npc);
-
-        NpcCreateEvent event = new NpcCreateEvent(npc);
-        Nucleus.getEventManager().callBukkit(this, event);
-
-        return npc;
+        return create(lookupName, npcName, type);
     }
 
     @Nullable
@@ -249,14 +241,6 @@ public class Registry implements INpcRegistry {
     @Override
     public NpcTraitType getTraitType(String name) {
         return _traits.getTraitType(name);
-    }
-
-    public void remove(Npc npc) {
-        PreCon.notNull(npc);
-
-        _npcMap.remove(npc.getSearchName());
-        _registry.deregister(npc.getHandle());
-        CitizensProvider.getInstance().unregisterNPC(npc);
     }
 
     @Override
@@ -394,7 +378,6 @@ public class Registry implements INpcRegistry {
         return this;
     }
 
-
     public void onNavStart(INpc npc) {
         PreCon.notNull(npc);
 
@@ -483,5 +466,13 @@ public class Registry implements INpcRegistry {
         PreCon.notNull(event);
 
         _agents.update("onNpcDeath", event);
+    }
+
+    void remove(Npc npc) {
+        PreCon.notNull(npc);
+
+        _npcMap.remove(npc.getSearchName());
+        npc.getHandle().destroy();
+        CitizensProvider.getInstance().unregisterNPC(npc);
     }
 }
