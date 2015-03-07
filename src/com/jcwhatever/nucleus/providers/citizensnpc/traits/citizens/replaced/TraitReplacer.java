@@ -24,13 +24,11 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
+import net.citizensnpcs.Citizens;
 import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.trait.TraitInfo;
-import net.citizensnpcs.npc.CitizensTraitFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Map;
 
 /**
  * Replaces Citizens internal traits that may interfere with the
@@ -49,29 +47,11 @@ public class TraitReplacer {
      */
     public static void replaceTraits() throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
 
-        Field registeredField = CitizensTraitFactory.class.getDeclaredField("registered");
-        registeredField.setAccessible(true);
-        removeFinalModifier(registeredField);
+        Field traitFactoryField = Citizens.class.getDeclaredField("traitFactory");
+        traitFactoryField.setAccessible(true);
+        removeFinalModifier(traitFactoryField);
 
-        @SuppressWarnings("unchecked")
-        Map<String, TraitInfo> registered = (Map<String, TraitInfo>)registeredField.get(CitizensAPI.getTraitFactory());
-
-        registered.put("age", TraitInfo.create(ReplacedAge.class).withName("age"));
-        registered.put("gravity", TraitInfo.create(ReplacedGravity.class).withName("gravity"));
-        registered.put("horsemodifiers", TraitInfo.create(ReplacedHorseModifiers.class).withName("horsemodifiers"));
-        registered.put("lookclose", TraitInfo.create(ReplacedLookClose.class).withName("lookclose"));
-        registered.put("skeletontype", TraitInfo.create(ReplacedNPCSkeletonType.class).withName("skeletontype"));
-        registered.put("ocelotmodifiers", TraitInfo.create(ReplacedOcelotModifiers.class).withName("ocelotmodifiers"));
-        registered.put("poses", TraitInfo.create(ReplacedPoses.class).withName("poses"));
-        registered.put("powered", TraitInfo.create(ReplacedPowered.class).withName("powered"));
-        registered.put("rabbittype", TraitInfo.create(ReplacedRabbitType.class).withName("rabbittype"));
-        registered.put("saddle", TraitInfo.create(ReplacedSaddle.class).withName("saddle"));
-        registered.put("sheeptrait", TraitInfo.create(ReplacedSheepTrait.class).withName("sheeptrait"));
-        registered.put("slimesize", TraitInfo.create(ReplacedSlimeSize.class).withName("slimesize"));
-        registered.put("profession", TraitInfo.create(ReplacedVillagerProfession.class).withName("profession"));
-        registered.put("wolfmodifiers", TraitInfo.create(ReplacedWolfModifiers.class).withName("wolfmodifiers"));
-        registered.put("woolcolor", TraitInfo.create(ReplacedWoolColor.class).withName("woolcolor"));
-        registered.put("zombiemodifier", TraitInfo.create(ReplacedZombieModifier.class).withName("zombiemodifier"));
+        traitFactoryField.set(CitizensAPI.getPlugin(), new ReplacedTraitFactory());
     }
 
     private static void removeFinalModifier(Field field) throws NoSuchFieldException, IllegalAccessException {
