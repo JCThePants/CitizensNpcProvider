@@ -41,7 +41,6 @@ import org.bukkit.inventory.ItemStack;
 
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.api.trait.trait.MobType;
 
 import java.util.Collection;
 import javax.annotation.Nullable;
@@ -54,7 +53,7 @@ public class NpcTraits implements INpcTraits {
     private final Npc _npc;
     private final NPC _handle;
     private final CitizensTraitAdapter _adapter;
-    private final EntityType _initialType;
+    private EntityType _entityType;
     private IKit _kit;
 
     /**
@@ -68,7 +67,7 @@ public class NpcTraits implements INpcTraits {
         PreCon.notNull(initialType);
 
         _npc = npc;
-        _initialType = initialType;
+        _entityType = initialType;
         _handle = npc.getHandle();
 
         _adapter = new CitizensTraitAdapter(npc);
@@ -108,13 +107,7 @@ public class NpcTraits implements INpcTraits {
 
     @Override
     public EntityType getType() {
-
-        Location location = getNpc().getLocation();
-        if (location == null)
-            return _initialType; // correct type may not be initialized by citizens yet
-
-        MobType type = _handle.getTrait(MobType.class);
-        return type.getType();
+        return _entityType;
     }
 
     @Override
@@ -128,6 +121,7 @@ public class NpcTraits implements INpcTraits {
             return this;
 
         _handle.setBukkitEntityType(event.getNewType());
+        _entityType = type;
 
         return this;
     }
