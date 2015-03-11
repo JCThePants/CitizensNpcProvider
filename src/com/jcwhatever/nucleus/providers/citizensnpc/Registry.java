@@ -134,17 +134,7 @@ public class Registry implements INpcRegistry {
 
         NPC handle = _registry.createNPC(type, npcName);
 
-        Npc npc = new Npc(this, lookupName, handle, type,
-                _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
-
-        _npcMap.put(lookupName.toLowerCase(), npc);
-
-        CitizensProvider.getInstance().registerNPC(npc);
-
-        NpcCreateEvent event = new NpcCreateEvent(npc);
-        Nucleus.getEventManager().callBukkit(this, event);
-
-        return npc;
+        return create(lookupName, handle, type);
     }
 
     @Nullable
@@ -171,7 +161,7 @@ public class Registry implements INpcRegistry {
 
         String lookupName = "nolookup__" + handle.getId();
 
-        return create(lookupName, npcName, type);
+        return create(lookupName, handle, type);
     }
 
     @Nullable
@@ -474,5 +464,21 @@ public class Registry implements INpcRegistry {
         _npcMap.remove(npc.getSearchName());
         npc.getHandle().destroy();
         CitizensProvider.getInstance().unregisterNPC(npc);
+    }
+
+    @Nullable
+    private INpc create(String lookupName, NPC handle, EntityType type) {
+
+        Npc npc = new Npc(this, lookupName, handle, type,
+                _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
+
+        _npcMap.put(lookupName.toLowerCase(), npc);
+
+        CitizensProvider.getInstance().registerNPC(npc);
+
+        NpcCreateEvent event = new NpcCreateEvent(npc);
+        Nucleus.getEventManager().callBukkit(this, event);
+
+        return npc;
     }
 }
