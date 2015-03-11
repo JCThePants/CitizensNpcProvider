@@ -166,7 +166,6 @@ public class Npc implements INpc {
             _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
             _currentEntity = _npc.getEntity();
-            _traits.applyEquipment();
         }
 
         return this;
@@ -450,6 +449,8 @@ public class Npc implements INpc {
 
     public void onNpcSpawn(NpcSpawnEvent event) {
         PreCon.notNull(event);
+
+        getTraits().applyEquipment();
 
         updateAgents("onNpcSpawn", event);
         _registry.onNpcSpawn(event);
