@@ -53,6 +53,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.util.NMS;
 
@@ -173,18 +174,7 @@ public class Npc implements INpc {
 
     @Override
     public boolean despawn() {
-
-        if (!_npc.isSpawned())
-            return false;
-
-        Entity entity = _npc.getEntity();
-
-        if (_npc.despawn()) {
-            CitizensProvider.getInstance().unregisterEntity(entity);
-            _currentEntity = null;
-            return true;
-        }
-        return false;
+        return despawn(DespawnReason.PLUGIN);
     }
 
     @Nullable
@@ -347,7 +337,7 @@ public class Npc implements INpc {
             return;
 
         if (isSpawned())
-            despawn();
+            despawn(DespawnReason.REMOVAL);
 
         NpcDisposeEvent event = new NpcDisposeEvent(this);
         Nucleus.getEventManager().callBukkit(this, event);
@@ -550,5 +540,20 @@ public class Npc implements INpc {
             agents.update(agentName, event);
         }
         _agents.update(agentName, event);
+    }
+
+    private boolean despawn(DespawnReason reason) {
+
+        if (!_npc.isSpawned())
+            return false;
+
+        Entity entity = _npc.getEntity();
+
+        if (_npc.despawn(reason)) {
+            CitizensProvider.getInstance().unregisterEntity(entity);
+            _currentEntity = null;
+            return true;
+        }
+        return false;
     }
 }
