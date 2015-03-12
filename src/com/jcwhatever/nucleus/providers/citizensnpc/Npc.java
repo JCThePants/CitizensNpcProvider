@@ -300,7 +300,7 @@ public class Npc implements INpc {
     }
 
     @Override
-    public INpc lookAt(Entity entity) {
+    public INpc lookEntity(Entity entity) {
         PreCon.notNull(entity);
 
         if (!_npc.isSpawned())
@@ -308,11 +308,11 @@ public class Npc implements INpc {
 
         Location location = entity.getLocation(LOOK_LOCATION);
 
-        return lookTowards(location);
+        return lookLocation(location);
     }
 
     @Override
-    public INpc lookTowards(Location location) {
+    public INpc lookLocation(Location location) {
         PreCon.notNull(location);
 
         if (!_npc.isSpawned())
