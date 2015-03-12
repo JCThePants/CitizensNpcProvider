@@ -45,6 +45,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.Scheduler;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
@@ -450,10 +451,15 @@ public class Npc implements INpc {
     public void onNpcSpawn(NpcSpawnEvent event) {
         PreCon.notNull(event);
 
-        getTraits().applyEquipment();
-
         updateAgents("onNpcSpawn", event);
         _registry.onNpcSpawn(event);
+
+        Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                getTraits().applyEquipment();
+            }
+        });
     }
 
     public void onNpcDespawn(NpcDespawnEvent event) {
