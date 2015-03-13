@@ -25,7 +25,7 @@ ext.jcBuildSettings = [
                 'C:/JavaRepo/bukkit/citizens-2.0.14-SNAPSHOT.jar',
         ],
         providedDepends : [
-                'org.spigotmc:spigot-api:1.8-R0.1-SNAPSHOT',
+                'org.spigotmc:spigot-api:1.8.3-R0.1-SNAPSHOT',
                 'com.google.code.findbugs:jsr305:3.0.0',
                 'com.jcwhatever.bukkit:NucleusFramework:+'
         ],
