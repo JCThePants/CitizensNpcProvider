@@ -34,7 +34,6 @@ import com.jcwhatever.nucleus.providers.npc.INpcProvider;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
-import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.storage.MemoryDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.Scheduler;
@@ -117,11 +116,6 @@ public class CitizensProvider implements INpcProvider {
     @Override
     public INpcRegistry createRegistry(Plugin plugin, String name) {
         return new Registry(plugin, name, new MemoryDataNode(plugin));
-    }
-
-    @Override
-    public INpcRegistry createRegistry(Plugin plugin, String name, IDataNode dataNode) {
-        return new Registry(plugin, name, dataNode);
     }
 
     @Override

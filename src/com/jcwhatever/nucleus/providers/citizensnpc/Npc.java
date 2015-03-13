@@ -120,6 +120,13 @@ public class Npc implements INpc {
         return _dataKey;
     }
 
+    /**
+     * Get the NPC data node storage.
+     */
+    public IDataNode getDataNode() {
+        return _dataKey.getDataNode();
+    }
+
     @Override
     public String getName() {
         return _name;
@@ -133,11 +140,6 @@ public class Npc implements INpc {
     @Override
     public INpcRegistry getRegistry() {
         return _registry;
-    }
-
-    @Override
-    public IDataNode getDataNode() {
-        return _dataKey.getDataNode();
     }
 
     @Override

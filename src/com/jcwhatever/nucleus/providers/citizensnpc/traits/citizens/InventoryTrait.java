@@ -78,11 +78,6 @@ public class InventoryTrait extends NpcTrait {
     }
 
     @Override
-    public void save(IDataNode dataNode) {
-        _trait.save(new DataNodeKey(dataNode.getNodePath(), dataNode, null));
-    }
-
-    @Override
     public boolean isDisposed() {
         return false;
     }

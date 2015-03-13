@@ -112,13 +112,6 @@ public class EquipmentTrait extends NpcTrait {
         return _trait.toString();
     }
 
-    @Override
-    public void save(IDataNode dataNode) {
-        PreCon.notNull(dataNode);
-
-        _trait.save(new DataNodeKey(dataNode.getNodePath(), dataNode, null));
-    }
-
     private EquipmentSlot getSlot(Object slot) {
 
         EquipmentSlot equipmentSlot;

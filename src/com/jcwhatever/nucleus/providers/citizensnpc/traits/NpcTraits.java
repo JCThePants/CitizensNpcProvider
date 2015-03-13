@@ -32,7 +32,6 @@ import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
-import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import org.bukkit.Location;
@@ -77,11 +76,6 @@ public class NpcTraits implements INpcTraits {
     @Override
     public INpc getNpc() {
         return _npc;
-    }
-
-    @Override
-    public IDataNode getTraitNode(NpcTrait trait) {
-        return _npc.getDataNode().getNode("traits").getNode(trait.getLookupName());
     }
 
     @Override
