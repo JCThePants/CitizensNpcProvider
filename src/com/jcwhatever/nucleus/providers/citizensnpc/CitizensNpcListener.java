@@ -31,6 +31,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDeathEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcPushEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
@@ -64,7 +65,7 @@ public class CitizensNpcListener implements Listener {
 
         CitizensProvider.getInstance().registerEntity(npc, event.getNPC().getEntity());
 
-        NpcSpawnEvent e = new NpcSpawnEvent(npc);
+        NpcSpawnEvent e = new NpcSpawnEvent(npc, npc.getSpawnReason());
         e.setCancelled(event.isCancelled());
         npc.onNpcSpawn(e);
         Nucleus.getEventManager().callBukkit(this, e);
@@ -83,7 +84,35 @@ public class CitizensNpcListener implements Listener {
             CitizensProvider.getInstance().unregisterEntity(entity);
         }
 
-        NpcDespawnEvent e = new NpcDespawnEvent(npc);
+        NpcDespawnReason reason;
+
+        switch (event.getReason()) {
+            case CHUNK_UNLOAD:
+                reason = NpcDespawnReason.CHUNK_UNLOAD;
+                break;
+            case DEATH:
+                reason = NpcDespawnReason.DEATH;
+                break;
+            case PENDING_RESPAWN:
+                reason = NpcDespawnReason.RESPAWN;
+                break;
+            case PLUGIN:
+                reason = NpcDespawnReason.INVOKED;
+                break;
+            case REMOVAL:
+                reason = NpcDespawnReason.DISPOSED;
+                break;
+            case WORLD_UNLOAD:
+                reason = NpcDespawnReason.WORLD_UNLOAD;
+                break;
+            default:
+                reason = NpcDespawnReason.INVOKED;
+                break;
+        }
+
+        npc.setLastDespawnReason(reason);
+
+        NpcDespawnEvent e = new NpcDespawnEvent(npc, reason);
         e.setCancelled(event.isCancelled());
         npc.onNpcDespawn(e);
         Nucleus.getEventManager().callBukkit(this, e);

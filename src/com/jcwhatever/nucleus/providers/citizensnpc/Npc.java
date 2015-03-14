@@ -38,10 +38,12 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDeathEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDisposeEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcLeftClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -86,6 +88,11 @@ public class Npc implements INpc {
     // Holds entity reference, otherwise no one else may be holding it (weak references).
     // Prevents losing entity reference in WeakHashMap in CitizensProvider.
     private Entity _currentEntity;
+
+    // Store spawn/despawn reasons to fill in functionality missing in Citizens
+    // spawn event. Used to "guess" the reason an NPC is spawning.
+    private NpcSpawnReason _spawnReason;
+    private NpcDespawnReason _lastDespawnReason;
 
     /**
      * Constructor.
@@ -551,6 +558,60 @@ public class Npc implements INpc {
         _agents.update(agentName, event);
     }
 
+    /**
+     * Get the reason the NPC was spawned for.
+     *
+     * <p>For internal use.</p>
+     */
+    NpcSpawnReason getSpawnReason() {
+
+        NpcSpawnReason spawnReason = _spawnReason;
+        NpcDespawnReason despawnReason = _lastDespawnReason;
+
+        _lastDespawnReason = null;
+        _spawnReason = null;
+
+        // attempt to guess the reason Citizens is respawning for
+        if (spawnReason == null) {
+
+            if (despawnReason == null) {
+                return NpcSpawnReason.INVOKED;
+            }
+            else {
+
+                switch (despawnReason) {
+                    case INVOKED:
+                        // fall through
+                    case DEATH:
+                        return NpcSpawnReason.INVOKED;
+                    case RESPAWN:
+                        return NpcSpawnReason.RESPAWN;
+                    case CHUNK_UNLOAD:
+                        return NpcSpawnReason.CHUNK_LOAD;
+                    case WORLD_UNLOAD:
+                        return NpcSpawnReason.WORLD_LOAD;
+                }
+            }
+
+            return NpcSpawnReason.INVOKED;
+        }
+        else {
+            return _spawnReason;
+        }
+    }
+
+    /**
+     * Set the last reason the NPC was despawned for.
+     *
+     * <p>For internal use.</p>
+     *
+     * @param reason  The reason.
+     */
+    void setLastDespawnReason(NpcDespawnReason reason) {
+        _lastDespawnReason = reason;
+    }
+
+    // despawn the NPC
     private boolean despawn(DespawnReason reason) {
 
         if (!_npc.isSpawned())
