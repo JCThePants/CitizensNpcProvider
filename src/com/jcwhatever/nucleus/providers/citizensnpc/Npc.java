@@ -345,6 +345,8 @@ public class Npc implements INpc {
         if (_isDisposed)
             return;
 
+        _isDisposed = true;
+
         if (isSpawned())
             despawn(DespawnReason.REMOVAL);
 
@@ -358,8 +360,6 @@ public class Npc implements INpc {
             agent.disposeAgents();
         }
         _behaviourAgents.clear();
-
-        _isDisposed = true;
     }
 
     public NPC getHandle() {
