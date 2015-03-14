@@ -44,6 +44,7 @@ import org.bukkit.plugin.Plugin;
 
 import net.citizensnpcs.api.npc.NPC;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -67,7 +68,7 @@ public class CitizensProvider implements INpcProvider {
      * Get the current spawned {@link Npc}'s.
      */
     public static Collection<Npc> getSpawned() {
-        return _instance._spawned.values();
+        return new ArrayList<>(_instance._spawned.values());
     }
 
     private final Map<Entity, Npc> _spawned = new WeakHashMap<>(15);
