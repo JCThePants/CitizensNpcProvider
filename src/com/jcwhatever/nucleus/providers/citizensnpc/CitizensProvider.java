@@ -29,7 +29,6 @@ import com.jcwhatever.nucleus.providers.citizensnpc.ai.AiRunner;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.CitizensNavigatorListener;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced.TraitReplacer;
-import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcProvider;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
@@ -125,7 +124,7 @@ public class CitizensProvider implements INpcProvider {
     }
 
     @Override
-    public INpc getNpc(Entity entity) {
+    public Npc getNpc(Entity entity) {
         return _spawned.get(entity);
     }
 

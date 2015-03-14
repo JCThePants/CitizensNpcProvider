@@ -60,7 +60,7 @@ public class CitizensNpcListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onSpawn(NPCSpawnEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
-        if (npc == null)
+        if (npc == null || npc.isSpawned())
             return;
 
         CitizensProvider.getInstance().registerEntity(npc, event.getNPC().getEntity());
@@ -73,16 +73,38 @@ public class CitizensNpcListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    private void onDespawn(NPCDespawnEvent event) {
-        Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
+    // detect entity death
+    @EventHandler(priority = EventPriority.MONITOR)
+    private void onDeathDespawn(EntityDeathEvent event) {
+
+        // check for "cancelled" event
+        if (event.getEntity().getHealth() > 0.0D)
+            return;
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
             return;
 
+        Entity entity = event.getEntity();
+        CitizensProvider.getInstance().unregisterEntity(entity);
+
+        npc.setLastDespawnReason(NpcDespawnReason.DEATH);
+
+        NpcDespawnEvent e = new NpcDespawnEvent(npc, NpcDespawnReason.DEATH);
+        Nucleus.getEventManager().callBukkit(this, e);
+        npc.onNpcDespawn(e);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    private void onDespawn(NPCDespawnEvent event) {
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
+        if (npc == null || !npc.isSpawned())
+            return;
+
         Entity entity = event.getNPC().getEntity();
-        if (entity != null) {
+        if (entity != null)
             CitizensProvider.getInstance().unregisterEntity(entity);
-        }
 
         NpcDespawnReason reason;
 
@@ -91,8 +113,7 @@ public class CitizensNpcListener implements Listener {
                 reason = NpcDespawnReason.CHUNK_UNLOAD;
                 break;
             case DEATH:
-                reason = NpcDespawnReason.DEATH;
-                break;
+                return; // finished, handled in different event
             case PENDING_RESPAWN:
                 reason = NpcDespawnReason.RESPAWN;
                 break;
@@ -113,15 +134,18 @@ public class CitizensNpcListener implements Listener {
         npc.setLastDespawnReason(reason);
 
         NpcDespawnEvent e = new NpcDespawnEvent(npc, reason);
-        e.setCancelled(event.isCancelled());
-        npc.onNpcDespawn(e);
+        if (e.isCancellable())
+            e.setCancelled(event.isCancelled());
+
         Nucleus.getEventManager().callBukkit(this, e);
+        npc.onNpcDespawn(e);
 
         event.setCancelled(e.isCancelled());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onClick(NPCClickEvent event) {
+
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
             return;
@@ -136,6 +160,7 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onLeftClick(NPCLeftClickEvent event) {
+
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
             return;
@@ -150,6 +175,7 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onRightClick(NPCRightClickEvent event) {
+
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
             return;
@@ -164,6 +190,7 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onEntityTarget(EntityTargetNPCEvent event) {
+
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null)
             return;
@@ -178,7 +205,8 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onDamage(EntityDamageEvent event) {
-        Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
             return;
 
@@ -191,7 +219,8 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onDamageByBlock(EntityDamageByBlockEvent event) {
-        Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
             return;
 
@@ -204,7 +233,8 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onDamageByEntity(EntityDamageByEntityEvent event) {
-        Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
             return;
 
@@ -217,7 +247,8 @@ public class CitizensNpcListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onDeath(EntityDeathEvent event) {
-        Npc npc = (Npc)CitizensProvider.getInstance().getNpc(event.getEntity());
+
+        Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
         if (npc == null)
             return;
 

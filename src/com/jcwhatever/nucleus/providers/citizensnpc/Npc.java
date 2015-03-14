@@ -84,6 +84,7 @@ public class Npc implements INpc {
     private final DataNodeKey _dataKey;
     private Map<String, Object> _meta;
     private boolean _isDisposed;
+    private boolean _isSpawned;
 
     // Holds entity reference, otherwise no one else may be holding it (weak references).
     // Prevents losing entity reference in WeakHashMap in CitizensProvider.
@@ -157,7 +158,7 @@ public class Npc implements INpc {
     @Nullable
     @Override
     public Entity getEntity() {
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return null;
 
         return _npc.getEntity();
@@ -165,7 +166,7 @@ public class Npc implements INpc {
 
     @Override
     public boolean isSpawned() {
-        return _npc.isSpawned();
+        return _isSpawned && _npc.isSpawned();
     }
 
     @Override
@@ -173,6 +174,7 @@ public class Npc implements INpc {
         PreCon.notNull(location);
 
         if (_npc.spawn(location)) {
+            _isSpawned = true;
             _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
             _currentEntity = _npc.getEntity();
@@ -252,7 +254,7 @@ public class Npc implements INpc {
     @Nullable
     @Override
     public INpc getNPCVehicle() {
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return null;
 
         Entity entity = _npc.getEntity();
@@ -267,7 +269,7 @@ public class Npc implements INpc {
     @Nullable
     @Override
     public INpc getNPCPassenger() {
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return null;
 
         Entity entity = _npc.getEntity();
@@ -282,7 +284,7 @@ public class Npc implements INpc {
     @Override
     public INpc mountNPC(INpc vehicle) {
 
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return this;
 
         if (!vehicle.isSpawned())
@@ -300,7 +302,7 @@ public class Npc implements INpc {
     @Override
     public INpc look(float yaw, float pitch) {
 
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return this;
 
         NMS.look(_npc.getEntity(), yaw, pitch);
@@ -312,7 +314,7 @@ public class Npc implements INpc {
     public INpc lookEntity(Entity entity) {
         PreCon.notNull(entity);
 
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return this;
 
         Location location = entity.getLocation(LOOK_LOCATION);
@@ -324,7 +326,7 @@ public class Npc implements INpc {
     public INpc lookLocation(Location location) {
         PreCon.notNull(location);
 
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return this;
 
         if (location.distanceSquared(_npc.getStoredLocation()) <= 0.25)
@@ -456,19 +458,23 @@ public class Npc implements INpc {
         return this;
     }
 
-
     public void onNpcSpawn(NpcSpawnEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcSpawn", event);
         _registry.onNpcSpawn(event);
 
-        Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                getTraits().applyEquipment();
-            }
-        });
+        if (!event.isCancelled()) {
+
+            _isSpawned = true;
+
+            Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    getTraits().applyEquipment();
+                }
+            });
+        }
     }
 
     public void onNpcDespawn(NpcDespawnEvent event) {
@@ -476,6 +482,9 @@ public class Npc implements INpc {
 
         updateAgents("onNpcDespawn", event);
         _registry.onNpcDespawn(event);
+
+        if (!event.isCancelled())
+            _isSpawned = false;
     }
 
     public void onNpcClick(NpcClickEvent event) {
@@ -614,7 +623,7 @@ public class Npc implements INpc {
     // despawn the NPC
     private boolean despawn(DespawnReason reason) {
 
-        if (!_npc.isSpawned())
+        if (!isSpawned())
             return false;
 
         Entity entity = _npc.getEntity();
@@ -622,6 +631,7 @@ public class Npc implements INpc {
         if (_npc.despawn(reason)) {
             CitizensProvider.getInstance().unregisterEntity(entity);
             _currentEntity = null;
+            _isSpawned = false;
             return true;
         }
         return false;
