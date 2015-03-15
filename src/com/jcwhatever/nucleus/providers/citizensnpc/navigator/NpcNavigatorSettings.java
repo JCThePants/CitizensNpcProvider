@@ -40,6 +40,8 @@ public class NpcNavigatorSettings implements INpcNavSettings {
     private final NavigatorParameters _settings;
     private final CitizensStuckAdapter _stuckAdapter;
 
+    private double _tolerance;
+
     /**
      * Constructor.
      *
@@ -54,6 +56,7 @@ public class NpcNavigatorSettings implements INpcNavSettings {
 
         _settings = settings;
         _stuckAdapter = new CitizensStuckAdapter(settings.stuckAction());
+        _tolerance = Math.sqrt(settings.distanceMargin());
     }
 
     @Override
@@ -65,6 +68,20 @@ public class NpcNavigatorSettings implements INpcNavSettings {
     public INpcNavSettings setSpeed(double speed) {
 
         _settings.speedModifier((float)speed);
+
+        return this;
+    }
+
+    @Override
+    public double getTolerance() {
+        return _tolerance;
+    }
+
+    @Override
+    public INpcNavSettings setTolerance(double tolerance) {
+
+        _settings.distanceMargin(tolerance * tolerance);
+        _tolerance = tolerance;
 
         return this;
     }
