@@ -349,19 +349,26 @@ public class Npc implements INpc {
 
         _isDisposed = true;
 
-        if (isSpawned())
-            despawn(DespawnReason.REMOVAL);
+        // scheduled to prevent ConcurrentModificationException in Citizens2 when
+        // disposing from within an event.
+        Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                if (isSpawned())
+                    despawn(DespawnReason.REMOVAL);
 
-        NpcDisposeEvent event = new NpcDisposeEvent(this);
-        Nucleus.getEventManager().callBukkit(this, event);
+                NpcDisposeEvent event = new NpcDisposeEvent(Npc.this);
+                Nucleus.getEventManager().callBukkit(this, event);
 
-        _registry.remove(this);
-        _agents.disposeAgents();
+                _registry.remove(Npc.this);
+                _agents.disposeAgents();
 
-        for (NamedUpdateAgents agent : _behaviourAgents.values()) {
-            agent.disposeAgents();
-        }
-        _behaviourAgents.clear();
+                for (NamedUpdateAgents agent : _behaviourAgents.values()) {
+                    agent.disposeAgents();
+                }
+                _behaviourAgents.clear();
+            }
+        });
     }
 
     public NPC getHandle() {
