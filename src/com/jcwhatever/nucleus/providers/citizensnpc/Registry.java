@@ -61,12 +61,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link com.jcwhatever.nucleus.providers.npc.INpcProvider}.
  */
 public class Registry implements INpcRegistry {
+
+    // compensate for CitizensAPI multi-registry bugs.
+    // used for unique NPC ID across all registries.
+    private static int _transientId = 0;
 
     private final Plugin _plugin;
     private final String _name;
@@ -132,7 +137,7 @@ public class Registry implements INpcRegistry {
         if (_npcMap.containsKey(lookupName.toLowerCase()))
             return null;
 
-        NPC handle = _registry.createNPC(type, npcName);
+        NPC handle = _registry.createNPC(type, UUID.randomUUID(), nextId(), npcName);
 
         return create(lookupName, handle, type);
     }
@@ -157,7 +162,7 @@ public class Registry implements INpcRegistry {
         PreCon.notNull(npcName);
         PreCon.notNull(type);
 
-        NPC handle = _registry.createNPC(type, npcName);
+        NPC handle = _registry.createNPC(type, UUID.randomUUID(), nextId(), npcName);
 
         String lookupName = "nolookup__" + handle.getId();
 
@@ -480,5 +485,12 @@ public class Registry implements INpcRegistry {
         Nucleus.getEventManager().callBukkit(this, event);
 
         return npc;
+    }
+
+    private int nextId() {
+        if (_transientId == Integer.MAX_VALUE)
+            _transientId = 0;
+
+        return _transientId++;
     }
 }
