@@ -25,7 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
 import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.kits.IKit;
+import com.jcwhatever.nucleus.utils.kits.IKit;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
 import com.jcwhatever.nucleus.providers.npc.INpc;
