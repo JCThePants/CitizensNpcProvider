@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
+import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
@@ -44,12 +45,14 @@ import javax.annotation.Nullable;
  *
  * <p>Main goal pool for an NPC.</p>
  */
-public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements INpcGoals {
+public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
+        implements INpcGoals, IDisposable {
 
     private final Npc _npc;
     private final List<GoalContainer> _candidates = new ArrayList<>(5);
 
     private List<GoalContainer> _filter;
+    private boolean _isDisposed;
 
     /**
      * Constructor.
@@ -66,6 +69,8 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements 
         PreCon.greaterThanZero(priority, "priority");
         PreCon.notNull(goal, "goal");
 
+        checkDisposed();
+
         return add(new StaticGoalPriority(priority), goal);
     }
 
@@ -73,6 +78,8 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements 
     public INpcGoals add(INpcGoalPriority priority, INpcGoal goal) {
         PreCon.notNull(priority, "priority");
         PreCon.notNull(goal, "goal");
+
+        checkDisposed();
 
         Msg.debug("[AI] [GOALS] [NPC:{0}] add : {1}", getNpc().getName(), goal.getName());
 
@@ -101,10 +108,34 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements 
     @Override
     public INpcGoals resume() {
 
+        checkDisposed();
+
         Msg.debug("[AI] [GOALS] [NPC:{0}] resume", getNpc().getName());
 
         setRunning(true);
         return this;
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return _isDisposed;
+    }
+
+    @Override
+    public void dispose() {
+
+        if (!getNpc().isDisposed())
+            throw new IllegalStateException("NpcGoals can only be disposed after its parent NPC is disposed.");
+
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+
+        pause();
+        setCurrent(null, false);
+        _candidates.clear();
+        _filter = null;
     }
 
     /**
@@ -233,6 +264,10 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements 
 
         @Override
         public void finishAndRemove() {
+
+            if (_isDisposed)
+                return;
+
             GoalContainer container = (GoalContainer)getContainer();
 
             _candidates.remove(container);
@@ -241,5 +276,10 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent> implements 
 
             finish();
         }
+    }
+
+    private void checkDisposed() {
+        if (_isDisposed)
+            throw new IllegalStateException("Cannot use disposed NpcGoals.");
     }
 }

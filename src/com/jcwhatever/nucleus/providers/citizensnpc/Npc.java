@@ -173,6 +173,8 @@ public class Npc implements INpc {
     public INpc spawn(Location location) {
         PreCon.notNull(location);
 
+        checkDisposed();
+
         if (_npc.spawn(location)) {
             _isSpawned = true;
             _goals.reset();
@@ -185,7 +187,7 @@ public class Npc implements INpc {
 
     @Override
     public boolean despawn() {
-        return despawn(DespawnReason.PLUGIN);
+        return !_isDisposed && despawn(DespawnReason.PLUGIN);
     }
 
     @Nullable
@@ -240,6 +242,8 @@ public class Npc implements INpc {
     public void setMeta(String key, @Nullable Object value) {
         PreCon.notNullOrEmpty(key);
 
+        checkDisposed();
+
         if (_meta == null)
             _meta = new HashMap<>(7);
 
@@ -283,6 +287,9 @@ public class Npc implements INpc {
 
     @Override
     public INpc mountNPC(INpc vehicle) {
+        PreCon.notNull(vehicle);
+
+        checkDisposed();
 
         if (!isSpawned())
             return this;
@@ -367,6 +374,11 @@ public class Npc implements INpc {
                     agent.disposeAgents();
                 }
                 _behaviourAgents.clear();
+
+                _goals.dispose();
+                _traits.dispose();
+                if (_meta != null)
+                    _meta.clear();
             }
         });
     }
@@ -379,6 +391,8 @@ public class Npc implements INpc {
     public INpc onNpcSpawn(IScriptUpdateSubscriber<NpcSpawnEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcSpawn").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -387,6 +401,8 @@ public class Npc implements INpc {
     @Override
     public INpc onNpcDespawn(IScriptUpdateSubscriber<NpcDespawnEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcDespawn").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -397,6 +413,8 @@ public class Npc implements INpc {
     public INpc onNpcClick(IScriptUpdateSubscriber<NpcClickEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcClick").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -405,6 +423,8 @@ public class Npc implements INpc {
     @Override
     public INpc onNpcRightClick(IScriptUpdateSubscriber<NpcRightClickEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcRightClick").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -415,6 +435,8 @@ public class Npc implements INpc {
     public INpc onNpcLeftClick(IScriptUpdateSubscriber<NpcLeftClickEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcLeftClick").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -423,6 +445,8 @@ public class Npc implements INpc {
     @Override
     public INpc onNpcEntityTarget(IScriptUpdateSubscriber<NpcTargetedEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcEntityTarget").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -433,6 +457,8 @@ public class Npc implements INpc {
     public INpc onNpcDamage(IScriptUpdateSubscriber<NpcDamageEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcDamage").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -441,6 +467,8 @@ public class Npc implements INpc {
     @Override
     public INpc onNpcDamageByBlock(IScriptUpdateSubscriber<NpcDamageByBlockEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcDamageByBlock").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -451,6 +479,8 @@ public class Npc implements INpc {
     public INpc onNpcDamageByEntity(IScriptUpdateSubscriber<NpcDamageByEntityEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcDamageByEntity").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -459,6 +489,8 @@ public class Npc implements INpc {
     @Override
     public INpc onNpcDeath(IScriptUpdateSubscriber<NpcDeathEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcDeath").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -478,7 +510,9 @@ public class Npc implements INpc {
             Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
                 @Override
                 public void run() {
-                    getTraits().applyEquipment();
+
+                    if (!_isDisposed)
+                        getTraits().applyEquipment();
                 }
             });
         }
@@ -551,6 +585,9 @@ public class Npc implements INpc {
     }
 
     public NamedUpdateAgents registerUpdateAgent(BehaviourAgent<?, ?, ?, ?> agent) {
+        PreCon.notNull(agent);
+
+        checkDisposed();
 
         if (_behaviourAgents.containsKey(agent)) {
             return _behaviourAgents.get(agent);
@@ -568,6 +605,9 @@ public class Npc implements INpc {
     }
 
     public void updateAgents(String agentName, Object event) {
+        PreCon.notNullOrEmpty(agentName);
+        PreCon.notNull(event);
+
         for (NamedUpdateAgents agents : _behaviourAgents.values()) {
             agents.update(agentName, event);
         }
@@ -642,5 +682,10 @@ public class Npc implements INpc {
             return true;
         }
         return false;
+    }
+
+    private void checkDisposed() {
+        if (_isDisposed)
+            throw new IllegalStateException("Cannot use a disposed Npc.");
     }
 }

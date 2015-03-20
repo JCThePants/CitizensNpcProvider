@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
+import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTraitType;
@@ -47,7 +48,7 @@ import javax.annotation.Nullable;
 /**
  * Adapts Nucleus based traits to Citizens traits.
  */
-public class CitizensTraitAdapter extends Trait {
+public class CitizensTraitAdapter extends Trait implements IDisposable {
 
     public static final EquipmentTraitType _equipmentType = new EquipmentTraitType();
     public static final InventoryTraitType _inventoryType = new InventoryTraitType();
@@ -55,6 +56,8 @@ public class CitizensTraitAdapter extends Trait {
 
     private final Npc _npc;
     private final Map<String, NpcTrait> _traits = new LinkedHashMap<>(10);
+
+    private boolean _isDisposed;
 
     // used to store a copy of the _traits values for iteration. Iterate this to
     // prevent concurrent modification exceptions.
@@ -200,6 +203,27 @@ public class CitizensTraitAdapter extends Trait {
         updateIterableTraits();
 
         return true;
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return _isDisposed;
+    }
+
+    @Override
+    public void dispose() {
+
+        if (!_npc.isDisposed())
+            throw new IllegalStateException("CitizensTraitAdapter cannot be disposed until " +
+                    "its parent Npc is disposed.");
+
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+
+        _iterableTraits = null;
+        _traits.clear();
     }
 
     private boolean isInternalTrait(String name) {

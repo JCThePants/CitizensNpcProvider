@@ -25,6 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
 import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.utils.kits.IKit;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
@@ -47,13 +48,15 @@ import javax.annotation.Nullable;
 /**
  * Implementation of {@link com.jcwhatever.nucleus.providers.npc.traits.INpcTraits}.
  */
-public class NpcTraits implements INpcTraits {
+public class NpcTraits implements INpcTraits, IDisposable {
 
     private final Npc _npc;
     private final NPC _handle;
     private final CitizensTraitAdapter _adapter;
+
     private EntityType _entityType;
     private IKit _kit;
+    private boolean _isDisposed;
 
     /**
      * Constructor.
@@ -86,6 +89,8 @@ public class NpcTraits implements INpcTraits {
     @Override
     public INpcTraits invulnerable() {
 
+        checkDisposed();
+
         _handle.setProtected(true);
 
         return this;
@@ -93,6 +98,8 @@ public class NpcTraits implements INpcTraits {
 
     @Override
     public INpcTraits vulnerable() {
+
+        checkDisposed();
 
         _handle.setProtected(false);
 
@@ -107,6 +114,8 @@ public class NpcTraits implements INpcTraits {
     @Override
     public INpcTraits setType(EntityType type) {
         PreCon.notNull(type);
+
+        checkDisposed();
 
         NpcEntityTypeChangeEvent event = new NpcEntityTypeChangeEvent(getNpc(), getType(), type);
         Nucleus.getEventManager().callBukkit(this, event);
@@ -130,6 +139,9 @@ public class NpcTraits implements INpcTraits {
 
     @Override
     public INpcTraits setSkinName(@Nullable String skinName) {
+
+        checkDisposed();
+
         if (skinName == null) {
             _npc.getHandle().data().remove("player-skin-name");
         } else {
@@ -157,6 +169,8 @@ public class NpcTraits implements INpcTraits {
     @Override
     public INpcTraits setKit(@Nullable IKit kit) {
 
+        checkDisposed();
+
         _kit = kit;
 
         applyEquipment();
@@ -166,6 +180,8 @@ public class NpcTraits implements INpcTraits {
 
     @Override
     public INpcTraits setKitName(@Nullable String kitName) {
+
+        checkDisposed();
 
         if (kitName == null)
             return setKit(null);
@@ -179,6 +195,8 @@ public class NpcTraits implements INpcTraits {
     }
 
     public void applyEquipment() {
+
+        checkDisposed();
 
         EquipmentTrait trait = (EquipmentTrait)get("equipment");
         assert trait != null;
@@ -216,6 +234,8 @@ public class NpcTraits implements INpcTraits {
     public NpcTrait add(String name) {
         PreCon.notNullOrEmpty(name);
 
+        checkDisposed();
+
         if (_adapter.has(name))
             return _adapter.get(name);
 
@@ -225,6 +245,8 @@ public class NpcTraits implements INpcTraits {
     @Override
     public INpcTraits add(NpcTrait trait) {
         PreCon.notNull(trait);
+
+        checkDisposed();
 
         _adapter.add(trait);
 
@@ -259,5 +281,30 @@ public class NpcTraits implements INpcTraits {
         PreCon.notNull(name);
 
         return _adapter.remove(name);
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return _isDisposed;
+    }
+
+    @Override
+    public void dispose() {
+
+        if (!getNpc().isDisposed())
+            throw new IllegalStateException("NpcTraits cannot be disposed until its parent Npc is disposed.");
+
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+
+        _kit = null;
+        _adapter.dispose();
+    }
+
+    private void checkDisposed() {
+        if (_isDisposed)
+            throw new IllegalStateException("Cannot use disposed NpcTraits.");
     }
 }

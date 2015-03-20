@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
+import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -35,10 +36,12 @@ import javax.annotation.Nullable;
 /**
  * Implementation of {@link com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry}.
  */
-public class NpcTraitRegistry implements INpcTraitTypeRegistry {
+public class NpcTraitRegistry implements INpcTraitTypeRegistry, IDisposable {
 
     private final NpcTraitRegistry _parent;
     private final Map<String, NpcTraitType> _typeMap = new HashMap<>(10);
+
+    private boolean _isDisposed;
 
     /**
      * Constructor.
@@ -79,5 +82,24 @@ public class NpcTraitRegistry implements INpcTraitTypeRegistry {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return _isDisposed;
+    }
+
+    @Override
+    public void dispose() {
+
+        if (_parent == null)
+            throw new IllegalStateException("Root NpcTraitRegistry cannot be disposed.");
+
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+
+        _typeMap.clear();
     }
 }

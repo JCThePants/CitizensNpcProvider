@@ -134,6 +134,8 @@ public class Registry implements INpcRegistry {
         PreCon.notNull(npcName);
         PreCon.notNull(type);
 
+        checkDisposed();
+
         if (_npcMap.containsKey(lookupName.toLowerCase()))
             return null;
 
@@ -146,6 +148,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpc create(String lookupName, String npcName, String type) {
         PreCon.notNullOrEmpty(type);
+
+        checkDisposed();
 
         try {
             EntityType entityType = EntityType.valueOf(type.toUpperCase());
@@ -162,6 +166,8 @@ public class Registry implements INpcRegistry {
         PreCon.notNull(npcName);
         PreCon.notNull(type);
 
+        checkDisposed();
+
         NPC handle = _registry.createNPC(type, UUID.randomUUID(), nextId(), npcName);
 
         String lookupName = "nolookup__" + handle.getId();
@@ -173,6 +179,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpc create(String npcName, String type) {
         PreCon.notNullOrEmpty(type);
+
+        checkDisposed();
 
         try {
             EntityType entityType = EntityType.valueOf(type.toUpperCase());
@@ -214,12 +222,19 @@ public class Registry implements INpcRegistry {
     @Override
     public void dispose() {
 
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+
         List<INpc> list = new ArrayList<>(_npcMap.values());
         for (INpc npc : list) {
             npc.dispose();
         }
+
         _agents.disposeAgents();
-        _isDisposed = true;
+        _dataStore.getStorage().getDataNode().clear();
+        _traits.dispose();
     }
 
     @Override
@@ -242,6 +257,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNavStart(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNavStart").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -250,6 +267,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNavPause(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNavPause").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -260,6 +279,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNavCancel(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNavCancel").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -268,6 +289,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNavComplete(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNavComplete").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -278,6 +301,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNavTimeout(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNavTimeout").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -286,6 +311,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNpcSpawn(IScriptUpdateSubscriber<NpcSpawnEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcSpawn").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -296,6 +323,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNpcDespawn(IScriptUpdateSubscriber<NpcDespawnEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcDespawn").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -304,6 +333,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNpcClick(IScriptUpdateSubscriber<NpcClickEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcClick").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -314,6 +345,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNpcRightClick(IScriptUpdateSubscriber<NpcRightClickEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcRightClick").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -322,6 +355,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNpcLeftClick(IScriptUpdateSubscriber<NpcLeftClickEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcLeftClick").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -332,6 +367,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNpcEntityTarget(IScriptUpdateSubscriber<NpcTargetedEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcEntityTarget").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -340,6 +377,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNpcDamage(IScriptUpdateSubscriber<NpcDamageEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcDamage").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -350,6 +389,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNpcDamageByBlock(IScriptUpdateSubscriber<NpcDamageByBlockEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcDamageByBlock").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -359,6 +400,8 @@ public class Registry implements INpcRegistry {
     public INpcRegistry onNpcDamageByEntity(IScriptUpdateSubscriber<NpcDamageByEntityEvent> subscriber) {
         PreCon.notNull(subscriber);
 
+        checkDisposed();
+
         _agents.getAgent("onNpcDamageByEntity").register(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
@@ -367,6 +410,8 @@ public class Registry implements INpcRegistry {
     @Override
     public INpcRegistry onNpcDeath(IScriptUpdateSubscriber<NpcDeathEvent> subscriber) {
         PreCon.notNull(subscriber);
+
+        checkDisposed();
 
         _agents.getAgent("onNpcDeath").register(new ScriptUpdateSubscriber<>(subscriber));
 
@@ -492,5 +537,10 @@ public class Registry implements INpcRegistry {
             _transientId = 0;
 
         return _transientId++;
+    }
+
+    private void checkDisposed() {
+        if (_isDisposed)
+            throw new IllegalStateException("Cannot use a disposed Registry.");
     }
 }
