@@ -26,8 +26,14 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Entity;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.Age;
+
+import javax.annotation.Nullable;
 
 /**
  * Replaces Citizens {@link net.citizensnpcs.trait.Age} internal trait.
@@ -37,11 +43,15 @@ import net.citizensnpcs.trait.Age;
  */
 public class ReplacedAge extends Age {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist private int age = 0;
+    @Persist private boolean locked = true;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
     }
 
     @Override
@@ -49,27 +59,64 @@ public class ReplacedAge extends Age {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
+        _isCitizensNPC = CitizensProvider.getInstance() == null ||
+                CitizensProvider.getInstance().getNpc(npc) == null;
 
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onAttach();
     }
 
     @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
-    }
-
-    @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (!_isCitizensNPC)
+            return;
+
+        Ageable ageable = ageable();
+
+        if(ageable != null) {
+            Ageable entity = (Ageable)npc.getEntity();
+            entity.setAge(this.age);
+            entity.setAgeLock(this.locked);
+        }
     }
 
     @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    public void run() {
+        // do nothing
+    }
+
+    @Override
+    public void setAge(int age) {
+        this.age = age;
+
+        Ageable ageable = ageable();
+
+        if(ageable != null)
+            ageable.setAge(age);
+    }
+
+    @Override
+    public boolean toggle() {
+        this.locked = !this.locked;
+
+        Ageable ageable = ageable();
+
+        if(ageable != null)
+            ageable.setAgeLock(this.locked);
+
+        return this.locked;
+    }
+
+    @Nullable
+    private Ageable ageable() {
+        if (!npc.isSpawned())
+            return null;
+
+        Entity entity = npc.getEntity();
+
+        if (entity instanceof Ageable)
+            return (Ageable)entity;
+
+        return null;
     }
 }

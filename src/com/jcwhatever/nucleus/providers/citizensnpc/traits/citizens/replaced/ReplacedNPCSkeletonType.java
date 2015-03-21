@@ -26,7 +26,11 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Skeleton.SkeletonType;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.NPCSkeletonType;
 
 /**
@@ -37,11 +41,20 @@ import net.citizensnpcs.trait.NPCSkeletonType;
  */
 public class ReplacedNPCSkeletonType extends NPCSkeletonType {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist private SkeletonType type = SkeletonType.NORMAL;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
+    }
+
+    @Override
+    public void setType(SkeletonType type) {
+        this.type = type;
+        update();
     }
 
     @Override
@@ -49,27 +62,26 @@ public class ReplacedNPCSkeletonType extends NPCSkeletonType {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
     @Override
     public void onDespawn() {
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onDespawn();
+    }
+
+    private void update() {
+        if (!(npc.getEntity() instanceof Skeleton))
+            return;
+
+        Skeleton skeleton = (Skeleton)npc.getEntity();
+        skeleton.setSkeletonType(this.type);
     }
 }

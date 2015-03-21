@@ -37,11 +37,11 @@ import net.citizensnpcs.trait.WoolColor;
  */
 public class ReplacedWoolColor extends WoolColor {
 
-    private boolean _isEnabled;
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return _isCitizensNPC && super.isRunImplemented();
     }
 
     @Override
@@ -49,27 +49,27 @@ public class ReplacedWoolColor extends WoolColor {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
 
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onAttach();
     }
 
     @Override
     public void onRemove() {
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onRemove();
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onSpawn();
     }
 
     @Override
     public void onDespawn() {
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onDespawn();
     }
 }

@@ -26,7 +26,11 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Ocelot.Type;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.OcelotModifiers;
 
 /**
@@ -37,11 +41,27 @@ import net.citizensnpcs.trait.OcelotModifiers;
  */
 public class ReplacedOcelotModifiers extends OcelotModifiers {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist("sitting") private boolean sitting;
+    @Persist("type") private Type type = Type.WILD_OCELOT;
+
+    private boolean _isCitizensNPC;
+
+    @Override
+    public void setSitting(boolean sit) {
+        this.sitting = sit;
+        this.update();
+    }
+
+    @Override
+    public void setType(Type type) {
+        this.type = type;
+        this.update();
+    }
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
     }
 
     @Override
@@ -49,27 +69,21 @@ public class ReplacedOcelotModifiers extends OcelotModifiers {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
-    @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    private void update() {
+        if(!(this.npc.getEntity() instanceof Ocelot))
+            return;
+
+        Ocelot ocelot = (Ocelot)this.npc.getEntity();
+        ocelot.setCatType(this.type);
+        ocelot.setSitting(this.sitting);
     }
 }

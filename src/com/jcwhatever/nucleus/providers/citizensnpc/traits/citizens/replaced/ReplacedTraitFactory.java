@@ -29,15 +29,11 @@ import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitInfo;
 import net.citizensnpcs.npc.CitizensTraitFactory;
 import net.citizensnpcs.trait.Age;
-import net.citizensnpcs.trait.Gravity;
 import net.citizensnpcs.trait.HorseModifiers;
-import net.citizensnpcs.trait.LookClose;
 import net.citizensnpcs.trait.NPCSkeletonType;
 import net.citizensnpcs.trait.OcelotModifiers;
-import net.citizensnpcs.trait.Poses;
 import net.citizensnpcs.trait.Powered;
 import net.citizensnpcs.trait.RabbitType;
-import net.citizensnpcs.trait.Saddle;
 import net.citizensnpcs.trait.SheepTrait;
 import net.citizensnpcs.trait.SlimeSize;
 import net.citizensnpcs.trait.VillagerProfession;
@@ -106,15 +102,11 @@ public class ReplacedTraitFactory extends CitizensTraitFactory {
      */
     private void setup() throws NoSuchFieldException, IllegalAccessException, NoSuchMethodException {
         replace(Age.class, TraitInfo.create(ReplacedAge.class).withName("age"));
-        replace(Gravity.class, TraitInfo.create(ReplacedGravity.class).withName("gravity"));
         replace(HorseModifiers.class, TraitInfo.create(ReplacedHorseModifiers.class).withName("horsemodifiers"));
-        replace(LookClose.class, TraitInfo.create(ReplacedLookClose.class).withName("lookclose"));
         replace(NPCSkeletonType.class, TraitInfo.create(ReplacedNPCSkeletonType.class).withName("skeletontype"));
         replace(OcelotModifiers.class, TraitInfo.create(ReplacedOcelotModifiers.class).withName("ocelotmodifiers"));
-        replace(Poses.class, TraitInfo.create(ReplacedPoses.class).withName("poses"));
         replace(Powered.class, TraitInfo.create(ReplacedPowered.class).withName("powered"));
         replace(RabbitType.class, TraitInfo.create(ReplacedRabbitType.class).withName("rabbittype"));
-        replace(Saddle.class, TraitInfo.create(ReplacedSaddle.class).withName("saddle"));
         replace(SheepTrait.class, TraitInfo.create(ReplacedSheepTrait.class).withName("sheeptrait"));
         replace(SlimeSize.class, TraitInfo.create(ReplacedSlimeSize.class).withName("slimesize"));
         replace(VillagerProfession.class, TraitInfo.create(ReplacedVillagerProfession.class).withName("profession"));

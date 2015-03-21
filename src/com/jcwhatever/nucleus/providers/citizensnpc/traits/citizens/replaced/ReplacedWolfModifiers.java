@@ -26,7 +26,11 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.DyeColor;
+import org.bukkit.entity.Wolf;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.WolfModifiers;
 
 /**
@@ -37,11 +41,46 @@ import net.citizensnpcs.trait.WolfModifiers;
  */
 public class ReplacedWolfModifiers extends WolfModifiers {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist("angry") private boolean angry;
+    @Persist("collarColor") private DyeColor collarColor = DyeColor.RED;
+    @Persist("sitting") private boolean sitting;
+    @Persist("tamed") private boolean tamed;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
+    }
+
+    @Override
+    public void setAngry(boolean angry) {
+        this.angry = angry;
+        update();
+    }
+
+    @Override
+    public DyeColor getCollarColor() {
+        return this.collarColor;
+    }
+
+    @Override
+    public void setCollarColor(DyeColor color) {
+        this.collarColor = color;
+        update();
+    }
+
+    @Override
+    public void setSitting(boolean sitting) {
+        this.sitting = sitting;
+        update();
+    }
+
+    @Override
+    public void setTamed(boolean tamed) {
+        this.tamed = tamed;
+        update();
     }
 
     @Override
@@ -49,27 +88,23 @@ public class ReplacedWolfModifiers extends WolfModifiers {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
-    @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    private void update() {
+        if(!(npc.getEntity() instanceof Wolf))
+            return;
+
+        Wolf wolf = (Wolf)npc.getEntity();
+        wolf.setCollarColor(this.collarColor);
+        wolf.setSitting(this.sitting);
+        wolf.setAngry(this.angry);
+        wolf.setTamed(this.tamed);
     }
 }

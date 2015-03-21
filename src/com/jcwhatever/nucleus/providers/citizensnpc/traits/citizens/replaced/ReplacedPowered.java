@@ -26,7 +26,10 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.entity.Creeper;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.Powered;
 
 /**
@@ -37,11 +40,14 @@ import net.citizensnpcs.trait.Powered;
  */
 public class ReplacedPowered extends Powered {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist("") private boolean powered;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
     }
 
     @Override
@@ -49,27 +55,32 @@ public class ReplacedPowered extends Powered {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
     @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    public boolean toggle() {
+        this.powered = !this.powered;
+        update();
+
+        return this.powered;
+    }
+
+    public String toString() {
+        return "Powered{" + this.powered + '}';
+    }
+
+    private void update() {
+        if(!(this.npc.getEntity() instanceof Creeper))
+            return;
+
+        Creeper creeper = (Creeper)npc.getEntity();
+        creeper.setPowered(this.powered);
     }
 }

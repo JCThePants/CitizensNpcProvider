@@ -26,7 +26,10 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.entity.Zombie;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.ZombieModifier;
 
 /**
@@ -37,11 +40,29 @@ import net.citizensnpcs.trait.ZombieModifier;
  */
 public class ReplacedZombieModifier extends ZombieModifier {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist private boolean baby;
+    @Persist private boolean villager;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
+    }
+
+    @Override
+    public boolean toggleBaby() {
+        this.baby = !this.baby;
+        update();
+        return this.baby;
+    }
+
+    @Override
+    public boolean toggleVillager() {
+        this.villager = !this.villager;
+        update();
+        return this.villager;
     }
 
     @Override
@@ -49,27 +70,21 @@ public class ReplacedZombieModifier extends ZombieModifier {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
-    @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    private void update() {
+        if (!(npc.getEntity() instanceof Zombie))
+            return;
+
+        Zombie zombie = (Zombie)npc.getEntity();
+        zombie.setVillager(this.villager);
+        zombie.setBaby(this.baby);
     }
 }

@@ -26,7 +26,11 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.DyeColor;
+import org.bukkit.entity.Sheep;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.SheepTrait;
 
 /**
@@ -37,11 +41,34 @@ import net.citizensnpcs.trait.SheepTrait;
  */
 public class ReplacedSheepTrait extends SheepTrait {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist("color") private DyeColor color;
+    @Persist("sheared") private boolean sheared;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
+    }
+
+    @Override
+    public void setColor(DyeColor color) {
+        this.color = color;
+        update();
+    }
+
+    @Override
+    public void setSheared(boolean sheared) {
+        this.sheared = sheared;
+        update();
+    }
+
+    @Override
+    public boolean toggleSheared() {
+        boolean result = this.sheared = !this.sheared;
+        update();
+        return result;
     }
 
     @Override
@@ -49,27 +76,21 @@ public class ReplacedSheepTrait extends SheepTrait {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
-    @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    public void update() {
+        if(!(this.npc.getEntity() instanceof Sheep))
+            return;
+
+        Sheep sheep = (Sheep)this.npc.getEntity();
+        sheep.setSheared(this.sheared);
+        sheep.setColor(this.color);
     }
 }

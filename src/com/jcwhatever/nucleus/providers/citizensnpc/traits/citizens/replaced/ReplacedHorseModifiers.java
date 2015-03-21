@@ -26,7 +26,14 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Color;
+import org.bukkit.entity.Horse.Style;
+import org.bukkit.entity.Horse.Variant;
+import org.bukkit.inventory.ItemStack;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.HorseModifiers;
 
 /**
@@ -37,11 +44,58 @@ import net.citizensnpcs.trait.HorseModifiers;
  */
 public class ReplacedHorseModifiers extends HorseModifiers {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist("armor") private ItemStack armor = null;
+    @Persist("carryingChest") private boolean carryingChest;
+    @Persist("color") private Color color = Color.CREAMY;
+    @Persist("saddle") private ItemStack saddle;
+    @Persist("style") private Style style = Style.NONE;
+    @Persist("type") private Variant type = Variant.HORSE;
+
+    private boolean _isCitizensNPC;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return _isCitizensNPC;
+    }
+
+    @Override
+    public void setCarryingChest(boolean carryingChest) {
+        this.carryingChest = carryingChest;
+        update();
+    }
+
+    @Override
+    public Color getColor() {
+        return this.color;
+    }
+
+    @Override
+    public void setColor(Color color) {
+        this.color = color;
+        update();
+    }
+
+    @Override
+    public Style getStyle() {
+        return this.style;
+    }
+
+    @Override
+    public void setStyle(Style style) {
+        this.style = style;
+        update();
+    }
+
+    @Override
+    public Variant getType() {
+        return this.type;
+    }
+
+    @Override
+    public void setType(Variant type) {
+        this.type = type;
+        update();
     }
 
     @Override
@@ -49,27 +103,35 @@ public class ReplacedHorseModifiers extends HorseModifiers {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
+        if (_isCitizensNPC)
+            update();
     }
 
     @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+    public void run() {
+        if(!(npc.getEntity() instanceof Horse))
+            return;
+
+        Horse horse = (Horse)this.npc.getEntity();
+        this.saddle = horse.getInventory().getSaddle();
+        this.armor = horse.getInventory().getArmor();
+    }
+
+    private void update() {
+        if(!(npc.getEntity() instanceof Horse))
+            return;
+
+        Horse horse = (Horse)npc.getEntity();
+        horse.setCarryingChest(this.carryingChest);
+        horse.setColor(this.color);
+        horse.setStyle(this.style);
+        horse.setVariant(this.type);
+        horse.getInventory().setArmor(this.armor);
+        horse.getInventory().setSaddle(this.saddle);
     }
 }

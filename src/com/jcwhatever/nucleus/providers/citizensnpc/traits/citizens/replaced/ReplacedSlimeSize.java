@@ -26,7 +26,12 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Slime;
+
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
+import net.citizensnpcs.api.util.Messaging;
 import net.citizensnpcs.trait.SlimeSize;
 
 /**
@@ -37,11 +42,32 @@ import net.citizensnpcs.trait.SlimeSize;
  */
 public class ReplacedSlimeSize extends SlimeSize {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist private int size = 3;
+
+    private boolean _isCitizensNPC;
+
+    @Override
+    public void describe(CommandSender sender) {
+        Messaging.sendTr(sender, "citizens.commands.npc.size.description",
+                this.npc.getName(), this.size);
+    }
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
+        return false;
+    }
+
+    @Override
+    public void setSize(int size) {
+        this.size = size;
+        update();
+    }
+
+    @Override
+    public void onSpawn() {
+        if (_isCitizensNPC)
+            update();
     }
 
     @Override
@@ -49,27 +75,17 @@ public class ReplacedSlimeSize extends SlimeSize {
 
         NPC npc = getNPC();
 
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
+        _isCitizensNPC =  CitizensProvider.getInstance().getNpc(npc) == null;
 
-        if (_isEnabled)
+        if (_isCitizensNPC)
             super.onAttach();
     }
 
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
-    }
+    private void update() {
+        if (!(npc.getEntity() instanceof Slime))
+            return;
 
-    @Override
-    public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
-    }
-
-    @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+        Slime slime = (Slime)npc.getEntity();
+        slime.setSize(this.size);
     }
 }

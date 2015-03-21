@@ -24,9 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced;
 
-import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
-
-import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.api.persistence.Persist;
 import net.citizensnpcs.trait.RabbitType;
 
 /**
@@ -37,39 +35,17 @@ import net.citizensnpcs.trait.RabbitType;
  */
 public class ReplacedRabbitType extends RabbitType {
 
-    private boolean _isEnabled;
+    // replicate persisted fields from superclass
+    @Persist private RabbitType.RabbitTypes type = RabbitType.RabbitTypes.BROWN;
 
     @Override
     public boolean isRunImplemented() {
-        return _isEnabled && super.isRunImplemented();
-    }
-
-    @Override
-    public void onAttach() {
-
-        NPC npc = getNPC();
-
-        _isEnabled =  CitizensProvider.getInstance().getNpc(npc) == null;
-
-        if (_isEnabled)
-            super.onAttach();
-    }
-
-    @Override
-    public void onRemove() {
-        if (_isEnabled)
-            super.onRemove();
+        return false;
     }
 
     @Override
     public void onSpawn() {
-        if (_isEnabled)
-            super.onSpawn();
-    }
-
-    @Override
-    public void onDespawn() {
-        if (_isEnabled)
-            super.onDespawn();
+        super.onSpawn();
+        setType(this.type);
     }
 }
