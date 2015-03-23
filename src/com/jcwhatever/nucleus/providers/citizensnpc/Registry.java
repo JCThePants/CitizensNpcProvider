@@ -190,6 +190,63 @@ public class Registry implements INpcRegistry {
         }
     }
 
+    @Nullable
+    @Override
+    public INpc load(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
+        String lookupName = dataNode.getString("lookup");
+        String name = dataNode.getString("name");
+        UUID id = dataNode.getUUID("uuid");
+        EntityType type = dataNode.getEnum("type", EntityType.class);
+
+        if (lookupName == null || name == null || id == null || type == null) {
+            Msg.debug("Failed to load Npc from data node.");
+            return null;
+        }
+
+        INpc current = _npcMap.remove(lookupName);
+        if (current != null) {
+            Msg.debug("Failed to load Npc because it's already loaded.");
+            return current;
+        }
+
+        NPC handle = _registry.createNPC(type, id, nextId(), name);
+
+        Npc npc = create(lookupName, handle, type);
+        if (npc != null) {
+            npc.getTraits().load(dataNode.getNode("traits"));
+        }
+
+        return npc;
+    }
+
+    @Override
+    public boolean loadAll(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
+        for (IDataNode npcNode : dataNode) {
+            load(npcNode);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean saveAll(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
+        Collection<INpc> npcs = all();
+
+        for (INpc npc : npcs) {
+            npc.save(dataNode.getNode(npc.getName()));
+        }
+
+        dataNode.save();
+
+        return true;
+    }
+
     @Override
     public Collection<INpc> all() {
         return _npcMap.values();
@@ -517,7 +574,7 @@ public class Registry implements INpcRegistry {
     }
 
     @Nullable
-    private INpc create(String lookupName, NPC handle, EntityType type) {
+    private Npc create(String lookupName, NPC handle, EntityType type) {
 
         Npc npc = new Npc(this, lookupName, handle, type,
                 _dataStore.getStorage().getKey(String.valueOf(handle.getId())));

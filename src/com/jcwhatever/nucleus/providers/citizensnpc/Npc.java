@@ -345,6 +345,22 @@ public class Npc implements INpc {
     }
 
     @Override
+    public boolean save(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
+        dataNode.set("lookup", _name);
+        dataNode.set("name", _npc.getName());
+        dataNode.set("uuid", _npc.getUniqueId());
+        dataNode.set("type", getTraits().getType());
+
+        getTraits().save(dataNode.getNode("traits"));
+
+        dataNode.save();
+
+        return true;
+    }
+
+    @Override
     public boolean isDisposed() {
         return _isDisposed;
     }

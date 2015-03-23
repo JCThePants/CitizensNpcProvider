@@ -26,14 +26,16 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.mixins.IDisposable;
-import com.jcwhatever.nucleus.utils.kits.IKit;
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
+import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.kits.IKit;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -42,7 +44,11 @@ import org.bukkit.inventory.ItemStack;
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
@@ -74,6 +80,111 @@ public class NpcTraits implements INpcTraits, IDisposable {
 
         _adapter = new CitizensTraitAdapter(npc);
         _handle.addTrait(_adapter);
+    }
+
+    /**
+     * Save traits to a data node.
+     *
+     * @param dataNode  The data node to save to.
+     */
+    public void save(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
+        dataNode.set("skin", getSkinName());
+        dataNode.set("kit", getKit() != null ? getKit().getName() : null);
+
+        Collection<NpcTrait> traits =_adapter.all();
+
+        List<String> traitNames = new ArrayList<>(traits.size());
+
+        for (NpcTrait trait : traits) {
+
+            if (isDefaultTrait(trait))
+                continue;
+
+            traitNames.add(trait.getLookupName());
+            String nodePath = "data." + trait.getType().getPlugin().getName() + '.' + trait.getName();
+
+            try {
+                trait.save(dataNode.getNode(nodePath));
+            }
+            catch (Throwable e) {
+                Msg.severe("Error while saving trait '{0}' in Npc '{1}'.",
+                        trait.getLookupName(), getNpc().getName());
+                e.printStackTrace();
+            }
+        }
+
+        dataNode.set("names", traitNames);
+        dataNode.save();
+    }
+
+    /**
+     * Load traits from a data node.
+     *
+     * @param dataNode  The data node to load from.
+     */
+    public void load(IDataNode dataNode) {
+        PreCon.notNull(dataNode);
+
+        checkDisposed();
+
+        String skinName = dataNode.getString("skin");
+        String kitName = dataNode.getString("kit");
+
+        if (skinName != null)
+            setSkinName(skinName);
+
+        if (kitName != null)
+            setKitName(kitName);
+
+        // get trait names
+        List<String> traitNames = dataNode.getStringList("names", null);
+        if (traitNames == null)
+            return;
+
+        // set to track traits whose data is not loaded from data node.
+        Set<String> unloaded = new HashSet<>(traitNames);
+
+        IDataNode data = dataNode.getNode("data");
+
+        // iterate plugin name nodes
+        for (IDataNode pluginNode : data) {
+
+            String pluginName = pluginNode.getName();
+
+            // iterate trait name nodes
+            for (IDataNode traitNode : data) {
+
+                String lookupName = pluginName + ':' + traitNode.getName();
+                unloaded.remove(lookupName);
+
+                // get current trait
+                NpcTrait trait = _adapter.has(lookupName)
+                        ? _adapter.get(lookupName)
+                        : add(lookupName);
+
+                if (trait == null) {
+                    Msg.debug("Failed to find trait '{0}' while loading Npc '{1}'",
+                            lookupName, getNpc().getName());
+                    continue;
+                }
+
+                try {
+                    trait.load(traitNode);
+                }
+                catch (Throwable e) {
+                    Msg.severe("Error while loading trait '{0}' in Npc '{1}'.", lookupName, getNpc().getName());
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // load leftover traits
+        for (String lookupName : unloaded) {
+            if (!_adapter.has(lookupName))
+                add(lookupName);
+        }
     }
 
     @Override
@@ -306,5 +417,11 @@ public class NpcTraits implements INpcTraits, IDisposable {
     private void checkDisposed() {
         if (_isDisposed)
             throw new IllegalStateException("Cannot use disposed NpcTraits.");
+    }
+
+    private boolean isDefaultTrait(NpcTrait trait) {
+        return trait.getLookupName().equals("equipment") ||
+                trait.getLookupName().equals("inventory") ||
+                trait.getLookupName().equals("owner");
     }
 }
