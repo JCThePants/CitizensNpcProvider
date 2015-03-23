@@ -523,6 +523,8 @@ public class Npc implements INpc {
 
             _isSpawned = true;
 
+            getTraits().onSpawn(event.getReason());
+
             Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
                 @Override
                 public void run() {
@@ -540,8 +542,10 @@ public class Npc implements INpc {
         updateAgents("onNpcDespawn", event);
         _registry.onNpcDespawn(event);
 
-        if (!event.isCancelled())
+        if (!event.isCancelled()) {
             _isSpawned = false;
+            getTraits().onDespawn(event.getReason());
+        }
     }
 
     public void onNpcClick(NpcClickEvent event) {
@@ -635,7 +639,7 @@ public class Npc implements INpc {
      *
      * <p>For internal use.</p>
      */
-    NpcSpawnReason getSpawnReason() {
+    public NpcSpawnReason getSpawnReason() {
 
         NpcSpawnReason spawnReason = _spawnReason;
         NpcDespawnReason despawnReason = _lastDespawnReason;
@@ -679,7 +683,7 @@ public class Npc implements INpc {
      *
      * @param reason  The reason.
      */
-    void setLastDespawnReason(NpcDespawnReason reason) {
+    public void setLastDespawnReason(NpcDespawnReason reason) {
         _lastDespawnReason = reason;
     }
 

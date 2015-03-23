@@ -30,7 +30,9 @@ import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
 import com.jcwhatever.nucleus.providers.npc.INpc;
+import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
+import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.storage.IDataNode;
@@ -185,6 +187,24 @@ public class NpcTraits implements INpcTraits, IDisposable {
             if (!_adapter.has(lookupName))
                 add(lookupName);
         }
+    }
+
+    /**
+     * Invoked when the Npc is spawned.
+     *
+     * @param reason  The reason the Npc is being spawned.
+     */
+    public void onSpawn(NpcSpawnReason reason) {
+        _adapter.onSpawn(reason);
+    }
+
+    /**
+     * Invoked when the Npc is despawned.
+     *
+     * @param reason  The reason the Npc is being despawned.
+     */
+    public void onDespawn(NpcDespawnReason reason) {
+        _adapter.onDespawn(reason);
     }
 
     @Override

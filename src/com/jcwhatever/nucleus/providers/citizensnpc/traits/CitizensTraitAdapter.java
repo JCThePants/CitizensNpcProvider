@@ -32,6 +32,8 @@ import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTra
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.InventoryTraitType;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTrait;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.OwnerTraitType;
+import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
+import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -62,6 +64,7 @@ public class CitizensTraitAdapter extends Trait implements IDisposable {
     // used to store a copy of the _traits values for iteration. Iterate this to
     // prevent concurrent modification exceptions.
     private List<NpcTrait> _iterableTraits;
+    private NpcSpawnReason _lastSpawnReason;
 
     /**
      * Constructor.
@@ -105,13 +108,22 @@ public class CitizensTraitAdapter extends Trait implements IDisposable {
         // do nothing
     }
 
-    @Override
-    public void onDespawn() {
+    public void onSpawn(NpcSpawnReason reason) {
+
+        _lastSpawnReason = reason;
 
         List<NpcTrait> traits = getIterableTraits();
 
         for (NpcTrait trait : traits) {
-            trait.onDespawn();
+            trait.onSpawn(reason);
+        }
+    }
+
+    public void onDespawn(NpcDespawnReason reason) {
+        List<NpcTrait> traits = getIterableTraits();
+
+        for (NpcTrait trait : traits) {
+            trait.onDespawn(reason);
         }
     }
 
@@ -122,15 +134,6 @@ public class CitizensTraitAdapter extends Trait implements IDisposable {
 
         for (NpcTrait trait : traits) {
             trait.onRemove();
-        }
-    }
-
-    @Override
-    public void onSpawn() {
-        List<NpcTrait> traits = getIterableTraits();
-
-        for (NpcTrait trait : traits) {
-            trait.onSpawn();
         }
     }
 
@@ -173,8 +176,10 @@ public class CitizensTraitAdapter extends Trait implements IDisposable {
         _traits.put(trait.getLookupName(), trait);
         updateIterableTraits();
 
-        if (_npc.isSpawned())
-            trait.onSpawn();
+        if (_npc.isSpawned()) {
+            assert _lastSpawnReason != null;
+            trait.onSpawn(_lastSpawnReason);
+        }
     }
 
     @Nullable
