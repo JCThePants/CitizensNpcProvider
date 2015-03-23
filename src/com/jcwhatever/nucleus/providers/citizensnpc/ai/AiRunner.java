@@ -25,6 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
 import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
+import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 
 import java.util.Collection;
@@ -44,7 +45,13 @@ public class AiRunner implements Runnable {
             if (!npc.isSpawned())
                 continue;
 
-            ((NpcGoals)npc.getGoals()).run();
+            try {
+                npc.getGoals().run();
+            }
+            catch (Throwable e) {
+                Msg.severe("Exception while running AI for Npc '{0}'.", npc.getName());
+                e.printStackTrace();
+            }
         }
     }
 }
