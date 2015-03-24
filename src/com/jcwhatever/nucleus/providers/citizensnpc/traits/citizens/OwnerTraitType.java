@@ -44,11 +44,6 @@ public class OwnerTraitType extends NpcTraitType {
     }
 
     @Override
-    public NpcTrait attachTrait(INpc npc, INpc copyFrom) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected NpcTrait createTrait(INpc npc) {
         throw new UnsupportedOperationException();
     }

@@ -45,12 +45,6 @@ public class EquipmentTraitType extends NpcTraitType {
     }
 
     @Override
-    public NpcTrait attachTrait(INpc npc, INpc copyFrom) {
-        // trait is already attached by citizens
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected NpcTrait createTrait(INpc npc) {
         throw new UnsupportedOperationException();
     }
