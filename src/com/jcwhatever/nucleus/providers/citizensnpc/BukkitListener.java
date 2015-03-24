@@ -55,7 +55,7 @@ import net.citizensnpcs.api.event.NPCPushEvent;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.event.NPCSpawnEvent;
 
-public class CitizensNpcListener implements Listener {
+public class BukkitListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onSpawn(NPCSpawnEvent event) {
@@ -67,9 +67,14 @@ public class CitizensNpcListener implements Listener {
 
         NpcSpawnEvent e = new NpcSpawnEvent(npc, npc.getSpawnReason());
         e.setCancelled(event.isCancelled());
-        npc.onNpcSpawn(e);
-        Nucleus.getEventManager().callBukkit(this, e);
 
+        Nucleus.getEventManager().callBukkit(this, e);
+        if (e.isCancelled()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        npc.onNpcSpawn(e);
         event.setCancelled(e.isCancelled());
     }
 
@@ -103,9 +108,6 @@ public class CitizensNpcListener implements Listener {
             return;
 
         Entity entity = event.getNPC().getEntity();
-        if (entity != null)
-            CitizensProvider.getInstance().unregisterEntity(entity);
-
         NpcDespawnReason reason;
 
         switch (event.getReason()) {
@@ -131,14 +133,21 @@ public class CitizensNpcListener implements Listener {
                 break;
         }
 
-        npc.setLastDespawnReason(reason);
-
         NpcDespawnEvent e = new NpcDespawnEvent(npc, reason);
         if (e.isCancellable())
             e.setCancelled(event.isCancelled());
 
         Nucleus.getEventManager().callBukkit(this, e);
-        npc.onNpcDespawn(e);
+
+        if (!e.isCancelled())
+            npc.onNpcDespawn(e);
+
+        if (!e.isCancelled()) {
+            npc.setLastDespawnReason(reason);
+
+            if (entity != null)
+                CitizensProvider.getInstance().unregisterEntity(entity);
+        }
 
         event.setCancelled(e.isCancelled());
     }
@@ -152,8 +161,11 @@ public class CitizensNpcListener implements Listener {
 
         NpcClickEvent e = new NpcClickEvent(npc, event.getClicker());
         e.setCancelled(event.isCancelled());
-        npc.onNpcClick(e);
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcClick(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -167,8 +179,11 @@ public class CitizensNpcListener implements Listener {
 
         NpcLeftClickEvent e = new NpcLeftClickEvent(npc, event.getClicker());
         e.setCancelled(event.isCancelled());
-        npc.onNpcLeftClick(e);
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcLeftClick(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -182,8 +197,11 @@ public class CitizensNpcListener implements Listener {
 
         NpcRightClickEvent e = new NpcRightClickEvent(npc, event.getClicker());
         e.setCancelled(event.isCancelled());
-        npc.onNpcRightClick(e);
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcRightClick(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -197,8 +215,11 @@ public class CitizensNpcListener implements Listener {
 
         NpcTargetedEvent e = new NpcTargetedEvent(npc, event.getEntity());
         e.setCancelled(event.isCancelled());
-        npc.onNpcEntityTarget(e);
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcEntityTarget(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -211,8 +232,12 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcDamageEvent e = new NpcDamageEvent(npc, event);
-        npc.onNpcDamage(e);
+        e.setCancelled(event.isCancelled());
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcDamage(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -225,8 +250,12 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcDamageByBlockEvent e = new NpcDamageByBlockEvent(npc, event);
-        npc.onNpcDamageByBlock(e);
+        e.setCancelled(event.isCancelled());
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcDamageByBlock(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -239,8 +268,12 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcDamageByEntityEvent e = new NpcDamageByEntityEvent(npc, event);
-        npc.onNpcDamageByEntity(e);
+        e.setCancelled(event.isCancelled());
+
         Nucleus.getEventManager().callBukkit(this, e);
+
+        if (!e.isCancelled())
+            npc.onNpcDamageByEntity(e);
 
         event.setCancelled(e.isCancelled());
     }
@@ -253,8 +286,8 @@ public class CitizensNpcListener implements Listener {
             return;
 
         NpcDeathEvent e = new NpcDeathEvent(npc, event);
-        npc.onNpcDeath(e);
         Nucleus.getEventManager().callBukkit(this, e);
+        npc.onNpcDeath(e);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

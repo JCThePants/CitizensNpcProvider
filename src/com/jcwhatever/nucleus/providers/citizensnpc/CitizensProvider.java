@@ -97,7 +97,7 @@ public class CitizensProvider implements INpcProvider {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(new CitizensNavigatorListener(), Nucleus.getPlugin());
-        Bukkit.getPluginManager().registerEvents(new CitizensNpcListener(), Nucleus.getPlugin());
+        Bukkit.getPluginManager().registerEvents(new BukkitListener(), Nucleus.getPlugin());
 
         Scheduler.runTaskRepeat(Nucleus.getPlugin(), 1, 1, new AiRunner());
 
