@@ -213,26 +213,16 @@ public class NpcTraits implements INpcTraits, IDisposable {
     }
 
     @Override
-    public boolean isInvulnerable() {
-        return _handle.isProtected();
+    public boolean isVulnerable() {
+        return !_handle.isProtected();
     }
 
     @Override
-    public INpcTraits invulnerable() {
+    public INpcTraits setVulnerable(boolean isVulnerable) {
 
         checkDisposed();
 
-        _handle.setProtected(true);
-
-        return this;
-    }
-
-    @Override
-    public INpcTraits vulnerable() {
-
-        checkDisposed();
-
-        _handle.setProtected(false);
+        _handle.setProtected(!isVulnerable);
 
         return this;
     }
