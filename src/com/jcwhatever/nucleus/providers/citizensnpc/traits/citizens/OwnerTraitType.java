@@ -39,7 +39,7 @@ public class OwnerTraitType extends NpcTraitType {
     }
 
     @Override
-    public NpcTrait attachTrait(INpc npc) {
+    public NpcTrait addToNpc(INpc npc) {
         throw new UnsupportedOperationException();
     }
 

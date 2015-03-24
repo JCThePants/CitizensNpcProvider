@@ -164,7 +164,7 @@ public class CitizensTraitAdapter extends Trait implements IDisposable {
         if (type == null)
             return null;
 
-        return type.attachTrait(_npc);
+        return type.addToNpc(_npc);
     }
 
     public void add(NpcTrait trait) {

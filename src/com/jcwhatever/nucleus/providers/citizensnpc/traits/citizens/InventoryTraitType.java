@@ -39,7 +39,7 @@ public class InventoryTraitType extends NpcTraitType {
     }
 
     @Override
-    public NpcTrait attachTrait(INpc npc) {
+    public NpcTrait addToNpc(INpc npc) {
         throw new UnsupportedOperationException();
     }
 
