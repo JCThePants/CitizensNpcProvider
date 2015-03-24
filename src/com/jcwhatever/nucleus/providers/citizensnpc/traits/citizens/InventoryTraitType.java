@@ -26,24 +26,16 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens;
 
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.providers.npc.INpc;
-import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
-
-import org.bukkit.plugin.Plugin;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 
 /**
  * Trait factory for {@link InventoryTrait}.
  */
 public class InventoryTraitType extends NpcTraitType {
 
-    @Override
-    public Plugin getPlugin() {
-        return Nucleus.getPlugin();
-    }
-
-    @Override
-    public String getName() {
-        return "inventory";
+    public InventoryTraitType() {
+        super(Nucleus.getPlugin(), "inventory");
     }
 
     @Override
