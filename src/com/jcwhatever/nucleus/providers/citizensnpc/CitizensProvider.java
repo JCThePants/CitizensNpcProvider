@@ -25,6 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
 import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.providers.Provider;
 import com.jcwhatever.nucleus.providers.citizensnpc.ai.AiRunner;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.CitizensNavigatorListener;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
@@ -52,7 +53,7 @@ import javax.annotation.Nullable;
 /**
  * Provides Citizens based NPC support to NucleusFramework NPC api.
  */
-public class CitizensProvider implements INpcProvider {
+public class CitizensProvider extends Provider implements INpcProvider {
 
     private static CitizensProvider _instance;
 
@@ -74,43 +75,8 @@ public class CitizensProvider implements INpcProvider {
     private final Map<NPC, Npc> _npcs = new WeakHashMap<>(15);
     private final NpcTraitRegistry _traits = new NpcTraitRegistry(null);
 
-    @Override
-    public String getName() {
-        return "CitizensProvider";
-    }
-
-    @Override
-    public String getVersion() {
-        return "v0.1-beta";
-    }
-
-    @Override
-    public int getLogicalVersion() {
-        return 0;
-    }
-
-    @Override
-    public void onRegister() {
+    public CitizensProvider() {
         _instance = this;
-    }
-
-    @Override
-    public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new CitizensNavigatorListener(), Nucleus.getPlugin());
-        Bukkit.getPluginManager().registerEvents(new BukkitListener(), Nucleus.getPlugin());
-
-        Scheduler.runTaskRepeat(Nucleus.getPlugin(), 1, 1, new AiRunner());
-
-        try {
-            TraitReplacer.replaceTraits();
-        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        _instance = null;
     }
 
     @Override
@@ -175,5 +141,24 @@ public class CitizensProvider implements INpcProvider {
     @Nullable
     public Npc getNpc(NPC npc) {
         return _npcs.get(npc);
+    }
+
+    @Override
+    protected void onEnable() {
+        Bukkit.getPluginManager().registerEvents(new CitizensNavigatorListener(), Nucleus.getPlugin());
+        Bukkit.getPluginManager().registerEvents(new BukkitListener(), Nucleus.getPlugin());
+
+        Scheduler.runTaskRepeat(Nucleus.getPlugin(), 1, 1, new AiRunner());
+
+        try {
+            TraitReplacer.replaceTraits();
+        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onDisable() {
+        _instance = null;
     }
 }
