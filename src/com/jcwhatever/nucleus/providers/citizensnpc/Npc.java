@@ -31,7 +31,6 @@ import com.jcwhatever.nucleus.providers.citizensnpc.navigator.NpcNavigator;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeKey;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraits;
 import com.jcwhatever.nucleus.providers.npc.INpc;
-import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
 import com.jcwhatever.nucleus.providers.npc.events.NpcClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByBlockEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDamageByEntityEvent;
@@ -72,16 +71,18 @@ public class Npc implements INpc {
 
     private static final Location LOOK_LOCATION = new Location(null, 0, 0, 0);
 
-    private final String _name;
-    private final String _searchName;
-    private final Registry _registry;
+    private String _name;
+    private String _searchName;
+    private Registry _registry;
+    private DataNodeKey _dataKey;
+
     private final NPC _npc;
+    private final NpcPool _pool;
     private final NpcNavigator _navigator;
     private final NpcGoals _goals;
     private final NpcTraits _traits;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
     private final Map<BehaviourAgent<?, ?, ?, ?>, NamedUpdateAgents> _behaviourAgents = new WeakHashMap<>(10);
-    private final DataNodeKey _dataKey;
     private Map<String, Object> _meta;
     private boolean _isDisposed;
     private boolean _isSpawned;
@@ -98,27 +99,52 @@ public class Npc implements INpc {
     /**
      * Constructor.
      *
-     * @param registry    The owning registry.
-     * @param lookupName  The unique lookup name of the npc
-     * @param npc         The Citizens NPC.
+     * @param npc   The Citizens NPC.
+     * @param pool  The {@link NpcPool} that created the Npc.
+     */
+    public Npc(NPC npc, NpcPool pool) {
+        PreCon.notNull(npc);
+        PreCon.notNull(pool);
+
+        _npc = npc;
+
+        _navigator = new NpcNavigator(this, npc.getNavigator());
+        _goals = new NpcGoals(this);
+        _traits = new NpcTraits(this);
+        _pool = pool;
+    }
+
+    /**
+     * Initialize or re-initialize.
+     *
+     * @param lookupName  The unique lookup name of the NPC.
+     * @param npcName     The name of the NPC.
      * @param type        The initial {@link EntityType}.
+     * @param registry    The owning registry.
      * @param dataKey     The NPC's data storage.
      */
-    public Npc(Registry registry, String lookupName, NPC npc, EntityType type, DataNodeKey dataKey) {
-        PreCon.notNull(registry);
+    void init(String lookupName, String npcName,
+              EntityType type, Registry registry, DataNodeKey dataKey) {
+
         PreCon.notNull(lookupName);
-        PreCon.notNull(npc);
+        PreCon.notNull(npcName);
         PreCon.notNull(type);
+        PreCon.notNull(registry);
         PreCon.notNull(dataKey);
+
+        _isDisposed = false;
 
         _name = lookupName;
         _searchName = lookupName.toLowerCase();
         _registry = registry;
-        _npc = npc;
         _dataKey = dataKey;
-        _navigator = new NpcNavigator(this, _registry, npc.getNavigator());
-        _goals = new NpcGoals(this);
-        _traits = new NpcTraits(this, type);
+        _npc.setName(npcName);
+
+        CitizensProvider.getInstance().registerNpc(this);
+
+        _traits.init(type);
+        _navigator.init(registry);
+        _goals.init();
     }
 
     /**
@@ -146,7 +172,7 @@ public class Npc implements INpc {
     }
 
     @Override
-    public INpcRegistry getRegistry() {
+    public Registry getRegistry() {
         return _registry;
     }
 
@@ -372,31 +398,33 @@ public class Npc implements INpc {
 
         _isDisposed = true;
 
-        // scheduled to prevent ConcurrentModificationException in Citizens2 when
-        // disposing from within an event.
-        Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
-            @Override
-            public void run() {
-                if (isSpawned())
-                    despawn(DespawnReason.REMOVAL);
+        if (isSpawned())
+            despawn(DespawnReason.REMOVAL);
 
-                NpcDisposeEvent event = new NpcDisposeEvent(Npc.this);
-                Nucleus.getEventManager().callBukkit(this, event);
+        NpcDisposeEvent event = new NpcDisposeEvent(Npc.this);
+        Nucleus.getEventManager().callBukkit(this, event);
 
-                _registry.remove(Npc.this);
-                _agents.disposeAgents();
+        CitizensProvider.getInstance().unregisterNPC(this);
 
-                for (NamedUpdateAgents agent : _behaviourAgents.values()) {
-                    agent.disposeAgents();
-                }
-                _behaviourAgents.clear();
+        _registry.remove(this);
+        _agents.disposeAgents();
 
-                _goals.dispose();
-                _traits.dispose();
-                if (_meta != null)
-                    _meta.clear();
-            }
-        });
+        for (NamedUpdateAgents agent : _behaviourAgents.values()) {
+            agent.disposeAgents();
+        }
+        _behaviourAgents.clear();
+
+        _goals.dispose();
+        _traits.dispose();
+        if (_meta != null)
+            _meta.clear();
+
+        _name = null;
+        _searchName = null;
+        _registry = null;
+        _dataKey = null;
+
+        _pool.recycle(this);
     }
 
     public NPC getHandle() {

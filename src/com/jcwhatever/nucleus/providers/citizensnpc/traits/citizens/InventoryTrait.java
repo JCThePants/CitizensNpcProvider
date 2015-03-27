@@ -51,7 +51,7 @@ public class InventoryTrait extends NpcTrait {
      * @param dataNode  The traits data storage node.
      */
     public InventoryTrait(INpc npc, NpcTraitType type, IDataNode dataNode) {
-        super(npc, type);
+        super(type);
 
         _trait = ((Npc)npc).getHandle().getTrait(Inventory.class);
 
@@ -60,6 +60,11 @@ public class InventoryTrait extends NpcTrait {
         } catch (NPCLoadException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isReusable() {
+        return false;
     }
 
     public ItemStack[] getContents() {
@@ -75,15 +80,5 @@ public class InventoryTrait extends NpcTrait {
     @Override
     public String toString() {
         return _trait.toString();
-    }
-
-    @Override
-    public boolean isDisposed() {
-        return false;
-    }
-
-    @Override
-    public void dispose() {
-        // do nothing, not disposable
     }
 }

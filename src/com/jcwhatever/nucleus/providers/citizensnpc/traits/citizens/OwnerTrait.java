@@ -52,7 +52,7 @@ public class OwnerTrait extends NpcTrait {
      * @param dataNode  The traits data storage node.
      */
     public OwnerTrait(Npc npc, NpcTraitType type, IDataNode dataNode) {
-        super(npc, type);
+        super(type);
 
         _trait = npc.getHandle().getTrait(Owner.class);
 
@@ -61,6 +61,11 @@ public class OwnerTrait extends NpcTrait {
         } catch (NPCLoadException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isReusable() {
+        return false;
     }
 
     public String getOwner() {
@@ -95,15 +100,5 @@ public class OwnerTrait extends NpcTrait {
         _trait.setOwner(owner, uuid);
 
         return this;
-    }
-
-    @Override
-    public boolean isDisposed() {
-        return false;
-    }
-
-    @Override
-    public void dispose() {
-        // do nothing
     }
 }

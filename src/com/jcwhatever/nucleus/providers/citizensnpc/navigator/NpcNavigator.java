@@ -49,12 +49,12 @@ import javax.annotation.Nullable;
 public class NpcNavigator implements INpcNav {
 
     private final Npc _npc;
-    private final Registry _registry;
     private final Navigator _navigator;
     private final NpcNavigatorSettings _settings;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
 
     private NpcNavigatorSettings _currentSettings;
+    private Registry _registry;
     private boolean _isHostile;
     private boolean _isVehicleProxy;
 
@@ -62,19 +62,27 @@ public class NpcNavigator implements INpcNav {
      * Constructor.
      *
      * @param npc        The NPC the navigator is for.
-     * @param registry   The owning registry.
      * @param navigator  The citizens {@link net.citizensnpcs.api.ai.Navigator}.
      */
-    public NpcNavigator(Npc npc, Registry registry, Navigator navigator) {
+    public NpcNavigator(Npc npc, Navigator navigator) {
         PreCon.notNull(npc);
-        PreCon.notNull(registry);
         PreCon.notNull(navigator);
 
         _npc = npc;
-        _registry = registry;
         _navigator = navigator;
         _settings = new NpcNavigatorSettings(npc, navigator, navigator.getDefaultParameters());
         _currentSettings = new NpcNavigatorSettings(npc, navigator, navigator.getLocalParameters());
+    }
+
+    /**
+     * Initialize or re-initialize.
+     *
+     * @param registry  The owning NPC's registry.
+     */
+    public void init(Registry registry) {
+        PreCon.notNull(registry);
+
+        _registry = registry;
     }
 
     @Override

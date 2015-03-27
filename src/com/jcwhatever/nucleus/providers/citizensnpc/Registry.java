@@ -25,8 +25,10 @@
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
 import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.internal.NucMsg;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeNPCStore;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
+import com.jcwhatever.nucleus.providers.citizensnpc.traits.TraitPool;
 import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
 import com.jcwhatever.nucleus.providers.npc.events.NpcClickEvent;
@@ -52,10 +54,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
 
-import net.citizensnpcs.api.CitizensAPI;
-import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.api.npc.NPCRegistry;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,18 +67,17 @@ import javax.annotation.Nullable;
  */
 public class Registry implements INpcRegistry {
 
-    // compensate for CitizensAPI multi-registry bugs.
-    // used for unique NPC ID across all registries.
-    private static int _transientId = 0;
+    private static int _registryId = 0;
 
     private final Plugin _plugin;
     private final String _name;
     private final String _searchName;
-    private final NPCRegistry _registry;
     private final Map<String, INpc> _npcMap = new HashMap<>(10);
     private final NpcTraitRegistry _traits;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
     private final DataNodeNPCStore _dataStore;
+    private final NpcPool _npcPool;
+    private final TraitPool _traitPool = new TraitPool();
 
     private boolean _isDisposed;
 
@@ -96,13 +93,13 @@ public class Registry implements INpcRegistry {
         PreCon.notNullOrEmpty(name);
         PreCon.notNull(dataNode);
 
+        _npcPool = new NpcPool(nextId());
+
         _plugin = plugin;
         _name = name;
         _searchName = name.toLowerCase();
         _dataStore = new DataNodeNPCStore(dataNode);
         _traits = new NpcTraitRegistry(CitizensProvider.getInstance().getTraitRegistry());
-
-        _registry = CitizensAPI.createNamedNPCRegistry(plugin.getName() + ':' + name, _dataStore);
     }
 
     /**
@@ -110,6 +107,10 @@ public class Registry implements INpcRegistry {
      */
     public DataNodeNPCStore getDataStore() {
         return _dataStore;
+    }
+
+    public TraitPool getTraitPool() {
+        return _traitPool;
     }
 
     @Override
@@ -129,24 +130,34 @@ public class Registry implements INpcRegistry {
 
     @Nullable
     @Override
-    public INpc create(String lookupName, String npcName, EntityType type) {
-        PreCon.notNullOrEmpty(lookupName);
+    public Npc create(@Nullable String lookupName, String npcName, EntityType type) {
         PreCon.notNull(npcName);
         PreCon.notNull(type);
 
         checkDisposed();
 
-        if (_npcMap.containsKey(lookupName.toLowerCase()))
+        if (lookupName != null && _npcMap.containsKey(lookupName.toLowerCase())) {
+            NucMsg.debug("Attempted to create an NPC with a lookup name that already exists: {0}", lookupName);
             return null;
+        }
 
-        NPC handle = _registry.createNPC(type, UUID.randomUUID(), nextId(), npcName);
+        // create npc from pool
+        Npc npc = _npcPool.createNpc(lookupName, npcName, UUID.randomUUID(), type, this);
 
-        return create(lookupName, handle, type);
+        // store npc in registry
+        _npcMap.put(npc.getSearchName(), npc);
+
+        // call create event
+        NpcCreateEvent event = new NpcCreateEvent(npc);
+        Nucleus.getEventManager().callBukkit(this, event);
+
+        return npc;
     }
 
     @Nullable
     @Override
-    public INpc create(String lookupName, String npcName, String type) {
+    public Npc create(@Nullable String lookupName, String npcName, String type) {
+        PreCon.notNull(npcName);
         PreCon.notNullOrEmpty(type);
 
         checkDisposed();
@@ -162,30 +173,23 @@ public class Registry implements INpcRegistry {
 
     @Nullable
     @Override
-    public INpc create(String npcName, EntityType type) {
-        PreCon.notNull(npcName);
-        PreCon.notNull(type);
-
-        checkDisposed();
-
-        NPC handle = _registry.createNPC(type, UUID.randomUUID(), nextId(), npcName);
-
-        String lookupName = "nolookup__" + handle.getId();
-
-        return create(lookupName, handle, type);
+    public Npc create(String npcName, EntityType type) {
+        return create(null, npcName, type);
     }
 
     @Nullable
     @Override
     public INpc create(String npcName, String type) {
+        PreCon.notNull(npcName);
         PreCon.notNullOrEmpty(type);
 
         checkDisposed();
 
         try {
             EntityType entityType = EntityType.valueOf(type.toUpperCase());
-            return create(npcName, entityType);
+            return create(null, npcName, entityType);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -211,9 +215,7 @@ public class Registry implements INpcRegistry {
             return current;
         }
 
-        NPC handle = _registry.createNPC(type, id, nextId(), name);
-
-        Npc npc = create(lookupName, handle, type);
+        Npc npc = _npcPool.createNpc(lookupName, name, id, type, this);
         if (npc != null) {
             npc.getTraits().load(dataNode.getNode("traits"));
         }
@@ -292,6 +294,8 @@ public class Registry implements INpcRegistry {
         _agents.disposeAgents();
         _dataStore.getStorage().getDataNode().clear();
         _traits.dispose();
+
+        _npcPool.dispose();
     }
 
     @Override
@@ -565,35 +569,17 @@ public class Registry implements INpcRegistry {
         _agents.update("onNpcDeath", event);
     }
 
+    // invoked from Npc#dispose
     void remove(Npc npc) {
         PreCon.notNull(npc);
-
         _npcMap.remove(npc.getSearchName());
-        npc.getHandle().destroy();
-        CitizensProvider.getInstance().unregisterNPC(npc);
-    }
-
-    @Nullable
-    private Npc create(String lookupName, NPC handle, EntityType type) {
-
-        Npc npc = new Npc(this, lookupName, handle, type,
-                _dataStore.getStorage().getKey(String.valueOf(handle.getId())));
-
-        _npcMap.put(lookupName.toLowerCase(), npc);
-
-        CitizensProvider.getInstance().registerNPC(npc);
-
-        NpcCreateEvent event = new NpcCreateEvent(npc);
-        Nucleus.getEventManager().callBukkit(this, event);
-
-        return npc;
     }
 
     private int nextId() {
-        if (_transientId == Integer.MAX_VALUE)
-            _transientId = 0;
+        if (_registryId == Integer.MAX_VALUE)
+            _registryId = 0;
 
-        return _transientId++;
+        return _registryId++;
     }
 
     private void checkDisposed() {

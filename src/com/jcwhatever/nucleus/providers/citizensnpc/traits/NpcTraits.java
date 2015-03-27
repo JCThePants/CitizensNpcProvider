@@ -29,12 +29,12 @@ import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
-import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.kits.IKit;
@@ -69,19 +69,29 @@ public class NpcTraits implements INpcTraits, IDisposable {
     /**
      * Constructor.
      *
-     * @param npc          The Npc the traits are for.
-     * @param initialType  The initial entity type.
+     * @param npc The Npc the traits are for.
      */
-    public NpcTraits(Npc npc, EntityType initialType) {
+    public NpcTraits(Npc npc) {
         PreCon.notNull(npc);
-        PreCon.notNull(initialType);
 
         _npc = npc;
-        _entityType = initialType;
         _handle = npc.getHandle();
 
         _adapter = new CitizensTraitAdapter(npc);
         _handle.addTrait(_adapter);
+    }
+
+    /**
+     * Initialize or re-initialize.
+     *
+     * @param type  The initial {@link org.bukkit.entity.EntityType}.
+     */
+    public void init(EntityType type) {
+        PreCon.notNull(type);
+
+        _entityType = type;
+        _isDisposed = false;
+        _adapter.init();
     }
 
     /**
@@ -208,7 +218,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
     }
 
     @Override
-    public INpc getNpc() {
+    public Npc getNpc() {
         return _npc;
     }
 
@@ -376,6 +386,24 @@ public class NpcTraits implements INpcTraits, IDisposable {
 
     @Nullable
     @Override
+    public NpcTrait addPooled(NpcTraitType trait) {
+        PreCon.notNull(trait);
+
+        checkDisposed();
+
+        TraitPool pool = getNpc().getRegistry().getTraitPool();
+
+        NpcTrait pooledTrait = pool.getPooled(trait);
+        if (pooledTrait == null)
+            return null;
+
+        _adapter.add(pooledTrait);
+
+        return pooledTrait;
+    }
+
+    @Nullable
+    @Override
     public NpcTrait get(String name) {
         PreCon.notNull(name);
 
@@ -401,7 +429,16 @@ public class NpcTraits implements INpcTraits, IDisposable {
     public boolean remove(String name) {
         PreCon.notNull(name);
 
-        return _adapter.remove(name);
+        NpcTrait trait = _adapter.remove(name);
+        if (trait == null)
+            return false;
+
+        // add to trait pool for reuse if possible
+        if (trait.isReusable()) {
+            getNpc().getRegistry().getTraitPool().pool(trait);
+        }
+
+        return true;
     }
 
     @Override

@@ -25,6 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
 import com.jcwhatever.nucleus.mixins.IDisposable;
+import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -55,6 +56,9 @@ public class NpcTraitRegistry implements INpcTraitTypeRegistry, IDisposable {
     @Override
     public INpcTraitTypeRegistry registerTrait(NpcTraitType traitType) {
         PreCon.notNull(traitType);
+
+        if (!traitType.isRegistered())
+            traitType.onRegister(CitizensProvider.REGISTRATION);
 
         _typeMap.put(traitType.getLookupName(), traitType);
 

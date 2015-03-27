@@ -54,7 +54,7 @@ public class EquipmentTrait extends NpcTrait {
      * @param type The parent type that instantiated the trait.
      */
     public EquipmentTrait(INpc npc, NpcTraitType type, IDataNode dataNode) {
-        super(npc, type);
+        super(type);
 
         _trait = ((Npc)npc).getHandle().getTrait(Equipment.class);
 
@@ -63,6 +63,11 @@ public class EquipmentTrait extends NpcTrait {
         } catch (NPCLoadException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isReusable() {
+        return false;
     }
 
     /**
@@ -95,16 +100,6 @@ public class EquipmentTrait extends NpcTrait {
         _trait.set(getSlot(slot), item);
 
         return this;
-    }
-
-    @Override
-    public boolean isDisposed() {
-        return false;
-    }
-
-    @Override
-    public void dispose() {
-        // do nothing, not disposable
     }
 
     @Override

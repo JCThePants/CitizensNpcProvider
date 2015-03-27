@@ -64,6 +64,13 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
         _npc = npc;
     }
 
+    /**
+     * Initialize or re-initialize.
+     */
+    public void init() {
+        _isDisposed = false;
+    }
+
     @Override
     public INpcGoals add(int priority, INpcGoal goal) {
         PreCon.greaterThanZero(priority, "priority");

@@ -34,6 +34,7 @@ import com.jcwhatever.nucleus.providers.npc.INpcProvider;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraitTypeRegistry;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType.NpcTraitRegistration;
 import com.jcwhatever.nucleus.storage.MemoryDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.Scheduler;
@@ -55,6 +56,7 @@ import javax.annotation.Nullable;
  */
 public class CitizensProvider extends Provider implements INpcProvider {
 
+    public static NpcTraitRegistration REGISTRATION = new NpcTraitRegistration();
     private static CitizensProvider _instance;
 
     /**
@@ -130,7 +132,7 @@ public class CitizensProvider extends Provider implements INpcProvider {
         _spawned.remove(entity);
     }
 
-    public void registerNPC(Npc npc) {
+    public void registerNpc(Npc npc) {
         _npcs.put(npc.getHandle(), npc);
     }
 
