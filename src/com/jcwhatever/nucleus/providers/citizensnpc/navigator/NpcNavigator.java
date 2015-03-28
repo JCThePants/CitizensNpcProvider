@@ -30,6 +30,7 @@ import com.jcwhatever.nucleus.providers.npc.INpc;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNav;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavRunner;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.coords.LocationUtils;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
@@ -137,6 +138,17 @@ public class NpcNavigator implements INpcNav {
     @Override
     public Location getTargetLocation() {
         return _navigator.getTargetAsLocation();
+    }
+
+    @Nullable
+    @Override
+    public Location getTargetLocation(Location output) {
+
+        Location location = _navigator.getTargetAsLocation();
+        if (location == null)
+            return null;
+
+        return LocationUtils.copy(location, output);
     }
 
     @Nullable
