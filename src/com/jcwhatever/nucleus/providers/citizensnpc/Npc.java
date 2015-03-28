@@ -184,9 +184,6 @@ public class Npc implements INpc {
     @Nullable
     @Override
     public Entity getEntity() {
-        if (!isSpawned())
-            return null;
-
         return _npc.getEntity();
     }
 
