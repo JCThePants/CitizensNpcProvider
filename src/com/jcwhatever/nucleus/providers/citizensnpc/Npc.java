@@ -398,8 +398,7 @@ public class Npc implements INpc {
 
         _isDisposed = true;
 
-        if (isSpawned())
-            despawn(DespawnReason.REMOVAL);
+        despawn(DespawnReason.REMOVAL);
 
         NpcDisposeEvent event = new NpcDisposeEvent(Npc.this);
         Nucleus.getEventManager().callBukkit(this, event);
@@ -718,8 +717,17 @@ public class Npc implements INpc {
     // despawn the NPC
     private boolean despawn(DespawnReason reason) {
 
-        if (!isSpawned())
+        if (!isSpawned()) {
+
+            // make Citizens2 remove chunk load references to the NPC so
+            // it doesn't get respawned when the chunk loads.
+            if (_lastDespawnReason == NpcDespawnReason.CHUNK_UNLOAD &&
+                    reason == DespawnReason.REMOVAL) {
+                _npc.despawn(reason);
+            }
+
             return false;
+        }
 
         Entity entity = _npc.getEntity();
 
