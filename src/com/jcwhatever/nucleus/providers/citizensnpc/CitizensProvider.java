@@ -29,6 +29,7 @@ import com.jcwhatever.nucleus.providers.Provider;
 import com.jcwhatever.nucleus.providers.citizensnpc.ai.AiRunner;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.CitizensNavigatorListener;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.NpcTraitRegistry;
+import com.jcwhatever.nucleus.providers.citizensnpc.traits.TraitRegistration;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.replaced.TraitReplacer;
 import com.jcwhatever.nucleus.providers.npc.INpcProvider;
 import com.jcwhatever.nucleus.providers.npc.INpcRegistry;
@@ -56,7 +57,7 @@ import javax.annotation.Nullable;
  */
 public class CitizensProvider extends Provider implements INpcProvider {
 
-    public static NpcTraitRegistration REGISTRATION = new NpcTraitRegistration();
+    public static NpcTraitRegistration REGISTRATION = new TraitRegistration();
     private static CitizensProvider _instance;
 
     /**

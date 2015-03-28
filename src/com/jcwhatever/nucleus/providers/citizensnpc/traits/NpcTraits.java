@@ -34,7 +34,6 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
-import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.kits.IKit;
@@ -382,24 +381,6 @@ public class NpcTraits implements INpcTraits, IDisposable {
         _adapter.add(trait);
 
         return this;
-    }
-
-    @Nullable
-    @Override
-    public NpcTrait addPooled(NpcTraitType trait) {
-        PreCon.notNull(trait);
-
-        checkDisposed();
-
-        TraitPool pool = getNpc().getRegistry().getTraitPool();
-
-        NpcTrait pooledTrait = pool.getPooled(trait);
-        if (pooledTrait == null)
-            return null;
-
-        _adapter.add(pooledTrait);
-
-        return pooledTrait;
     }
 
     @Nullable
