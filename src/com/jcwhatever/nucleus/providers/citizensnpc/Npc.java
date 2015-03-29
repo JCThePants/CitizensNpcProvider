@@ -193,7 +193,7 @@ public class Npc implements INpc {
     }
 
     @Override
-    public INpc spawn(Location location) {
+    public boolean spawn(Location location) {
         PreCon.notNull(location);
 
         checkDisposed();
@@ -203,9 +203,10 @@ public class Npc implements INpc {
             _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
             _currentEntity = _npc.getEntity();
+            return true;
         }
 
-        return this;
+        return false;
     }
 
     @Override
