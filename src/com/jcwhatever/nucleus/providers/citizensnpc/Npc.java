@@ -199,6 +199,14 @@ public class Npc implements INpc {
 
         checkDisposed();
 
+        if (isSpawned()) {
+            Entity entity = getEntity();
+            assert entity != null;
+
+            entity.teleport(location);
+            return true;
+        }
+
         if (_npc.spawn(LocationUtils.copy(location))) {
             _isSpawned = true;
             _goals.reset();
