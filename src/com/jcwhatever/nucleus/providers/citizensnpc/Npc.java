@@ -220,11 +220,14 @@ public class Npc implements INpc {
         return _npc.getStoredLocation();
     }
 
+    @Nullable
     @Override
     public Location getLocation(Location location) {
         PreCon.notNull(location);
 
         Location stored = _npc.getStoredLocation();
+        if (stored == null)
+            return null;
 
         location.setWorld(stored.getWorld());
         location.setX(stored.getX());
