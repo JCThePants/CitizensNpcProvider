@@ -47,6 +47,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.Scheduler;
+import com.jcwhatever.nucleus.utils.coords.LocationUtils;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
@@ -198,7 +199,7 @@ public class Npc implements INpc {
 
         checkDisposed();
 
-        if (_npc.spawn(location)) {
+        if (_npc.spawn(LocationUtils.copy(location))) {
             _isSpawned = true;
             _goals.reset();
             CitizensProvider.getInstance().registerEntity(this, _npc.getEntity());
