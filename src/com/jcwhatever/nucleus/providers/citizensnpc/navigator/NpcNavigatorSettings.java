@@ -92,18 +92,8 @@ public class NpcNavigatorSettings implements INpcNavSettings {
     }
 
     @Override
-    public INpcNavSettings avoidWater() {
-
-        _settings.avoidWater(true);
-
-        return this;
-    }
-
-    @Override
-    public INpcNavSettings ignoreWater() {
-
-        _settings.avoidWater(false);
-
+    public INpcNavSettings setAvoidsWater(boolean avoidsWater) {
+        _settings.avoidWater(avoidsWater);
         return this;
     }
 
