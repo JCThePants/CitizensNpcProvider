@@ -160,6 +160,7 @@ public class NpcPool implements IDisposable {
 
         _inUse.clear();
 
-        CitizensAPI.removeNamedNPCRegistry(REGISTRY_NAME + _id);
+        if (CitizensAPI.hasImplementation())
+            CitizensAPI.removeNamedNPCRegistry(REGISTRY_NAME + _id);
     }
 }
