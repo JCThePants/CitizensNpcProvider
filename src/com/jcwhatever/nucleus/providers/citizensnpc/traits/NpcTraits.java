@@ -29,14 +29,15 @@ import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
+import com.jcwhatever.nucleus.providers.kits.IKit;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.storage.IDataNode;
+import com.jcwhatever.nucleus.utils.Kits;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.kits.IKit;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -316,7 +317,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
         if (kitName == null)
             return setKit(null);
 
-        IKit kit = Nucleus.getKitManager().get(kitName);
+        IKit kit = Kits.get(kitName);
         if (kit == null) {
             throw new IllegalArgumentException("A kit named " + kitName + " was not found.");
         }
