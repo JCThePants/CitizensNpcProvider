@@ -25,7 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
 import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.messaging.IMessenger;
+import com.jcwhatever.nucleus.managed.messaging.IMessenger;
 
 /**
  * Console message helper utility.
