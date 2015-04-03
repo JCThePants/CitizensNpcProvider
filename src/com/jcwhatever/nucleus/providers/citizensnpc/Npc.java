@@ -46,7 +46,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.Scheduler;
+import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
 import com.jcwhatever.nucleus.utils.coords.LocationUtils;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;

@@ -38,7 +38,7 @@ import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType.NpcTraitRegistration;
 import com.jcwhatever.nucleus.storage.MemoryDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.Scheduler;
+import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;

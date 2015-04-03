@@ -36,7 +36,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.storage.IDataNode;
-import com.jcwhatever.nucleus.utils.Kits;
+import com.jcwhatever.nucleus.providers.kits.Kits;
 import com.jcwhatever.nucleus.utils.PreCon;
 
 import org.bukkit.Location;
