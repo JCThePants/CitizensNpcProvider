@@ -63,7 +63,7 @@ public class SerialAction extends CompositeBehaviour<INpcAction, INpcActionAgent
     @Override
     public void reset(INpcState state) {
 
-        Msg.debug("[AI] [SERIAL_ACTION] [NPC:{0}] [{1}] reset", getNpc().getName(), getName());
+        Msg.debug("[AI] [SERIAL_ACTION] [NPC:{0}] [{1}] reset", getNpc().getLookupName(), getName());
 
         _queue.clear();
         _queue.addAll(getBehaviours());
@@ -102,7 +102,7 @@ public class SerialAction extends CompositeBehaviour<INpcAction, INpcActionAgent
     public void pause(INpcState state) {
 
         Msg.debug("[AI] [SERIAL_ACTION] [NPC:{0}] [{1}] pause",
-                getNpc().getName(), getName());
+                getNpc().getLookupName(), getName());
 
         if (_current != null)
             _current.getBehaviour().pause(state);

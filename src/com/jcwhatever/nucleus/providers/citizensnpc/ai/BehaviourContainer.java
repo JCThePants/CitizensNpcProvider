@@ -64,7 +64,7 @@ public abstract class BehaviourContainer<T extends INpcBehaviour, A extends INpc
     public void reset(INpcState state) {
 
         Msg.debug("[AI] [BEHAVIOUR_CONTAINER] [NPC:{0}] [{1}] reset",
-                ((Npc)state).getName(), getName());
+                ((Npc)state).getLookupName(), getName());
 
 
         _behaviour.reset(state);

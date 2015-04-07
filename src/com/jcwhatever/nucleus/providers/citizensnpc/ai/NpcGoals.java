@@ -88,7 +88,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
 
         checkDisposed();
 
-        Msg.debug("[AI] [GOALS] [NPC:{0}] add : {1}", getNpc().getName(), goal.getName());
+        Msg.debug("[AI] [GOALS] [NPC:{0}] add : {1}", getNpc().getLookupName(), goal.getName());
 
         GoalContainer container = new GoalContainer(priority, goal, this);
         insertBehaviour(container);
@@ -106,7 +106,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
     @Override
     public INpcGoals pause() {
 
-        Msg.debug("[AI] [GOALS] [NPC:{0}] pause", getNpc().getName());
+        Msg.debug("[AI] [GOALS] [NPC:{0}] pause", getNpc().getLookupName());
 
         setRunning(false);
         return this;
@@ -117,7 +117,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
 
         checkDisposed();
 
-        Msg.debug("[AI] [GOALS] [NPC:{0}] resume", getNpc().getName());
+        Msg.debug("[AI] [GOALS] [NPC:{0}] resume", getNpc().getLookupName());
 
         setRunning(true);
         return this;

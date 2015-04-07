@@ -77,7 +77,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     @Override
     public BehaviourPool<T, A> reset() {
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] reset", _npc.getName());
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] reset", _npc.getLookupName());
 
         setCurrent(null, true);
 
@@ -98,7 +98,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     public INpcBehaviourPool add(T behaviour) {
         PreCon.notNull(behaviour);
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] add : ", _npc.getName(), behaviour.getName());
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] add : ", _npc.getLookupName(), behaviour.getName());
 
         insertBehaviour(createContainer(behaviour, false));
 
@@ -110,7 +110,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     public boolean remove(T behaviour) {
         PreCon.notNull(behaviour);
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] remove : {1}", _npc.getName(), behaviour.getName());
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] remove : {1}", _npc.getLookupName(), behaviour.getName());
 
         BehaviourContainer<T, A> current = getCurrent();
 
@@ -126,7 +126,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     @Override
     public BehaviourPool<T, A> clear() {
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] clear", _npc.getName());
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] clear", _npc.getLookupName());
 
         getPoolList().clear();
         _current = null;
@@ -137,7 +137,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     @Override
     public BehaviourPool<T, A> run(T behaviour) {
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] run : {1}", _npc.getName(), behaviour.getName());
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] run : {1}", _npc.getLookupName(), behaviour.getName());
 
         _currentOverride = createContainer(behaviour, false);
         _currentOverride.reset(_npc);
@@ -149,7 +149,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     public BehaviourPool<T, A> select(String behaviourName) {
         PreCon.notNull(behaviourName);
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] attempt select : {1}", _npc.getName(), behaviourName);
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] attempt select : {1}", _npc.getLookupName(), behaviourName);
 
         BehaviourContainer<T, A> behaviour = getBehaviour(behaviourName);
         if (behaviour == null)
@@ -157,7 +157,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
 
         _currentOverride = behaviour;
 
-        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] select success : {1}", _npc.getName(), behaviourName);
+        Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] select success : {1}", _npc.getLookupName(), behaviourName);
 
         return this;
     }
@@ -240,7 +240,7 @@ public abstract class BehaviourPool<T extends INpcBehaviour, A extends INpcBehav
     protected void setCurrent(@Nullable BehaviourContainer<T, A> behaviour, boolean putBack) {
 
         Msg.debug("[AI] [BEHAVIOUR_POOL] [NPC:{0}] setCurrent : {1}",
-                _npc.getName(), behaviour == null ? "<<none>>" : behaviour.getName());
+                _npc.getLookupName(), behaviour == null ? "<<none>>" : behaviour.getName());
 
         BehaviourContainer<T, A> current = getCurrent();
 

@@ -145,7 +145,7 @@ public class Registry implements INpcRegistry {
         Npc npc = _npcPool.createNpc(lookupName, npcName, UUID.randomUUID(), type, this);
 
         // store npc in registry
-        _npcMap.put(npc.getSearchName(), npc);
+        _npcMap.put(npc.getLookupName(), npc);
 
         // call create event
         NpcCreateEvent event = new NpcCreateEvent(npc);
@@ -241,7 +241,7 @@ public class Registry implements INpcRegistry {
         Collection<INpc> npcs = all();
 
         for (INpc npc : npcs) {
-            npc.save(dataNode.getNode(npc.getName()));
+            npc.save(dataNode.getNode(npc.getLookupName()));
         }
 
         dataNode.save();
@@ -572,7 +572,7 @@ public class Registry implements INpcRegistry {
     // invoked from Npc#dispose
     void remove(Npc npc) {
         PreCon.notNull(npc);
-        _npcMap.remove(npc.getSearchName());
+        _npcMap.remove(npc.getLookupName());
     }
 
     private int nextId() {

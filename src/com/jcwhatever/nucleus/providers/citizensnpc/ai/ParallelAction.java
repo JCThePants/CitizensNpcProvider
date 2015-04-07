@@ -89,7 +89,7 @@ public class ParallelAction
     public void pause(INpcState state) {
 
         Msg.debug("[AI] [PARALLEL_ACTION] [NPC:{0}] [{1}] pause",
-                getNpc().getName(), getName());
+                getNpc().getLookupName(), getName());
 
         for (BehaviourContainer<INpcAction, INpcActionAgent> container : getBehaviours()) {
 

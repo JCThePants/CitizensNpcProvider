@@ -111,7 +111,7 @@ public class ActionContainer
         boolean result = getAction().canRun(state);
 
         Msg.debug("[AI] [ACTION_CONTAINER] [NPC:{0}] [{1}] canRun = {2}",
-                _agent.getNpc().getName(), getName(), result);
+                _agent.getNpc().getLookupName(), getName(), result);
 
         return result;
     }
@@ -121,7 +121,7 @@ public class ActionContainer
         float result = getAction().getCost(state);
 
         Msg.debug("[AI] [ACTION_CONTAINER] [NPC:{0}] [{1}] getCost = {2}",
-                _agent.getNpc().getName(), getName(), result);
+                _agent.getNpc().getLookupName(), getName(), result);
 
         return result;
     }
@@ -130,7 +130,7 @@ public class ActionContainer
     public void pause(INpcState state) {
 
         Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] pause",
-                _agent.getNpc().getName(), getName());
+                _agent.getNpc().getLookupName(), getName());
 
         getAction().pause(state);
     }

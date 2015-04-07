@@ -122,7 +122,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
             }
             catch (Throwable e) {
                 Msg.severe("Error while saving trait '{0}' in Npc '{1}'.",
-                        trait.getLookupName(), getNpc().getName());
+                        trait.getLookupName(), getNpc().getLookupName());
                 e.printStackTrace();
             }
         }
@@ -178,7 +178,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
 
                 if (trait == null) {
                     Msg.debug("Failed to find trait '{0}' while loading Npc '{1}'",
-                            lookupName, getNpc().getName());
+                            lookupName, getNpc().getLookupName());
                     continue;
                 }
 
@@ -186,7 +186,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
                     trait.load(traitNode);
                 }
                 catch (Throwable e) {
-                    Msg.severe("Error while loading trait '{0}' in Npc '{1}'.", lookupName, getNpc().getName());
+                    Msg.severe("Error while loading trait '{0}' in Npc '{1}'.", lookupName, getNpc().getLookupName());
                     e.printStackTrace();
                 }
             }
@@ -264,7 +264,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
     public String getSkinName() {
         String name = _npc.getHandle().data().get("player-skin-name");
         return name == null
-                ? _npc.getNPCName()
+                ? _npc.getLookupName()
                 : name;
     }
 

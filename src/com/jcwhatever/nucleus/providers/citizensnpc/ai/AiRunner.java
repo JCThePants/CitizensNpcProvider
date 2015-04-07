@@ -49,7 +49,7 @@ public class AiRunner implements Runnable {
                 npc.getGoals().run();
             }
             catch (Throwable e) {
-                Msg.severe("Exception while running AI for Npc '{0}'.", npc.getName());
+                Msg.severe("Exception while running AI for Npc '{0}'.", npc.getLookupName());
                 e.printStackTrace();
             }
         }

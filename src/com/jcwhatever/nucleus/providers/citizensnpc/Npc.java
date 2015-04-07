@@ -72,8 +72,7 @@ public class Npc implements INpc {
 
     private static final Location LOOK_LOCATION = new Location(null, 0, 0, 0);
 
-    private String _name;
-    private String _searchName;
+    private String _lookupName;
     private Registry _registry;
     private DataNodeKey _dataKey;
 
@@ -135,8 +134,7 @@ public class Npc implements INpc {
 
         _isDisposed = false;
 
-        _name = lookupName;
-        _searchName = lookupName.toLowerCase();
+        _lookupName = lookupName;
         _registry = registry;
         _dataKey = dataKey;
         _npc.setName(npcName);
@@ -163,23 +161,25 @@ public class Npc implements INpc {
     }
 
     @Override
-    public String getName() {
-        return _name;
-    }
-
-    @Override
-    public String getSearchName() {
-        return _searchName;
-    }
-
-    @Override
     public Registry getRegistry() {
         return _registry;
     }
 
     @Override
-    public String getNPCName() {
+    public String getLookupName() {
+        return _lookupName;
+    }
+
+    @Override
+    public String getDisplayName() {
         return _npc.getName();
+    }
+
+    @Override
+    public INpc setDisplayName(String name) {
+        _npc.setName(name);
+
+        return this;
     }
 
     @Nullable
@@ -384,7 +384,7 @@ public class Npc implements INpc {
     public boolean save(IDataNode dataNode) {
         PreCon.notNull(dataNode);
 
-        dataNode.set("lookup", _name);
+        dataNode.set("lookup", _lookupName);
         dataNode.set("name", _npc.getName());
         dataNode.set("uuid", _npc.getUniqueId());
         dataNode.set("type", getTraits().getType());
@@ -428,8 +428,7 @@ public class Npc implements INpc {
         if (_meta != null)
             _meta.clear();
 
-        _name = null;
-        _searchName = null;
+        _lookupName = null;
         _registry = null;
         _dataKey = null;
 

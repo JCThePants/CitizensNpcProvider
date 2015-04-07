@@ -131,7 +131,7 @@ public class GoalContainer
         boolean result = getBehaviour().canRun(state);
 
         Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] canRun = {2}",
-                _goals.getNpc().getName(), getName(), result);
+                _goals.getNpc().getLookupName(), getName(), result);
 
         return result;
     }
@@ -141,7 +141,7 @@ public class GoalContainer
         float result = getBehaviour().getCost(state);
 
         Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] getCost = {2}",
-                _goals.getNpc().getName(), getName(), result);
+                _goals.getNpc().getLookupName(), getName(), result);
 
         return result;
     }
@@ -150,7 +150,7 @@ public class GoalContainer
     public void pause(INpcState state) {
 
         Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] pause",
-                _goals.getNpc().getName(),  getName());
+                _goals.getNpc().getLookupName(),  getName());
 
         getBehaviour().pause(state);
     }
