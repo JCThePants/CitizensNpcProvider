@@ -320,7 +320,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNavStart").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavStart").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -331,7 +331,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNavPause").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavPause").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -342,7 +342,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNavCancel").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavCancel").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -353,7 +353,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNavComplete").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavComplete").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -364,7 +364,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNavTimeout").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavTimeout").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -375,7 +375,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcSpawn").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcSpawn").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -386,7 +386,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcDespawn").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcDespawn").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -397,7 +397,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcClick").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcClick").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -408,7 +408,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcRightClick").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcRightClick").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -419,7 +419,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcLeftClick").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcLeftClick").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -430,7 +430,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcEntityTarget").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcEntityTarget").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -441,7 +441,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcDamage").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcDamage").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -452,7 +452,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcDamageByBlock").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcDamageByBlock").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -463,7 +463,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcDamageByEntity").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcDamageByEntity").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -474,7 +474,7 @@ public class Registry implements INpcRegistry {
 
         checkDisposed();
 
-        _agents.getAgent("onNpcDeath").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNpcDeath").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }

@@ -275,7 +275,7 @@ public class NpcNavigator implements INpcNav {
     public NpcNavigator onNavStart(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavStart").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavStart").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -284,7 +284,7 @@ public class NpcNavigator implements INpcNav {
     public NpcNavigator onNavPause(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavPause").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavPause").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -293,7 +293,7 @@ public class NpcNavigator implements INpcNav {
     public NpcNavigator onNavCancel(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavCancel").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavCancel").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -302,7 +302,7 @@ public class NpcNavigator implements INpcNav {
     public NpcNavigator onNavComplete(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavComplete").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavComplete").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }
@@ -311,7 +311,7 @@ public class NpcNavigator implements INpcNav {
     public NpcNavigator onNavTimeout(IScriptUpdateSubscriber<INpc> subscriber) {
         PreCon.notNull(subscriber);
 
-        _agents.getAgent("onNavTimeout").register(new ScriptUpdateSubscriber<>(subscriber));
+        _agents.getAgent("onNavTimeout").addSubscriber(new ScriptUpdateSubscriber<>(subscriber));
 
         return this;
     }

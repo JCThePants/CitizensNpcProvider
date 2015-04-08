@@ -133,7 +133,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcSpawn")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -144,7 +144,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDespawn")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -155,7 +155,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcClick")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -166,7 +166,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcRightClick")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -177,7 +177,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcLeftClick")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -188,7 +188,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcEntityTarget")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -199,7 +199,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDamage")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -210,7 +210,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDamageByBlock")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -221,7 +221,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDamageByEntity")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -232,7 +232,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNpcDeath")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -241,7 +241,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavStart")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -250,7 +250,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavPause")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -259,7 +259,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavCancel")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -268,7 +268,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavComplete")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
@@ -277,7 +277,7 @@ public abstract class BehaviourAgent
         PreCon.notNull(subscriber);
 
         _subscriberAgents.getAgent("onNavTimeout")
-                .register(new BehaviourScriptSubscriber<>(this, subscriber));
+                .addSubscriber(new BehaviourScriptSubscriber<>(this, subscriber));
         return this;
     }
 
