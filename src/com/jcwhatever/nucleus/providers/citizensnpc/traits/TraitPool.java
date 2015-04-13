@@ -27,8 +27,9 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.performance.pool.IPoolElementFactory;
+import com.jcwhatever.nucleus.utils.performance.pool.SimplePool;
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
@@ -39,7 +40,14 @@ import javax.annotation.Nullable;
  */
 public class TraitPool {
 
-    private Map<NpcTraitType, LinkedList<NpcTrait>> _pools = new WeakHashMap<>(35);
+    private static IPoolElementFactory<NpcTrait> ELEMENT_FACTORY = new IPoolElementFactory<NpcTrait>() {
+        @Override
+        public NpcTrait create() {
+            throw new UnsupportedOperationException();
+        }
+    };
+
+    private Map<NpcTraitType, SimplePool<NpcTrait>> _pools = new WeakHashMap<>(35);
 
     /**
      * Get a pooled trait.
@@ -52,11 +60,11 @@ public class TraitPool {
     public NpcTrait getPooled(NpcTraitType type) {
         PreCon.notNull(type);
 
-        LinkedList<NpcTrait> pooled = _pools.get(type);
-        if (pooled == null || pooled.isEmpty())
+        SimplePool<NpcTrait> pooled = _pools.get(type);
+        if (pooled == null || pooled.size() == 0)
             return null;
 
-        return pooled.remove();
+        return pooled.retrieve();
     }
 
     /**
@@ -72,14 +80,14 @@ public class TraitPool {
         if (!trait.isReusable())
             return false;
 
-        LinkedList<NpcTrait> pooled = _pools.get(trait.getType());
+        SimplePool<NpcTrait> pooled = _pools.get(trait.getType());
         if (pooled == null) {
-            pooled = new LinkedList<>();
+            pooled = new SimplePool<NpcTrait>(NpcTrait.class, 25, ELEMENT_FACTORY);
             _pools.put(trait.getType(), pooled);
         }
 
         if (!pooled.contains(trait))
-            pooled.add(trait);
+            pooled.recycle(trait);
 
         return true;
     }
