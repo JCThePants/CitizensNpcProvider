@@ -82,7 +82,7 @@ public class TraitPool {
 
         SimplePool<NpcTrait> pooled = _pools.get(trait.getType());
         if (pooled == null) {
-            pooled = new SimplePool<NpcTrait>(NpcTrait.class, 25, ELEMENT_FACTORY);
+            pooled = new SimplePool<NpcTrait>(25, ELEMENT_FACTORY);
             _pools.put(trait.getType(), pooled);
         }
 
