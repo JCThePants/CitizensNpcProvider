@@ -27,11 +27,13 @@ package com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeKey;
 import com.jcwhatever.nucleus.providers.npc.INpc;
-import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
+import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
 import net.citizensnpcs.api.exception.NPCLoadException;
@@ -45,6 +47,7 @@ import javax.annotation.Nullable;
  */
 public class EquipmentTrait extends NpcTrait {
 
+    private final INpc _npc;
     private final Equipment _trait;
 
     /**
@@ -56,6 +59,7 @@ public class EquipmentTrait extends NpcTrait {
     public EquipmentTrait(INpc npc, NpcTraitType type, IDataNode dataNode) {
         super(type);
 
+        _npc = npc;
         _trait = ((Npc)npc).getHandle().getTrait(Equipment.class);
 
         try {
@@ -97,7 +101,17 @@ public class EquipmentTrait extends NpcTrait {
     public EquipmentTrait set(Object slot, @Nullable ItemStack item) {
         PreCon.notNull(slot);
 
-        _trait.set(getSlot(slot), item);
+        EquipmentSlot eSlot = getSlot(slot);
+
+        if (_npc.getTraits().getType() == EntityType.ENDERMAN &&
+                eSlot != EquipmentSlot.HAND) {
+            return this;
+        }
+
+        if (item == null)
+            item = new ItemStack(Material.AIR);
+
+        _trait.set(eSlot, item);
 
         return this;
     }
