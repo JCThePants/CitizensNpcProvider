@@ -57,7 +57,7 @@ import net.citizensnpcs.api.event.NPCSpawnEvent;
 
 public class BukkitListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onSpawn(NPCSpawnEvent event) {
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
         if (npc == null || npc.isSpawned())
@@ -100,7 +100,7 @@ public class BukkitListener implements Listener {
         npc.onNpcDespawn(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     private void onDespawn(NPCDespawnEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
@@ -152,7 +152,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onClick(NPCClickEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
@@ -170,7 +170,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onLeftClick(NPCLeftClickEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
@@ -188,7 +188,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onRightClick(NPCRightClickEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
@@ -206,7 +206,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onEntityTarget(EntityTargetNPCEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
@@ -224,7 +224,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onDamage(EntityDamageEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
@@ -242,7 +242,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onDamageByBlock(EntityDamageByBlockEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
@@ -260,7 +260,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onDamageByEntity(EntityDamageByEntityEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
@@ -278,7 +278,7 @@ public class BukkitListener implements Listener {
         event.setCancelled(e.isCancelled());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onDeath(EntityDeathEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getEntity());
@@ -290,7 +290,7 @@ public class BukkitListener implements Listener {
         npc.onNpcDeath(e);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     private void onPush(NPCPushEvent event) {
 
         Npc npc = CitizensProvider.getInstance().getNpc(event.getNPC());
