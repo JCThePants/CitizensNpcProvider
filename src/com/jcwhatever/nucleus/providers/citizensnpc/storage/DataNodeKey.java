@@ -29,9 +29,9 @@ import com.jcwhatever.nucleus.storage.IDataNode;
 import net.citizensnpcs.api.util.DataKey;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 
 /*
@@ -104,7 +104,7 @@ public class DataNodeKey extends DataKey {
     @Override
     public Iterable<DataKey> getSubKeys() {
 
-        Set<String> nodeNames = _dataNode.getSubNodeNames();
+        Collection<String> nodeNames = _dataNode.getSubNodeNames();
 
         List<DataKey> result = new ArrayList<>(nodeNames.size());
 
