@@ -24,6 +24,7 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.navigator;
 
+import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.Registry;
 import com.jcwhatever.nucleus.providers.npc.INpc;
@@ -47,7 +48,7 @@ import javax.annotation.Nullable;
 /**
  * Implementation of {@link com.jcwhatever.nucleus.providers.npc.navigator.INpcNav}.
  */
-public class NpcNavigator implements INpcNav {
+public class NpcNavigator implements INpcNav, IDisposable {
 
     private final Npc _npc;
     private final Navigator _navigator;
@@ -349,5 +350,15 @@ public class NpcNavigator implements INpcNav {
     void removeRunner(NavRunnerContainer container) {
         _navigator.getDefaultParameters().removeRunCallback(container);
         _navigator.getLocalParameters().removeRunCallback(container);
+    }
+
+    @Override
+    public boolean isDisposed() {
+        return false;
+    }
+
+    @Override
+    public void dispose() {
+        _agents.disposeAgents();
     }
 }
