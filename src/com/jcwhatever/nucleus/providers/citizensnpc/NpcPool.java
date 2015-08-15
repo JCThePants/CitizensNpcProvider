@@ -30,18 +30,16 @@ import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeKey;
 import com.jcwhatever.nucleus.providers.citizensnpc.storage.DataNodeNPCStore;
 import com.jcwhatever.nucleus.storage.MemoryDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
-
-import org.bukkit.entity.EntityType;
-
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
+import org.bukkit.entity.EntityType;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 /**
  * Pool of {@link Npc} used to reuse transient {@link Npc} instances
@@ -101,6 +99,7 @@ public class NpcPool implements IDisposable {
         }
         else {
             npc = _pool.remove();
+            npc.getHandle().setBukkitEntityType(type);
         }
 
         _inUse.add(npc);
