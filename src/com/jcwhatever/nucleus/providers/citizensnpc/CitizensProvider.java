@@ -25,6 +25,7 @@
 package com.jcwhatever.nucleus.providers.citizensnpc;
 
 import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
 import com.jcwhatever.nucleus.providers.Provider;
 import com.jcwhatever.nucleus.providers.citizensnpc.ai.AiRunner;
 import com.jcwhatever.nucleus.providers.citizensnpc.navigator.CitizensNavigatorListener;
@@ -38,19 +39,17 @@ import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTraitType.NpcTraitRegistration;
 import com.jcwhatever.nucleus.storage.MemoryDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
-
+import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
-import net.citizensnpcs.api.npc.NPC;
-
+import javax.annotation.Nullable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
-import javax.annotation.Nullable;
 
 /**
  * Provides Citizens based NPC support to NucleusFramework NPC api.
@@ -77,6 +76,8 @@ public class CitizensProvider extends Provider implements INpcProvider {
     private final Map<Entity, Npc> _spawned = new WeakHashMap<>(15);
     private final Map<NPC, Npc> _npcs = new WeakHashMap<>(15);
     private final NpcTraitRegistry _traits = new NpcTraitRegistry(null);
+
+    private File _skinFolder;
 
     public CitizensProvider() {
         _instance = this;
@@ -146,8 +147,19 @@ public class CitizensProvider extends Provider implements INpcProvider {
         return _npcs.get(npc);
     }
 
+    public File getSkinFolder() {
+        return _skinFolder;
+    }
+
     @Override
     protected void onEnable() {
+
+        _skinFolder = new File(getDataFolder(), "skins");
+        if (!_skinFolder.exists() && !_skinFolder.mkdirs()) {
+            throw new RuntimeException("Failed to create Citizens Provider skins folder: "
+                    + _skinFolder.getAbsolutePath());
+        }
+
         Bukkit.getPluginManager().registerEvents(new CitizensNavigatorListener(), Nucleus.getPlugin());
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), Nucleus.getPlugin());
 

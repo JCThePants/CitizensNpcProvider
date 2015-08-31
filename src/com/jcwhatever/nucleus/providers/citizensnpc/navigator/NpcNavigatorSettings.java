@@ -28,9 +28,14 @@ import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavSettings;
 import com.jcwhatever.nucleus.providers.npc.navigator.INpcNavTimeout;
 import com.jcwhatever.nucleus.utils.PreCon;
-
+import net.citizensnpcs.api.ai.AttackStrategy;
 import net.citizensnpcs.api.ai.Navigator;
 import net.citizensnpcs.api.ai.NavigatorParameters;
+import net.citizensnpcs.api.ai.StuckAction;
+import net.citizensnpcs.api.ai.event.NavigatorCallback;
+import net.citizensnpcs.api.astar.pathfinder.BlockExaminer;
+
+import java.util.Iterator;
 
 /**
  * Implementation of {@link INpcNavSettings}.
@@ -39,6 +44,18 @@ public class NpcNavigatorSettings implements INpcNavSettings {
 
     private final NavigatorParameters _settings;
     private final CitizensStuckAdapter _stuckAdapter;
+
+    private final AttackStrategy _defaultAttackStrategy;
+    private final BlockExaminer[] _defaultBlockExaminers;
+    private final boolean _defaultUseNewPathfinder;
+    private final float _defaultBaseSpeed;
+    private final float _defaultRange;
+    private final double _defaultAttackRange;
+    private final int _defaultStationaryTicks;
+    private final StuckAction _defaultStuckAction;
+    private final boolean _defaultAvoidsWater;
+    private final double _defaultDistanceMargin;
+    private final double _defaultPathDistanceMargin;
 
     private double _tolerance;
 
@@ -57,6 +74,49 @@ public class NpcNavigatorSettings implements INpcNavSettings {
         _settings = settings;
         _stuckAdapter = new CitizensStuckAdapter(settings.stuckAction());
         _tolerance = Math.sqrt(settings.distanceMargin());
+
+        _defaultAttackStrategy = settings.defaultAttackStrategy();
+        _defaultBlockExaminers = settings.examiners().clone();
+        _defaultUseNewPathfinder = settings.useNewPathfinder();
+        _defaultBaseSpeed = settings.baseSpeed();
+        _defaultRange = settings.range();
+        _defaultAttackRange = settings.attackRange();
+        _defaultStationaryTicks = settings.stationaryTicks();
+        _defaultStuckAction = settings.stuckAction();
+        _defaultAvoidsWater = settings.avoidWater();
+        _defaultDistanceMargin = settings.distanceMargin();
+        _defaultPathDistanceMargin = settings.pathDistanceMargin();
+
+        reset();
+    }
+
+    public void reset() {
+
+        _settings
+                .useNewPathfinder(_defaultUseNewPathfinder)
+                .baseSpeed(_defaultBaseSpeed)
+                .range(_defaultRange)
+                .defaultAttackStrategy(_defaultAttackStrategy)
+                .attackRange(_defaultAttackRange)
+                .stationaryTicks(_defaultStationaryTicks)
+                .stuckAction(_defaultStuckAction)
+                .avoidWater(_defaultAvoidsWater)
+                .distanceMargin(_defaultDistanceMargin)
+                .pathDistanceMargin(_defaultPathDistanceMargin)
+                .stationaryTicks(_defaultStationaryTicks);
+
+        _settings.modifiedSpeed(1f);
+
+        Iterator<NavigatorCallback> callbacks = _settings.callbacks().iterator();
+        while (callbacks.hasNext()) {
+            callbacks.next();
+            callbacks.remove();
+        }
+
+        _settings.clearExaminers();
+        for (BlockExaminer examiner : _defaultBlockExaminers) {
+            _settings.examiner(examiner);
+        }
     }
 
     @Override

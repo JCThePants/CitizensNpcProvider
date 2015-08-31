@@ -24,7 +24,6 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
-import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviour;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcBehaviourAgent;
@@ -89,9 +88,6 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour, A extends INpc
 
     @Override
     public void reset(INpcState state) {
-
-        Msg.debug("[AI] [COMPOSITE_BEHAVIOUR] [NPC:{0}] [{1}] reset", _npc.getLookupName(), getName());
-
         for (BehaviourContainer<T, A> container : _behaviours) {
             container.reset(state);
         }
@@ -116,8 +112,6 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour, A extends INpc
             }
         }
 
-        Msg.debug("[AI] [COMPOSITE_BEHAVIOUR] [NPC:{0}] [{1}] canRun = {2}", _npc.getLookupName(), getName(), canRun);
-
         return canRun;
     }
 
@@ -136,8 +130,6 @@ public abstract class CompositeBehaviour<T extends INpcBehaviour, A extends INpc
         }
 
         cost = Math.max(1.0f, cost);
-
-        Msg.debug("[AI] [COMPOSITE_BEHAVIOUR] [NPC:{0}] [{1}] cost = {2}", _npc.getLookupName(), getName(), cost);
 
         return cost;
     }

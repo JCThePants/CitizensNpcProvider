@@ -24,7 +24,6 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
-import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
@@ -108,30 +107,16 @@ public class ActionContainer
 
     @Override
     public boolean canRun(INpcState state) {
-        boolean result = getAction().canRun(state);
-
-        Msg.debug("[AI] [ACTION_CONTAINER] [NPC:{0}] [{1}] canRun = {2}",
-                _agent.getNpc().getLookupName(), getName(), result);
-
-        return result;
+        return getAction().canRun(state);
     }
 
     @Override
     public float getCost(INpcState state) {
-        float result = getAction().getCost(state);
-
-        Msg.debug("[AI] [ACTION_CONTAINER] [NPC:{0}] [{1}] getCost = {2}",
-                _agent.getNpc().getLookupName(), getName(), result);
-
-        return result;
+        return getAction().getCost(state);
     }
 
     @Override
     public void pause(INpcState state) {
-
-        Msg.debug("[AI] [GOAL_CONTAINER] [NPC:{0}] [{1}] pause",
-                _agent.getNpc().getLookupName(), getName());
-
         getAction().pause(state);
     }
 }

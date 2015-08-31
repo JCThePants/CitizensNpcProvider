@@ -25,7 +25,6 @@
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
 import com.jcwhatever.nucleus.mixins.IDisposable;
-import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcActionAgent;
@@ -35,10 +34,10 @@ import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoalPriority;
 import com.jcwhatever.nucleus.providers.npc.ai.goals.INpcGoals;
 import com.jcwhatever.nucleus.utils.PreCon;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link INpcGoals}.
@@ -69,6 +68,7 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
      */
     public void init() {
         _isDisposed = false;
+        resume();
     }
 
     @Override
@@ -88,8 +88,6 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
 
         checkDisposed();
 
-        Msg.debug("[AI] [GOALS] [NPC:{0}] add : {1}", getNpc().getLookupName(), goal.getName());
-
         GoalContainer container = new GoalContainer(priority, goal, this);
         insertBehaviour(container);
 
@@ -106,8 +104,6 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
     @Override
     public INpcGoals pause() {
 
-        Msg.debug("[AI] [GOALS] [NPC:{0}] pause", getNpc().getLookupName());
-
         setRunning(false);
         return this;
     }
@@ -116,8 +112,6 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
     public INpcGoals resume() {
 
         checkDisposed();
-
-        Msg.debug("[AI] [GOALS] [NPC:{0}] resume", getNpc().getLookupName());
 
         setRunning(true);
         return this;
@@ -141,8 +135,9 @@ public class NpcGoals extends BehaviourPool<INpcGoal, INpcGoalAgent>
 
         pause();
         setCurrent(null, false);
-        _candidates.clear();
+        clear();
         _filter = null;
+
     }
 
     /**

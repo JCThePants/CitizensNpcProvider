@@ -360,5 +360,10 @@ public class NpcNavigator implements INpcNav, IDisposable {
     @Override
     public void dispose() {
         _agents.disposeAgents();
+        if (_navigator.isNavigating()) {
+            _navigator.cancelNavigation();
+        }
+        _settings.reset();
+        _currentSettings.reset();
     }
 }

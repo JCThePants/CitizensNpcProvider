@@ -24,7 +24,6 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
-import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
@@ -87,10 +86,6 @@ public class ParallelAction
 
     @Override
     public void pause(INpcState state) {
-
-        Msg.debug("[AI] [PARALLEL_ACTION] [NPC:{0}] [{1}] pause",
-                getNpc().getLookupName(), getName());
-
         for (BehaviourContainer<INpcAction, INpcActionAgent> container : getBehaviours()) {
 
             if (!container.getAgent().isFinished()) {

@@ -24,7 +24,6 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.ai;
 
-import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.npc.ai.INpcState;
 import com.jcwhatever.nucleus.providers.npc.ai.actions.INpcAction;
@@ -62,9 +61,6 @@ public class SerialAction extends CompositeBehaviour<INpcAction, INpcActionAgent
 
     @Override
     public void reset(INpcState state) {
-
-        Msg.debug("[AI] [SERIAL_ACTION] [NPC:{0}] [{1}] reset", getNpc().getLookupName(), getName());
-
         _queue.clear();
         _queue.addAll(getBehaviours());
         _current = null;
@@ -100,10 +96,6 @@ public class SerialAction extends CompositeBehaviour<INpcAction, INpcActionAgent
 
     @Override
     public void pause(INpcState state) {
-
-        Msg.debug("[AI] [SERIAL_ACTION] [NPC:{0}] [{1}] pause",
-                getNpc().getLookupName(), getName());
-
         if (_current != null)
             _current.getBehaviour().pause(state);
     }

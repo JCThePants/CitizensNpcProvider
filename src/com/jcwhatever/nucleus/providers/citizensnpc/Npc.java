@@ -552,22 +552,25 @@ public class Npc implements INpc {
         PreCon.notNull(event);
 
         updateAgents("onNpcSpawn", event);
-        _registry.onNpcSpawn(event);
 
-        if (!event.isCancelled()) {
+        if (_registry != null) {
+            _registry.onNpcSpawn(event);
 
-            _isSpawned = true;
+            if (!event.isCancelled()) {
 
-            getTraits().onSpawn(event.getReason());
+                _isSpawned = true;
 
-            Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
-                @Override
-                public void run() {
+                getTraits().onSpawn(event.getReason());
 
-                    if (!_isDisposed)
-                        getTraits().applyEquipment();
-                }
-            });
+                Scheduler.runTaskLater(Nucleus.getPlugin(), new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (!_isDisposed)
+                            getTraits().applyEquipment();
+                    }
+                });
+            }
         }
     }
 
@@ -575,11 +578,14 @@ public class Npc implements INpc {
         PreCon.notNull(event);
 
         updateAgents("onNpcDespawn", event);
-        _registry.onNpcDespawn(event);
 
-        if (!event.isCancelled()) {
-            _isSpawned = false;
-            getTraits().onDespawn(event.getReason());
+        if (_registry != null) {
+            _registry.onNpcDespawn(event);
+
+            if (!event.isCancelled()) {
+                _isSpawned = false;
+                getTraits().onDespawn(event.getReason());
+            }
         }
     }
 
@@ -587,56 +593,72 @@ public class Npc implements INpc {
         PreCon.notNull(event);
 
         updateAgents("onNpcClick", event);
-        _registry.onNpcClick(event);
+
+        if (_registry != null)
+            _registry.onNpcClick(event);
     }
 
     public void onNpcRightClick(NpcRightClickEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcRightClick", event);
-        _registry.onNpcRightClick(event);
+
+        if (_registry != null)
+            _registry.onNpcRightClick(event);
     }
 
     public void onNpcLeftClick(NpcLeftClickEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcLeftClick", event);
-        _registry.onNpcLeftClick(event);
+
+        if (_registry != null)
+            _registry.onNpcLeftClick(event);
     }
 
     public void onNpcEntityTarget(NpcTargetedEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcEntityTarget", event);
-        _registry.onNpcEntityTarget(event);
+
+        if (_registry != null)
+            _registry.onNpcEntityTarget(event);
     }
 
     public void onNpcDamage(NpcDamageEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcDamage", event);
-        _registry.onNpcDamage(event);
+
+        if (_registry != null)
+            _registry.onNpcDamage(event);
     }
 
     public void onNpcDamageByBlock(NpcDamageByBlockEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcDamageByBlock", event);
-        _registry.onNpcDamageByBlock(event);
+
+        if (_registry != null)
+            _registry.onNpcDamageByBlock(event);
     }
 
     public void onNpcDamageByEntity(NpcDamageByEntityEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcDamageByEntity", event);
-        _registry.onNpcDamageByEntity(event);
+
+        if (_registry != null)
+            _registry.onNpcDamageByEntity(event);
     }
 
     public void onNpcDeath(NpcDeathEvent event) {
         PreCon.notNull(event);
 
         updateAgents("onNpcDeath", event);
-        _registry.onNpcDeath(event);
+
+        if (_registry != null)
+            _registry.onNpcDeath(event);
     }
 
     public NamedUpdateAgents registerUpdateAgent(BehaviourAgent<?, ?, ?, ?> agent) {
