@@ -24,34 +24,44 @@
 
 package com.jcwhatever.nucleus.providers.citizensnpc.traits;
 
+import com.google.common.base.Charsets;
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.mixins.IDisposable;
+import com.jcwhatever.nucleus.providers.citizensnpc.CitizensProvider;
 import com.jcwhatever.nucleus.providers.citizensnpc.Msg;
 import com.jcwhatever.nucleus.providers.citizensnpc.Npc;
 import com.jcwhatever.nucleus.providers.citizensnpc.traits.citizens.EquipmentTrait;
 import com.jcwhatever.nucleus.providers.kits.IKit;
+import com.jcwhatever.nucleus.providers.kits.Kits;
 import com.jcwhatever.nucleus.providers.npc.events.NpcDespawnEvent.NpcDespawnReason;
 import com.jcwhatever.nucleus.providers.npc.events.NpcEntityTypeChangeEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent.NpcSpawnReason;
 import com.jcwhatever.nucleus.providers.npc.traits.INpcTraits;
 import com.jcwhatever.nucleus.providers.npc.traits.NpcTrait;
 import com.jcwhatever.nucleus.storage.IDataNode;
-import com.jcwhatever.nucleus.providers.kits.Kits;
 import com.jcwhatever.nucleus.utils.PreCon;
-
-import org.bukkit.Location;
+import com.jcwhatever.nucleus.utils.file.FileUtils;
+import com.jcwhatever.nucleus.utils.text.TextFormat;
+import com.jcwhatever.nucleus.utils.text.TextUtils;
+import net.citizensnpcs.api.event.DespawnReason;
+import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.npc.profile.ProfileFetchHandler;
+import net.citizensnpcs.npc.profile.ProfileFetcher;
+import net.citizensnpcs.npc.profile.ProfileRequest;
+import net.citizensnpcs.npc.skin.Skin;
+import net.citizensnpcs.npc.skin.SkinnableEntity;
+import net.citizensnpcs.util.NMS;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
-import net.citizensnpcs.api.event.DespawnReason;
-import net.citizensnpcs.api.npc.NPC;
-
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link com.jcwhatever.nucleus.providers.npc.traits.INpcTraits}.
@@ -262,6 +272,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
 
     @Override
     public String getSkinName() {
+
         String name = _npc.getHandle().data().get("player-skin-name");
         return name == null
                 ? _npc.getLookupName()
@@ -273,19 +284,47 @@ public class NpcTraits implements INpcTraits, IDisposable {
 
         checkDisposed();
 
+        _handle.data().setPersistent(NPC.PLAYER_SKIN_USE_LATEST, true);
+
         if (skinName == null) {
-            _npc.getHandle().data().remove("player-skin-name");
+            _npc.getHandle().data().remove(NPC.PLAYER_SKIN_UUID_METADATA);
         } else {
-            _npc.getHandle().data().set("player-skin-name", skinName);
+            _npc.getHandle().data().set(NPC.PLAYER_SKIN_UUID_METADATA, skinName);
         }
 
         if (_npc.isSpawned()) {
+            _handle.despawn(DespawnReason.PENDING_RESPAWN);
+            _handle.spawn(_handle.getStoredLocation());
+        }
 
-            Location location = _npc.getLocation();
-            assert location != null;
+        return this;
+    }
 
-            _npc.getHandle().despawn(DespawnReason.PENDING_RESPAWN);
-            _npc.spawn(location);
+    @Override
+    public INpcTraits setSkinName(String skinName, String fileName) {
+        PreCon.notNullOrEmpty(skinName);
+        PreCon.notNullOrEmpty(fileName);
+
+        checkDisposed();
+
+        _handle.data().setPersistent(NPC.PLAYER_SKIN_USE_LATEST, false);
+
+        final File file = getSkinFile(fileName);
+        if (file == null) {
+            return setSkinName(skinName);
+        }
+
+        if (!importSkin(file)) {
+
+            setSkinName(skinName);
+
+            // ensure the skin has been fetched for the NPC before exporting
+            ProfileFetcher.fetch(skinName, new ProfileFetchHandler() {
+                @Override
+                public void onResult(ProfileRequest profileRequest) {
+                    exportSkin(file);
+                }
+            });
         }
 
         return this;
@@ -452,5 +491,64 @@ public class NpcTraits implements INpcTraits, IDisposable {
         return trait.getLookupName().equals("equipment") ||
                 trait.getLookupName().equals("inventory") ||
                 trait.getLookupName().equals("owner");
+    }
+
+    @Nullable
+    private File getSkinFile(String filename) {
+
+        File file = new File(CitizensProvider.getInstance().getSkinFolder(), filename + ".npcskin");
+        try {
+            if (!file.exists() && !file.createNewFile()) {
+                return null;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return file;
+    }
+
+    private void exportSkin(final File file) {
+
+        String skinName = _handle.data().get(NPC.PLAYER_SKIN_UUID_METADATA);
+        if (skinName == null) {
+            skinName = TextFormat.remove(_handle.getName());
+        }
+
+        Skin skin = Skin.get(skinName);
+        if (!skin.isValid() || !skin.hasSkinData())
+            return;
+
+        String userName = _handle.data().get(Skin.CACHED_SKIN_UUID_NAME_METADATA);
+        String id = _handle.data().get(Skin.CACHED_SKIN_UUID_METADATA);
+        String data = _handle.data().get(NPC.PLAYER_SKIN_TEXTURE_PROPERTIES_METADATA);
+        String sig = _handle.data().get(NPC.PLAYER_SKIN_TEXTURE_PROPERTIES_SIGN_METADATA);
+
+        FileUtils.writeTextFile(file, Charsets.UTF_8,
+                userName + '\n' + id + '\n' + data + '\n' + sig);
+    }
+
+    private boolean importSkin(File file) {
+
+        String fileData = FileUtils.scanTextFile(file, Charsets.UTF_8);
+
+        String[] components = TextUtils.PATTERN_NEW_LINE.split(fileData);
+        if (components.length != 4)
+            return false;
+
+        _handle.data().setPersistent(Skin.CACHED_SKIN_UUID_NAME_METADATA, components[0]);
+        _handle.data().setPersistent(Skin.CACHED_SKIN_UUID_METADATA, components[1]);
+        _handle.data().setPersistent(NPC.PLAYER_SKIN_TEXTURE_PROPERTIES_METADATA, components[2]);
+        _handle.data().setPersistent(NPC.PLAYER_SKIN_TEXTURE_PROPERTIES_SIGN_METADATA, components[3]);
+        _handle.data().set(NPC.PLAYER_SKIN_UUID_METADATA, components[0]);
+
+        if (_handle.isSpawned()) {
+            _handle.despawn(DespawnReason.PENDING_RESPAWN);
+            _handle.spawn(_handle.getStoredLocation());
+        }
+
+        return true;
     }
 }
