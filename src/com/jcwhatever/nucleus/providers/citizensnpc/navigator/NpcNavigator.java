@@ -37,6 +37,7 @@ import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 import net.citizensnpcs.api.ai.EntityTarget;
@@ -50,10 +51,13 @@ import javax.annotation.Nullable;
  */
 public class NpcNavigator implements INpcNav, IDisposable {
 
+    private static final Location LOCATION = new Location(null, 0, 0, 0);
+
     private final Npc _npc;
     private final Navigator _navigator;
     private final NpcNavigatorSettings _settings;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
+    private final Location _targetCache = new Location(null, 0, 0, 0);
 
     private NpcNavigatorSettings _currentSettings;
     private Registry _registry;
@@ -206,9 +210,23 @@ public class NpcNavigator implements INpcNav, IDisposable {
 
     @Override
     public NpcNavigator setTarget(Location location) {
-        PreCon.notNull(location);
+        PreCon.notNull(location, "location");
+        PreCon.notNull(location.getWorld(), "location World");
 
-        _navigator.setTarget(location);
+        if (!_navigator.getNPC().isSpawned())
+            return this;
+
+        World npcWorld = _navigator.getNPC().getStoredLocation().getWorld();
+        if (!location.getWorld().equals(npcWorld)) {
+            throw new IllegalArgumentException(
+                    "World mismatch. NPC in world '" + npcWorld.getName()
+                            + "' cannot target location in world '"
+                            + location.getWorld().getName() + "'.");
+        }
+
+        LocationUtils.copy(location, _targetCache);
+
+        _navigator.setTarget(_targetCache);
         _currentSettings = new NpcNavigatorSettings(_npc, _navigator, _navigator.getLocalParameters());
 
         _navigator.getLocalParameters().distanceMargin(2F);
@@ -225,6 +243,14 @@ public class NpcNavigator implements INpcNav, IDisposable {
     @Override
     public NpcNavigator setTarget(Entity entity) {
         PreCon.notNull(entity);
+
+        World npcWorld = _navigator.getNPC().getStoredLocation().getWorld();
+        if (!entity.getWorld().equals(npcWorld)) {
+            throw new IllegalArgumentException(
+                    "World mismatch. NPC in world '" + npcWorld.getName()
+                            + "' cannot target entity in world '"
+                            + entity.getWorld().getName() + "'.");
+        }
 
         _navigator.setTarget(entity, _isHostile);
         _currentSettings = new NpcNavigatorSettings(_npc, _navigator, _navigator.getLocalParameters());

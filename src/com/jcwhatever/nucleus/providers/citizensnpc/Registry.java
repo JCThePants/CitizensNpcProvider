@@ -49,18 +49,18 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
-
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 /**
  * Implementation of {@link com.jcwhatever.nucleus.providers.npc.INpcProvider}.
@@ -72,7 +72,8 @@ public class Registry implements INpcRegistry {
     private final Plugin _plugin;
     private final String _name;
     private final String _searchName;
-    private final Map<String, INpc> _npcMap = new HashMap<>(10);
+    private final Map<String, Npc> _npcMap = new HashMap<>(10);
+    private final Map<String, INpc> _wrappedMap = new HashMap<>(10);
     private final NpcTraitRegistry _traits;
     private final NamedUpdateAgents _agents = new NamedUpdateAgents();
     private final DataNodeNPCStore _dataStore;
@@ -130,7 +131,7 @@ public class Registry implements INpcRegistry {
 
     @Nullable
     @Override
-    public Npc create(@Nullable String lookupName, String npcName, EntityType type) {
+    public INpc create(@Nullable String lookupName, String npcName, EntityType type) {
         PreCon.notNull(npcName);
         PreCon.notNull(type);
 
@@ -143,20 +144,22 @@ public class Registry implements INpcRegistry {
 
         // create npc from pool
         Npc npc = _npcPool.createNpc(lookupName, npcName, UUID.randomUUID(), type, this);
+        NpcWrapper wrapper = new NpcWrapper(npc);
 
         // store npc in registry
         _npcMap.put(npc.getLookupName(), npc);
+        _wrappedMap.put(npc.getLookupName(), wrapper);
 
         // call create event
-        NpcCreateEvent event = new NpcCreateEvent(npc);
+        NpcCreateEvent event = new NpcCreateEvent(wrapper);
         Nucleus.getEventManager().callBukkit(this, event);
 
-        return npc;
+        return wrapper;
     }
 
     @Nullable
     @Override
-    public Npc create(@Nullable String lookupName, String npcName, String type) {
+    public INpc create(@Nullable String lookupName, String npcName, String type) {
         PreCon.notNull(npcName);
         PreCon.notNullOrEmpty(type);
 
@@ -173,7 +176,7 @@ public class Registry implements INpcRegistry {
 
     @Nullable
     @Override
-    public Npc create(String npcName, EntityType type) {
+    public INpc create(String npcName, EntityType type) {
         return create(null, npcName, type);
     }
 
@@ -209,7 +212,7 @@ public class Registry implements INpcRegistry {
             return null;
         }
 
-        INpc current = _npcMap.remove(lookupName);
+        INpc current = _wrappedMap.get(lookupName);
         if (current != null) {
             Msg.debug("Failed to load Npc because it's already loaded.");
             return current;
@@ -218,9 +221,14 @@ public class Registry implements INpcRegistry {
         Npc npc = _npcPool.createNpc(lookupName, name, id, type, this);
         if (npc != null) {
             npc.getTraits().load(dataNode.getNode("traits"));
+
+            NpcWrapper wrapper = new NpcWrapper(npc);
+            _npcMap.put(npc.getLookupName(), npc);
+            _wrappedMap.put(npc.getLookupName(), wrapper);
+            return wrapper;
         }
 
-        return npc;
+        return null;
     }
 
     @Override
@@ -238,7 +246,7 @@ public class Registry implements INpcRegistry {
     public boolean saveAll(IDataNode dataNode) {
         PreCon.notNull(dataNode);
 
-        Collection<INpc> npcs = all();
+        Collection<Npc> npcs = _npcMap.values();
 
         for (INpc npc : npcs) {
             npc.save(dataNode.getNode(npc.getLookupName()));
@@ -251,7 +259,7 @@ public class Registry implements INpcRegistry {
 
     @Override
     public Collection<INpc> all() {
-        return _npcMap.values();
+        return Collections.unmodifiableCollection(_wrappedMap.values());
     }
 
     @Nullable
@@ -259,7 +267,7 @@ public class Registry implements INpcRegistry {
     public INpc get(String name) {
         PreCon.notNull(name);
 
-        return _npcMap.get(name.toLowerCase());
+        return _wrappedMap.get(name.toLowerCase());
     }
 
     @Nullable
@@ -270,7 +278,7 @@ public class Registry implements INpcRegistry {
         if (npc == null || npc.getRegistry() != this)
             return null;
 
-        return npc;
+        return _wrappedMap.get(npc.getLookupName().toLowerCase());
     }
 
     @Override
@@ -286,7 +294,7 @@ public class Registry implements INpcRegistry {
 
         _isDisposed = true;
 
-        List<INpc> list = new ArrayList<>(_npcMap.values());
+        List<INpc> list = new ArrayList<>(_wrappedMap.values());
         for (INpc npc : list) {
             npc.dispose();
         }
@@ -573,6 +581,7 @@ public class Registry implements INpcRegistry {
     void remove(Npc npc) {
         PreCon.notNull(npc);
         _npcMap.remove(npc.getLookupName());
+        _wrappedMap.remove(npc.getLookupName());
     }
 
     private int nextId() {
