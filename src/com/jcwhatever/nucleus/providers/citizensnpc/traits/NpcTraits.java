@@ -49,8 +49,6 @@ import net.citizensnpcs.npc.profile.ProfileFetchHandler;
 import net.citizensnpcs.npc.profile.ProfileFetcher;
 import net.citizensnpcs.npc.profile.ProfileRequest;
 import net.citizensnpcs.npc.skin.Skin;
-import net.citizensnpcs.npc.skin.SkinnableEntity;
-import net.citizensnpcs.util.NMS;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
@@ -74,6 +72,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
 
     private EntityType _entityType;
     private IKit _kit;
+    private boolean _isShownInTabList;
     private boolean _isDisposed;
 
     /**
@@ -100,6 +99,7 @@ public class NpcTraits implements INpcTraits, IDisposable {
         PreCon.notNull(type);
 
         _entityType = type;
+        _isShownInTabList = false;
         _isDisposed = false;
         _adapter.init();
     }
@@ -325,6 +325,30 @@ public class NpcTraits implements INpcTraits, IDisposable {
                     exportSkin(file);
                 }
             });
+        }
+
+        return this;
+    }
+
+    @Override
+    public boolean isShownInTabList() {
+        return _entityType == EntityType.PLAYER && _isShownInTabList;
+    }
+
+    @Override
+    public INpcTraits setShownInTabList(boolean isShownInList) {
+
+        if (_isShownInTabList == isShownInList)
+            return this;
+
+        NPC npc = _npc.getHandle();
+
+        _isShownInTabList = isShownInList;
+        npc.data().set("removefromplayerlist", !isShownInList);
+
+        if (npc.isSpawned()) {
+            npc.despawn(DespawnReason.PENDING_RESPAWN);
+            npc.spawn(npc.getStoredLocation());
         }
 
         return this;

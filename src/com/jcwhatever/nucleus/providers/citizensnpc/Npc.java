@@ -53,14 +53,12 @@ import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.trait.CurrentLocation;
 import net.citizensnpcs.util.NMS;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -71,16 +69,6 @@ import java.util.WeakHashMap;
 public class Npc implements INpc {
 
     private static final Location LOOK_LOCATION = new Location(null, 0, 0, 0);
-    private static Field storedLocationField;
-
-    static {
-        try {
-            storedLocationField = CurrentLocation.class.getDeclaredField("location");
-            storedLocationField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-    }
 
     private String _lookupName;
     private Registry _registry;
@@ -240,6 +228,10 @@ public class Npc implements INpc {
     @Nullable
     @Override
     public Location getLocation() {
+        Location stored = _npc.getStoredLocation();
+        if (stored == null || !_hasSpawnLocation)
+            return null;
+
         return _npc.getStoredLocation();
     }
 
@@ -452,16 +444,6 @@ public class Npc implements INpc {
         _registry = null;
         _dataKey = null;
         _hasSpawnLocation = false;
-
-        // reset stored location trait
-        if (storedLocationField != null) {
-            CurrentLocation currentLocation = _npc.getTrait(CurrentLocation.class);
-            try {
-                storedLocationField.set(currentLocation, null);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
 
         _pool.recycle(this);
     }

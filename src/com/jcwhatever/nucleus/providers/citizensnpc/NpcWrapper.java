@@ -53,6 +53,8 @@ import javax.annotation.Nullable;
 public class NpcWrapper implements INpc {
 
     private Npc _npc;
+    private final int _hash;
+    private final String _npcId;
 
     /**
      * Constructor.
@@ -61,6 +63,15 @@ public class NpcWrapper implements INpc {
      */
     public NpcWrapper(@Nullable Npc npc) {
         _npc = npc == null ? null : npc.isDisposed() ? null : npc;
+
+        if (npc != null) {
+            _hash = npc.hashCode();
+            _npcId = npc.getLookupName();
+        }
+        else {
+            _hash = 0;
+            _npcId = null;
+        }
     }
 
     /**
@@ -89,8 +100,7 @@ public class NpcWrapper implements INpc {
 
     @Override
     public String getLookupName() {
-        checkDisposed();
-        return _npc.getLookupName();
+        return _npcId;
     }
 
     @Override
@@ -316,6 +326,27 @@ public class NpcWrapper implements INpc {
         checkDisposed();
         _npc.onNpcDeath(subscriber);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return _hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof NpcWrapper) {
+            NpcWrapper other = (NpcWrapper)obj;
+            return _hash == other._hash
+                    && ((_npcId != null && _npcId.equals(other._npcId))
+                    || (_npcId == null && other._npcId == null));
+        }
+        else if (obj instanceof INpc) {
+            INpc npc = (INpc)obj;
+            return _hash == npc.hashCode()
+                    && npc.getLookupName().equals(_npcId);
+        }
+        return false;
     }
 
     private void checkDisposed() {
