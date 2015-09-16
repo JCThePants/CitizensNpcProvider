@@ -53,6 +53,7 @@ import com.jcwhatever.nucleus.utils.observer.script.ScriptUpdateSubscriber;
 import com.jcwhatever.nucleus.utils.observer.update.NamedUpdateAgents;
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.CurrentLocation;
 import net.citizensnpcs.util.NMS;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -228,11 +229,14 @@ public class Npc implements INpc {
     @Nullable
     @Override
     public Location getLocation() {
-        Location stored = _npc.getStoredLocation();
+        if (_npc.isSpawned()) {
+            return _npc.getEntity().getLocation();
+        }
+        Location stored = _npc.getTrait(CurrentLocation.class).getLocation();
         if (stored == null || !_hasSpawnLocation)
             return null;
 
-        return _npc.getStoredLocation();
+        return LocationUtils.copy(stored);
     }
 
     @Nullable
@@ -240,18 +244,15 @@ public class Npc implements INpc {
     public Location getLocation(Location output) {
         PreCon.notNull(output);
 
-        Location stored = _npc.getStoredLocation();
+        if (_npc.isSpawned()) {
+            return _npc.getEntity().getLocation(output);
+        }
+
+        Location stored = _npc.getTrait(CurrentLocation.class).getLocation();
         if (stored == null || !_hasSpawnLocation)
             return null;
 
-        output.setWorld(stored.getWorld());
-        output.setX(stored.getX());
-        output.setY(stored.getY());
-        output.setZ(stored.getZ());
-        output.setYaw(stored.getYaw());
-        output.setPitch(stored.getPitch());
-
-        return output;
+        return LocationUtils.copy(stored, output);
     }
 
     @Override

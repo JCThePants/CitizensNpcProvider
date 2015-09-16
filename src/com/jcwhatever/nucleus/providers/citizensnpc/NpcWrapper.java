@@ -40,6 +40,7 @@ import com.jcwhatever.nucleus.providers.npc.events.NpcRightClickEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcSpawnEvent;
 import com.jcwhatever.nucleus.providers.npc.events.NpcTargetedEvent;
 import com.jcwhatever.nucleus.storage.IDataNode;
+import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.observer.script.IScriptUpdateSubscriber;
 import net.citizensnpcs.api.npc.NPC;
 import org.bukkit.Location;
@@ -52,9 +53,11 @@ import javax.annotation.Nullable;
  */
 public class NpcWrapper implements INpc {
 
-    private Npc _npc;
     private final int _hash;
     private final String _npcId;
+
+    private Npc _npc;
+    private String _display;
 
     /**
      * Constructor.
@@ -67,6 +70,7 @@ public class NpcWrapper implements INpc {
         if (npc != null) {
             _hash = npc.hashCode();
             _npcId = npc.getLookupName();
+            _display = npc.getDisplayName();
         }
         else {
             _hash = 0;
@@ -105,15 +109,20 @@ public class NpcWrapper implements INpc {
 
     @Override
     public String getDisplayName() {
-        checkDisposed();
-        return _npc.getDisplayName();
+        if (_npc == null) {
+            return _display;
+        }
+        return _display = _npc.getDisplayName();
     }
 
     @Override
     public INpc setDisplayName(String name) {
-        if (_npc != null)
-            _npc.setDisplayName(name);
+        PreCon.notNull(name);
 
+        if (_npc != null) {
+            _npc.setDisplayName(name);
+            _display = name;
+        }
         return this;
     }
 
@@ -181,7 +190,6 @@ public class NpcWrapper implements INpc {
     @Nullable
     public Object getMeta(String key) {
         checkDisposed();
-
         return _npc.getMeta(key);
     }
 

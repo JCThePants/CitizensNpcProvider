@@ -90,6 +90,9 @@ public class NpcPool implements IDisposable {
         PreCon.notNull(type);
         PreCon.notNull(registry);
 
+        if (_isDisposed)
+            throw new IllegalStateException("NPC Pool is disposed. Cannot create a new NPC.");
+
         Npc npc;
 
         if (_pool.isEmpty()) {
@@ -120,6 +123,9 @@ public class NpcPool implements IDisposable {
      * @param npc  The {@link Npc} to recycle.
      */
     public void recycle(Npc npc) {
+        if (_isDisposed)
+            return;
+
         _inUse.remove(npc);
         _pool.add(npc);
     }
