@@ -126,6 +126,19 @@ public class NpcWrapper implements INpc {
         return this;
     }
 
+    @Override
+    public boolean isDisplayNameVisible() {
+        return _npc != null && _npc.isDisplayNameVisible();
+    }
+
+    @Override
+    public INpc setDisplayNameVisible(boolean isVisible) {
+        if (_npc != null) {
+            _npc.setDisplayNameVisible(isVisible);
+        }
+        return this;
+    }
+
     @Nullable
     @Override
     public Entity getEntity() {

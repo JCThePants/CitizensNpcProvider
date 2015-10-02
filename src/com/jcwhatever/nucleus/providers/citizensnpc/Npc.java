@@ -183,6 +183,17 @@ public class Npc implements INpc {
         return this;
     }
 
+    @Override
+    public boolean isDisplayNameVisible() {
+        return _npc.data().get(NPC.NAMEPLATE_VISIBLE_METADATA, true);
+    }
+
+    @Override
+    public INpc setDisplayNameVisible(boolean isVisible) {
+        _npc.data().setPersistent(NPC.NAMEPLATE_VISIBLE_METADATA, isVisible);
+        return this;
+    }
+
     @Nullable
     @Override
     public Entity getEntity() {
