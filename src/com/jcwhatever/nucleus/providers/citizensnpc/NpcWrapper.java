@@ -47,6 +47,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * Public wrapper to prevent accessing re-purposed NPC instances.
@@ -55,6 +56,7 @@ public class NpcWrapper implements INpc {
 
     private final int _hash;
     private final String _npcId;
+    private final UUID _uuid;
 
     private Npc _npc;
     private String _display;
@@ -71,10 +73,12 @@ public class NpcWrapper implements INpc {
             _hash = npc.hashCode();
             _npcId = npc.getLookupName();
             _display = npc.getDisplayName();
+            _uuid = npc.getId();
         }
         else {
             _hash = 0;
             _npcId = null;
+            _uuid = null;
         }
     }
 
@@ -100,6 +104,11 @@ public class NpcWrapper implements INpc {
     public Registry getRegistry() {
         checkDisposed();
         return _npc.getRegistry();
+    }
+
+    @Override
+    public UUID getId() {
+        return _uuid;
     }
 
     @Override

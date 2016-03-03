@@ -62,6 +62,7 @@ import org.bukkit.entity.EntityType;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.WeakHashMap;
 
 /**
@@ -164,6 +165,11 @@ public class Npc implements INpc {
     @Override
     public Registry getRegistry() {
         return _registry;
+    }
+
+    @Override
+    public UUID getId() {
+        return _npc.getUniqueId();
     }
 
     @Override
